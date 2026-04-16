@@ -1,0 +1,191 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// ─── SOCIOS ───────────────────────────────────────────────────────────────────
+
+model Socio {
+  id             Int      @id @default(autoincrement())
+  numSocio       Int      @unique
+  nombre         String
+  apellidos      String
+  dni            String?
+  direccion      String?
+  poblacion      String?
+  cp             String?
+  provincia      String?
+  telefono       String?
+  telefono2      String?
+  email          String?
+  tipologia      String?  // "Afectado" | "Colaborador"
+  notificaciones String?  // "Email" | "Correo Postal"
+  fechaAlta      DateTime?
+  baja           Boolean  @default(false)
+  fechaBaja      DateTime?
+  referencias    String?
+  observaciones  String?
+  empresa        Boolean  @default(false)
+
+  datosBancarios SocioBancario[]
+  usuariosVinculados Usuario[] @relation("SocioVinculado1")
+  usuariosVinculados2 Usuario[] @relation("SocioVinculado2")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model SocioBancario {
+  id              Int     @id @default(autoincrement())
+  socioId         Int
+  socio           Socio   @relation(fields: [socioId], references: [id], onDelete: Cascade)
+  cadencia        String? // "Mensual" | "Trimestral" | "Anual"
+  cuota           Float?
+  entidadBancaria String?
+  iban            String?
+  codigoEntidad   String?
+  codigoSucursal  String?
+  dc              String?
+  numeroCuenta    String?
+  observaciones   String?
+}
+
+// ─── USUARIOS ─────────────────────────────────────────────────────────────────
+
+model Usuario {
+  id                    Int      @id @default(autoincrement())
+  nombre                String
+  apellidos             String
+  dni                   String?
+  fechaNacimiento       DateTime?
+  direccion             String?
+  poblacion             String?
+  cp                    String?
+  provincia             String?
+  telefono              String?
+  telefono2             String?
+  email                 String?
+  diagnostico           String?
+  porcentajeDiscapacidad Float?
+  grado                 String?
+  centroAlQueAcude      String?
+  socioVinculadoId      Int?
+  socioVinculado        Socio?   @relation("SocioVinculado1", fields: [socioVinculadoId], references: [id])
+  socioVinculado2Id     Int?
+  socioVinculado2       Socio?   @relation("SocioVinculado2", fields: [socioVinculado2Id], references: [id])
+  fechaAlta             DateTime?
+  baja                  Boolean  @default(false)
+  fechaBaja             DateTime?
+  observaciones         String?
+
+  datosBancarios        UsuarioBancario[]
+  sesiones              Sesion[]
+  facturas              Factura[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model UsuarioBancario {
+  id              Int     @id @default(autoincrement())
+  usuarioId       Int
+  usuario         Usuario @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  entidadBancaria String?
+  iban            String?
+  codigoEntidad   String?
+  codigoSucursal  String?
+  dc              String?
+  numeroCuenta    String?
+  observaciones   String?
+}
+
+// ─── TERAPEUTAS ───────────────────────────────────────────────────────────────
+
+model Terapeuta {
+  id          Int      @id @default(autoincrement())
+  nombre      String
+  apellidos   String
+  especialidad String  // "Logopedia" | "Psicología" | "Fisioterapia" | "Terapia Ocupacional"
+  email       String?
+  telefono    String?
+  activo      Boolean  @default(true)
+
+  sesiones    Sesion[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// ─── SERVICIOS ────────────────────────────────────────────────────────────────
+
+model Servicio {
+  id          Int     @id @default(autoincrement())
+  nombre      String
+  categoria   String  // "Tratamiento Individual" | "Aula Terapéutica" | "Atención Integral" | "Taller" | "Escuela de Padres" | "Hipoterapia"
+  precio      Float
+  activo      Boolean @default(true)
+
+  sesiones    Sesion[]
+  lineasFactura LineaFactura[]
+}
+
+// ─── SESIONES / ASISTENCIA ────────────────────────────────────────────────────
+
+model Sesion {
+  id           Int       @id @default(autoincrement())
+  usuarioId    Int
+  usuario      Usuario   @relation(fields: [usuarioId], references: [id])
+  terapeutaId  Int
+  terapeuta    Terapeuta @relation(fields: [terapeutaId], references: [id])
+  servicioId   Int
+  servicio     Servicio  @relation(fields: [servicioId], references: [id])
+  fecha        DateTime
+  // Estado: "asistio" | "falta" | "festivo" | "vacaciones_terapeuta" | "permiso" | "hospitalizacion"
+  estado       String    @default("asistio")
+  // Se cobra si asistió O si fue falta del usuario (no si es festivo/vacaciones/hospitalización)
+  cobrable     Boolean   @default(true)
+  actividadRealizada String?
+  motivacion   String?
+  observaciones String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// ─── FACTURAS ─────────────────────────────────────────────────────────────────
+
+model Factura {
+  id            Int      @id @default(autoincrement())
+  numRecibo     String   @unique
+  usuarioId     Int
+  usuario       Usuario  @relation(fields: [usuarioId], references: [id])
+  mes           Int      // 1-12
+  anio          Int
+  fecha         DateTime @default(now())
+  subtotal      Float
+  descuento     Float    @default(0)
+  total         Float
+  // Estado: "pendiente" | "cobrada" | "anulada"
+  estado        String   @default("pendiente")
+  observaciones String?
+
+  lineas        LineaFactura[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model LineaFactura {
+  id          Int      @id @default(autoincrement())
+  facturaId   Int
+  factura     Factura  @relation(fields: [facturaId], references: [id], onDelete: Cascade)
+  servicioId  Int
+  servicio    Servicio @relation(fields: [servicioId], references: [id])
+  numSesiones Int
+  precioSesion Float
+  suma        Float
+}

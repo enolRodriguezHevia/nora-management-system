@@ -1,0 +1,15 @@
+node_modules
+
+# Variables de entorno
+.env
+.env.local
+
+# Base de datos SQLite (se genera con el seed)
+backend/prisma/dev.db
+backend/prisma/dev.db-journal
+
+# Logs
+*.log
+
+# macOS
+.DS_Store
