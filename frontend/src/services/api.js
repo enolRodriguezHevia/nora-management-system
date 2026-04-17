@@ -45,6 +45,7 @@ export const facturasService = {
   getAll:   (params) => api.get("/facturas", { params }),
   getById:  (id)     => api.get(`/facturas/${id}`),
   generar:  (data)   => api.post("/facturas/generar", data),
+  generarMasivo: (data) => api.post("/facturas/generar-masivo", data),
   updateEstado: (id, estado) => api.put(`/facturas/${id}/estado`, { estado }),
 };
 

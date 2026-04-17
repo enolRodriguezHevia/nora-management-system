@@ -58,6 +58,7 @@ async function main() {
     { numSocio: 3, nombre: "Roberto",   apellidos: "Martínez Díaz",    dni: "34567890C", telefono: "985333444", email: "roberto.martinez@email.com", tipologia: "Colaborador", poblacion: "Avilés",   provincia: "Asturias", fechaAlta: new Date("2018-01-20") },
     { numSocio: 4, nombre: "Lucía",     apellidos: "Fernández López",  dni: "45678901D", telefono: "985444555", email: "lucia.fernandez@email.com",  tipologia: "Afectado",    poblacion: "Oviedo",   provincia: "Asturias", fechaAlta: new Date("2019-09-05") },
     { numSocio: 5, nombre: "Antonio",   apellidos: "Rodríguez García", dni: "56789012E", telefono: "985555666", email: "antonio.rodriguez@email.com",tipologia: "Afectado",    poblacion: "Mieres",   provincia: "Asturias", fechaAlta: new Date("2020-02-14") },
+    { numSocio: 6, nombre: "Beatriz",   apellidos: "Sánchez Vega",     dni: "67890123F", telefono: "985666777", email: "beatriz.sanchez@email.com",  tipologia: "Afectado",    poblacion: "Oviedo",   provincia: "Asturias", fechaAlta: new Date("2023-05-20") },
   ];
 
   const socios = [];
@@ -153,6 +154,16 @@ async function main() {
       socioVinculadoId: socios[0].id,
       fechaAlta: new Date("2022-01-10"),
     },
+    {
+      nombre: "David",      apellidos: "Sánchez Moreno",
+      dni: "99999999I",     fechaNacimiento: new Date("2015-03-18"),
+      direccion: "C/ Independencia 45", poblacion: "Oviedo", cp: "33004", provincia: "Asturias",
+      telefono: "985100009", email: "david.sanchez@email.com",
+      diagnostico: "Trastorno del lenguaje", porcentajeDiscapacidad: 25, grado: "Grado I",
+      centroAlQueAcude: "Centro Nora Oviedo",
+      socioVinculadoId: socios[5].id, // Socio Beatriz (NUEVO - sin hermanos)
+      fechaAlta: new Date("2023-05-20"),
+    },
   ];
 
   const usuarios = [];
@@ -186,6 +197,7 @@ async function main() {
     [0, 2, 0], // Miguel → Logopedia
     [0, 3, 0], // Elena → Logopedia
     [0, 7, 0], // Carmen → Logopedia
+    [0, 8, 0], // David → Logopedia (NUEVO - pocas sesiones, sin descuento)
 
     // Psicología (Laura Martínez) - servicio Psicología (idx 1)
     [1, 1, 1], // Sara → Psicología
@@ -228,7 +240,13 @@ async function main() {
   // Cada asignación tiene sesiones 2 veces por semana (días alternos)
   let sesionesCreadas = 0;
   for (const [tIdx, uIdx, sIdx] of asignaciones) {
-    const diasSesion = diasLaborables.filter((_, i) => i % 2 === (tIdx % 2)); // alternados
+    let diasSesion = diasLaborables.filter((_, i) => i % 2 === (tIdx % 2)); // alternados
+    
+    // David (uIdx 8) solo tiene 5 sesiones para que no supere 120€ (5 x 12€ = 60€)
+    if (uIdx === 8) {
+      diasSesion = diasSesion.slice(0, 5);
+    }
+    
     for (const dia of diasSesion) {
       const fecha = new Date(Date.UTC(2026, 3, dia));
       const estado = randomEstado();

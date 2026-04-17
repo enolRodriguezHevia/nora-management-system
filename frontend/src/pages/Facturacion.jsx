@@ -18,8 +18,11 @@ export default function Facturacion() {
   const [usuarios, setUsuarios] = useState([]);
   const [loading, setLoading]   = useState(true);
   const [generating, setGenerating] = useState(false);
+  const [generatingMasivo, setGeneratingMasivo] = useState(false);
   const [selectedUsuario, setSelectedUsuario] = useState("");
   const [detalle, setDetalle]   = useState(null);
+  const [modalMasivo, setModalMasivo] = useState(false);
+  const [resultadoMasivo, setResultadoMasivo] = useState(null);
 
   const fetchFacturas = () => {
     setLoading(true);
@@ -53,6 +56,19 @@ export default function Facturacion() {
     generarPDFFactura(factura);
   };
 
+  const handleGenerarMasivo = async () => {
+    setGeneratingMasivo(true);
+    try {
+      const response = await facturasService.generarMasivo({ mes, anio });
+      setResultadoMasivo(response.data);
+      fetchFacturas();
+    } catch (err) {
+      alert("Error: " + (err.response?.data?.error || err.message));
+    } finally {
+      setGeneratingMasivo(false);
+    }
+  };
+
   const handleEstado = async (id, estado) => {
     await facturasService.updateEstado(id, estado);
     fetchFacturas();
@@ -68,6 +84,13 @@ export default function Facturacion() {
           <h1 className="text-3xl font-bold text-gray-800">Facturación</h1>
           <p className="text-gray-500 text-sm mt-1">{facturas.length} facturas — Total: {totalMes.toFixed(2)}€</p>
         </div>
+        <button
+          onClick={() => setModalMasivo(true)}
+          className="bg-green-600 hover:bg-green-700 text-white px-5 py-2.5 rounded-lg text-sm font-medium transition-colors flex items-center gap-2"
+        >
+          <span className="text-lg">⚡</span>
+          Generar todas las facturas del mes
+        </button>
       </div>
 
       {/* Filtros + Generar */}
@@ -210,6 +233,101 @@ export default function Facturacion() {
                   <span>TOTAL</span><span>{detalle.total.toFixed(2)}€</span>
                 </div>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal confirmación generación masiva */}
+      {modalMasivo && !resultadoMasivo && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md">
+            <div className="px-6 py-4 border-b">
+              <h2 className="text-lg font-bold text-gray-800">Generación masiva de facturas</h2>
+            </div>
+            <div className="p-6 space-y-4">
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <p className="text-sm text-blue-800">
+                  Se generarán facturas automáticamente para <strong>todos los usuarios</strong> que tengan sesiones cobrables en:
+                </p>
+                <p className="text-lg font-bold text-blue-900 mt-2">
+                  {MESES_LABEL[mes - 1]} {anio}
+                </p>
+              </div>
+              
+              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                <p className="text-xs text-yellow-800">
+                  ⚠️ Los usuarios que ya tengan factura generada para este mes serán omitidos.
+                </p>
+              </div>
+
+              <div className="flex gap-3 pt-2">
+                <button
+                  onClick={() => setModalMasivo(false)}
+                  className="flex-1 px-4 py-2 text-sm text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50"
+                >
+                  Cancelar
+                </button>
+                <button
+                  onClick={handleGenerarMasivo}
+                  disabled={generatingMasivo}
+                  className="flex-1 px-4 py-2 text-sm bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium disabled:opacity-50"
+                >
+                  {generatingMasivo ? "Generando..." : "Confirmar y generar"}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal resultado generación masiva */}
+      {resultadoMasivo && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md">
+            <div className="px-6 py-4 border-b">
+              <h2 className="text-lg font-bold text-gray-800">Resultado de generación masiva</h2>
+            </div>
+            <div className="p-6 space-y-4">
+              <div className="space-y-3">
+                <div className="flex items-center justify-between p-3 bg-green-50 border border-green-200 rounded-lg">
+                  <span className="text-sm font-medium text-green-800">Facturas generadas</span>
+                  <span className="text-2xl font-bold text-green-600">{resultadoMasivo.generadas}</span>
+                </div>
+                
+                {resultadoMasivo.yaExistian > 0 && (
+                  <div className="flex items-center justify-between p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                    <span className="text-sm font-medium text-blue-800">Ya existían</span>
+                    <span className="text-2xl font-bold text-blue-600">{resultadoMasivo.yaExistian}</span>
+                  </div>
+                )}
+                
+                {resultadoMasivo.errores > 0 && (
+                  <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-sm font-medium text-red-800">Errores</span>
+                      <span className="text-2xl font-bold text-red-600">{resultadoMasivo.errores}</span>
+                    </div>
+                    <div className="text-xs text-red-700 space-y-1 max-h-32 overflow-y-auto">
+                      {resultadoMasivo.detalleErrores?.map((err, idx) => (
+                        <div key={idx} className="bg-white p-2 rounded">
+                          <strong>{err.usuario}:</strong> {err.error}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              <button
+                onClick={() => {
+                  setResultadoMasivo(null);
+                  setModalMasivo(false);
+                }}
+                className="w-full px-4 py-2 text-sm bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium"
+              >
+                Cerrar
+              </button>
             </div>
           </div>
         </div>
