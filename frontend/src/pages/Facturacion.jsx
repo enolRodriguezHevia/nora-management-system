@@ -23,6 +23,13 @@ export default function Facturacion() {
   const [detalle, setDetalle]   = useState(null);
   const [modalMasivo, setModalMasivo] = useState(false);
   const [resultadoMasivo, setResultadoMasivo] = useState(null);
+  
+  // Filtros avanzados
+  const [filtroEstado, setFiltroEstado] = useState("todos");
+  const [filtroBusqueda, setFiltroBusqueda] = useState("");
+  const [filtroMinImporte, setFiltroMinImporte] = useState("");
+  const [filtroMaxImporte, setFiltroMaxImporte] = useState("");
+  const [mostrarFiltros, setMostrarFiltros] = useState(false);
 
   const fetchFacturas = () => {
     setLoading(true);
@@ -75,14 +82,45 @@ export default function Facturacion() {
     if (detalle?.id === id) setDetalle(prev => ({ ...prev, estado }));
   };
 
-  const totalMes = facturas.reduce((acc, f) => acc + f.total, 0);
+  // Aplicar filtros
+  const facturasFiltradas = facturas.filter(f => {
+    // Filtro por estado
+    if (filtroEstado !== "todos" && f.estado !== filtroEstado) return false;
+    
+    // Filtro por búsqueda (nombre de usuario)
+    if (filtroBusqueda) {
+      const nombreCompleto = `${f.usuario?.nombre} ${f.usuario?.apellidos}`.toLowerCase();
+      if (!nombreCompleto.includes(filtroBusqueda.toLowerCase())) return false;
+    }
+    
+    // Filtro por importe mínimo
+    if (filtroMinImporte && f.total < Number(filtroMinImporte)) return false;
+    
+    // Filtro por importe máximo
+    if (filtroMaxImporte && f.total > Number(filtroMaxImporte)) return false;
+    
+    return true;
+  });
+
+  const totalMes = facturasFiltradas.reduce((acc, f) => acc + f.total, 0);
+  const contadorFiltros = [
+    filtroEstado !== "todos",
+    filtroBusqueda,
+    filtroMinImporte,
+    filtroMaxImporte
+  ].filter(Boolean).length;
 
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-3xl font-bold text-gray-800">Facturación</h1>
-          <p className="text-gray-500 text-sm mt-1">{facturas.length} facturas — Total: {totalMes.toFixed(2)}€</p>
+          <p className="text-gray-500 text-sm mt-1">
+            {facturasFiltradas.length} facturas
+            {contadorFiltros > 0 && ` (${facturas.length} total)`}
+            {" — Total: "}
+            {totalMes.toFixed(2)}€
+          </p>
         </div>
         <button
           onClick={() => setModalMasivo(true)}
@@ -123,6 +161,102 @@ export default function Facturacion() {
         </button>
       </div>
 
+      {/* Filtros avanzados */}
+      <div className="bg-white rounded-xl shadow-sm mb-5 overflow-hidden">
+        <button
+          onClick={() => setMostrarFiltros(!mostrarFiltros)}
+          className="w-full px-4 py-3 flex items-center justify-between hover:bg-gray-50 transition-colors"
+        >
+          <div className="flex items-center gap-2">
+            <span className="text-sm font-medium text-gray-700">🔍 Filtros avanzados</span>
+            {contadorFiltros > 0 && (
+              <span className="bg-blue-100 text-blue-700 text-xs px-2 py-0.5 rounded-full font-medium">
+                {contadorFiltros} activo{contadorFiltros > 1 ? 's' : ''}
+              </span>
+            )}
+          </div>
+          <span className={`text-gray-400 transition-transform ${mostrarFiltros ? 'rotate-180' : ''}`}>▼</span>
+        </button>
+        
+        {mostrarFiltros && (
+          <div className="p-4 border-t border-gray-200 bg-gray-50">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              {/* Filtro por estado */}
+              <div>
+                <label className="block text-xs text-gray-600 mb-1 font-medium">Estado</label>
+                <select
+                  value={filtroEstado}
+                  onChange={e => setFiltroEstado(e.target.value)}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="todos">Todos los estados</option>
+                  <option value="pendiente">Pendiente</option>
+                  <option value="cobrada">Cobrada</option>
+                  <option value="anulada">Anulada</option>
+                </select>
+              </div>
+
+              {/* Búsqueda por usuario */}
+              <div>
+                <label className="block text-xs text-gray-600 mb-1 font-medium">Buscar usuario</label>
+                <input
+                  type="text"
+                  value={filtroBusqueda}
+                  onChange={e => setFiltroBusqueda(e.target.value)}
+                  placeholder="Nombre o apellidos..."
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+
+              {/* Importe mínimo */}
+              <div>
+                <label className="block text-xs text-gray-600 mb-1 font-medium">Importe mínimo (€)</label>
+                <input
+                  type="number"
+                  value={filtroMinImporte}
+                  onChange={e => setFiltroMinImporte(e.target.value)}
+                  placeholder="0"
+                  min="0"
+                  step="10"
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+
+              {/* Importe máximo */}
+              <div>
+                <label className="block text-xs text-gray-600 mb-1 font-medium">Importe máximo (€)</label>
+                <input
+                  type="number"
+                  value={filtroMaxImporte}
+                  onChange={e => setFiltroMaxImporte(e.target.value)}
+                  placeholder="999"
+                  min="0"
+                  step="10"
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+            </div>
+
+            {/* Botón limpiar filtros */}
+            {contadorFiltros > 0 && (
+              <div className="mt-3 flex justify-end">
+                <button
+                  onClick={() => {
+                    setFiltroEstado("todos");
+                    setFiltroBusqueda("");
+                    setFiltroMinImporte("");
+                    setFiltroMaxImporte("");
+                  }}
+                  className="text-sm text-gray-600 hover:text-gray-800 underline"
+                >
+                  Limpiar todos los filtros
+                </button>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+
       {/* Tabla facturas */}
       <div className="bg-white rounded-xl shadow-sm overflow-hidden">
         <table className="w-full text-sm">
@@ -136,9 +270,11 @@ export default function Facturacion() {
           <tbody className="divide-y divide-gray-100">
             {loading ? (
               <tr><td colSpan={8} className="text-center py-10 text-gray-400">Cargando...</td></tr>
-            ) : facturas.length === 0 ? (
-              <tr><td colSpan={8} className="text-center py-10 text-gray-400">No hay facturas para este período</td></tr>
-            ) : facturas.map(f => (
+            ) : facturasFiltradas.length === 0 ? (
+              <tr><td colSpan={8} className="text-center py-10 text-gray-400">
+                {contadorFiltros > 0 ? "No hay facturas que coincidan con los filtros" : "No hay facturas para este período"}
+              </td></tr>
+            ) : facturasFiltradas.map(f => (
               <tr key={f.id} className="hover:bg-gray-50 transition-colors">
                 <td className="px-4 py-3 font-mono text-xs text-gray-500">{f.numRecibo}</td>
                 <td className="px-4 py-3 font-medium text-gray-800">{f.usuario?.nombre} {f.usuario?.apellidos}</td>

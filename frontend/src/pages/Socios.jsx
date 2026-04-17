@@ -30,6 +30,12 @@ export default function Socios() {
   const [form, setForm]       = useState(EMPTY_FORM);
   const [bancario, setBancario] = useState(EMPTY_BANCARIO);
   const [saving, setSaving]   = useState(false);
+  
+  // Filtros avanzados
+  const [filtroEstado, setFiltroEstado] = useState("activos");
+  const [filtroTipologia, setFiltroTipologia] = useState("");
+  const [filtroPoblacion, setFiltroPoblacion] = useState("");
+  const [mostrarFiltros, setMostrarFiltros] = useState(false);
 
   const fetchSocios = () => {
     setLoading(true);
@@ -93,12 +99,39 @@ export default function Socios() {
     fetchSocios();
   };
 
+  // Aplicar filtros locales
+  const sociosFiltrados = socios.filter(s => {
+    // Filtro por estado
+    if (filtroEstado === "activos" && s.baja) return false;
+    if (filtroEstado === "bajas" && !s.baja) return false;
+    
+    // Filtro por tipología
+    if (filtroTipologia && s.tipologia !== filtroTipologia) return false;
+    
+    // Filtro por población
+    if (filtroPoblacion && s.poblacion !== filtroPoblacion) return false;
+    
+    return true;
+  });
+
+  // Obtener poblaciones únicas para el filtro
+  const poblacionesUnicas = [...new Set(socios.map(s => s.poblacion).filter(Boolean))];
+  
+  const contadorFiltros = [
+    filtroEstado !== "activos",
+    filtroTipologia,
+    filtroPoblacion
+  ].filter(Boolean).length;
+
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-3xl font-bold text-gray-800">Socios</h1>
-          <p className="text-gray-500 text-sm mt-1">{socios.length} registros</p>
+          <p className="text-gray-500 text-sm mt-1">
+            {sociosFiltrados.length} registros
+            {contadorFiltros > 0 && ` (${socios.length} total)`}
+          </p>
         </div>
         <button onClick={openCreate}
           className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
@@ -106,6 +139,7 @@ export default function Socios() {
         </button>
       </div>
 
+      {/* Búsqueda básica */}
       <div className="flex gap-3 mb-5">
         <input type="text" placeholder="Buscar por nombre, apellidos o DNI..."
           value={search} onChange={e => setSearch(e.target.value)}
@@ -117,6 +151,91 @@ export default function Socios() {
         </label>
       </div>
 
+      {/* Filtros avanzados */}
+      <div className="bg-white rounded-xl shadow-sm mb-5 overflow-hidden">
+        <button
+          onClick={() => setMostrarFiltros(!mostrarFiltros)}
+          className="w-full px-4 py-3 flex items-center justify-between hover:bg-gray-50 transition-colors"
+        >
+          <div className="flex items-center gap-2">
+            <span className="text-sm font-medium text-gray-700">🔍 Filtros avanzados</span>
+            {contadorFiltros > 0 && (
+              <span className="bg-blue-100 text-blue-700 text-xs px-2 py-0.5 rounded-full font-medium">
+                {contadorFiltros} activo{contadorFiltros > 1 ? 's' : ''}
+              </span>
+            )}
+          </div>
+          <span className={`text-gray-400 transition-transform ${mostrarFiltros ? 'rotate-180' : ''}`}>▼</span>
+        </button>
+        
+        {mostrarFiltros && (
+          <div className="p-4 border-t border-gray-200 bg-gray-50">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {/* Filtro por estado */}
+              <div>
+                <label className="block text-xs text-gray-600 mb-1 font-medium">Estado</label>
+                <select
+                  value={filtroEstado}
+                  onChange={e => setFiltroEstado(e.target.value)}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="activos">Solo activos</option>
+                  <option value="bajas">Solo bajas</option>
+                  <option value="todos">Todos</option>
+                </select>
+              </div>
+
+              {/* Filtro por tipología */}
+              <div>
+                <label className="block text-xs text-gray-600 mb-1 font-medium">Tipología</label>
+                <select
+                  value={filtroTipologia}
+                  onChange={e => setFiltroTipologia(e.target.value)}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="">Todas las tipologías</option>
+                  {TIPOLOGIAS.map(t => (
+                    <option key={t} value={t}>{t}</option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Filtro por población */}
+              <div>
+                <label className="block text-xs text-gray-600 mb-1 font-medium">Población</label>
+                <select
+                  value={filtroPoblacion}
+                  onChange={e => setFiltroPoblacion(e.target.value)}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="">Todas las poblaciones</option>
+                  {poblacionesUnicas.map(p => (
+                    <option key={p} value={p}>{p}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            {/* Botón limpiar filtros */}
+            {contadorFiltros > 0 && (
+              <div className="mt-3 flex justify-end">
+                <button
+                  onClick={() => {
+                    setFiltroEstado("activos");
+                    setFiltroTipologia("");
+                    setFiltroPoblacion("");
+                  }}
+                  className="text-sm text-gray-600 hover:text-gray-800 underline"
+                >
+                  Limpiar todos los filtros
+                </button>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* Tabla */}
       <div className="bg-white rounded-xl shadow-sm overflow-hidden">
         <table className="w-full text-sm">
           <thead className="bg-gray-50 border-b border-gray-200">
@@ -129,9 +248,11 @@ export default function Socios() {
           <tbody className="divide-y divide-gray-100">
             {loading ? (
               <tr><td colSpan={8} className="text-center py-10 text-gray-400">Cargando...</td></tr>
-            ) : socios.length === 0 ? (
-              <tr><td colSpan={8} className="text-center py-10 text-gray-400">No hay socios</td></tr>
-            ) : socios.map(s => (
+            ) : sociosFiltrados.length === 0 ? (
+              <tr><td colSpan={8} className="text-center py-10 text-gray-400">
+                {contadorFiltros > 0 ? "No hay socios que coincidan con los filtros" : "No hay socios"}
+              </td></tr>
+            ) : sociosFiltrados.map(s => (
               <tr key={s.id} className="hover:bg-gray-50 transition-colors">
                 <td className="px-4 py-3 font-mono text-xs text-gray-500">{s.numSocio}</td>
                 <td className="px-4 py-3 font-medium text-gray-800">{s.nombre} {s.apellidos}</td>

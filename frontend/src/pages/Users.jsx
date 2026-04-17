@@ -26,6 +26,12 @@ export default function Users() {
   const [form, setForm]           = useState(EMPTY_FORM);
   const [bancario, setBancario]   = useState(EMPTY_BANCARIO);
   const [saving, setSaving]       = useState(false);
+  
+  // Filtros avanzados
+  const [filtroEstado, setFiltroEstado] = useState("activos");
+  const [filtroCentro, setFiltroCentro] = useState("");
+  const [filtroSocio, setFiltroSocio] = useState("");
+  const [mostrarFiltros, setMostrarFiltros] = useState(false);
 
   const fetchUsuarios = () => {
     setLoading(true);
@@ -94,12 +100,39 @@ export default function Users() {
     fetchUsuarios();
   };
 
+  // Aplicar filtros locales
+  const usuariosFiltrados = usuarios.filter(u => {
+    // Filtro por estado
+    if (filtroEstado === "activos" && u.baja) return false;
+    if (filtroEstado === "bajas" && !u.baja) return false;
+    
+    // Filtro por centro
+    if (filtroCentro && u.centroAlQueAcude !== filtroCentro) return false;
+    
+    // Filtro por socio
+    if (filtroSocio && u.socioVinculadoId !== Number(filtroSocio)) return false;
+    
+    return true;
+  });
+
+  // Obtener centros únicos para el filtro
+  const centrosUnicos = [...new Set(usuarios.map(u => u.centroAlQueAcude).filter(Boolean))];
+  
+  const contadorFiltros = [
+    filtroEstado !== "activos",
+    filtroCentro,
+    filtroSocio
+  ].filter(Boolean).length;
+
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-3xl font-bold text-gray-800">Usuarios</h1>
-          <p className="text-gray-500 text-sm mt-1">{usuarios.length} registros</p>
+          <p className="text-gray-500 text-sm mt-1">
+            {usuariosFiltrados.length} registros
+            {contadorFiltros > 0 && ` (${usuarios.length} total)`}
+          </p>
         </div>
         <button onClick={openCreate}
           className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
@@ -107,7 +140,7 @@ export default function Users() {
         </button>
       </div>
 
-      {/* Filtros */}
+      {/* Búsqueda básica */}
       <div className="flex gap-3 mb-5">
         <input
           type="text" placeholder="Buscar por nombre, apellidos o DNI..."
@@ -118,6 +151,90 @@ export default function Users() {
           <input type="checkbox" checked={showBaja} onChange={e => setShowBaja(e.target.checked)} />
           Mostrar bajas
         </label>
+      </div>
+
+      {/* Filtros avanzados */}
+      <div className="bg-white rounded-xl shadow-sm mb-5 overflow-hidden">
+        <button
+          onClick={() => setMostrarFiltros(!mostrarFiltros)}
+          className="w-full px-4 py-3 flex items-center justify-between hover:bg-gray-50 transition-colors"
+        >
+          <div className="flex items-center gap-2">
+            <span className="text-sm font-medium text-gray-700">🔍 Filtros avanzados</span>
+            {contadorFiltros > 0 && (
+              <span className="bg-blue-100 text-blue-700 text-xs px-2 py-0.5 rounded-full font-medium">
+                {contadorFiltros} activo{contadorFiltros > 1 ? 's' : ''}
+              </span>
+            )}
+          </div>
+          <span className={`text-gray-400 transition-transform ${mostrarFiltros ? 'rotate-180' : ''}`}>▼</span>
+        </button>
+        
+        {mostrarFiltros && (
+          <div className="p-4 border-t border-gray-200 bg-gray-50">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {/* Filtro por estado */}
+              <div>
+                <label className="block text-xs text-gray-600 mb-1 font-medium">Estado</label>
+                <select
+                  value={filtroEstado}
+                  onChange={e => setFiltroEstado(e.target.value)}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="activos">Solo activos</option>
+                  <option value="bajas">Solo bajas</option>
+                  <option value="todos">Todos</option>
+                </select>
+              </div>
+
+              {/* Filtro por centro */}
+              <div>
+                <label className="block text-xs text-gray-600 mb-1 font-medium">Centro</label>
+                <select
+                  value={filtroCentro}
+                  onChange={e => setFiltroCentro(e.target.value)}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="">Todos los centros</option>
+                  {centrosUnicos.map(centro => (
+                    <option key={centro} value={centro}>{centro}</option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Filtro por socio */}
+              <div>
+                <label className="block text-xs text-gray-600 mb-1 font-medium">Socio vinculado</label>
+                <select
+                  value={filtroSocio}
+                  onChange={e => setFiltroSocio(e.target.value)}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="">Todos los socios</option>
+                  {socios.map(s => (
+                    <option key={s.id} value={s.id}>{s.nombre} {s.apellidos}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            {/* Botón limpiar filtros */}
+            {contadorFiltros > 0 && (
+              <div className="mt-3 flex justify-end">
+                <button
+                  onClick={() => {
+                    setFiltroEstado("activos");
+                    setFiltroCentro("");
+                    setFiltroSocio("");
+                  }}
+                  className="text-sm text-gray-600 hover:text-gray-800 underline"
+                >
+                  Limpiar todos los filtros
+                </button>
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Tabla */}
@@ -133,9 +250,11 @@ export default function Users() {
           <tbody className="divide-y divide-gray-100">
             {loading ? (
               <tr><td colSpan={8} className="text-center py-10 text-gray-400">Cargando...</td></tr>
-            ) : usuarios.length === 0 ? (
-              <tr><td colSpan={8} className="text-center py-10 text-gray-400">No hay usuarios</td></tr>
-            ) : usuarios.map(u => (
+            ) : usuariosFiltrados.length === 0 ? (
+              <tr><td colSpan={8} className="text-center py-10 text-gray-400">
+                {contadorFiltros > 0 ? "No hay usuarios que coincidan con los filtros" : "No hay usuarios"}
+              </td></tr>
+            ) : usuariosFiltrados.map(u => (
               <tr key={u.id} className="hover:bg-gray-50 transition-colors">
                 <td className="px-4 py-3 text-gray-400 font-mono text-xs">{u.id}</td>
                 <td className="px-4 py-3 font-medium text-gray-800">{u.nombre} {u.apellidos}</td>
