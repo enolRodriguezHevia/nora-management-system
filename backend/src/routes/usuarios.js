@@ -44,7 +44,15 @@ router.get("/:id", async (req, res) => {
         datosBancarios: true,
         socioVinculado:  true,
         socioVinculado2: true,
-        sesiones: { include: { servicio: true, terapeuta: true }, orderBy: { fecha: "desc" }, take: 20 },
+        sesiones: {
+          include: { servicio: true, terapeuta: true },
+          orderBy: { fecha: "desc" },
+          take: 50,
+        },
+        facturas: {
+          include: { lineas: { include: { servicio: true } } },
+          orderBy: [{ anio: "desc" }, { mes: "desc" }],
+        },
       },
     });
     if (!usuario) return res.status(404).json({ error: "Usuario no encontrado" });

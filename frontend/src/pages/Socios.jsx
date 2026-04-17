@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { sociosService } from "../services/api";
 import ConfirmModal from "../components/ConfirmModal";
 import AdvancedFilters from "../components/AdvancedFilters";
 import { FormField, BankField } from "../components/FormField";
 import { useResizableColumns } from "../hooks/useResizableColumns";
+import RowMenu from "../components/RowMenu";
 
 // Aliases para los campos de formulario
 const Field = FormField;
@@ -29,6 +31,7 @@ const EMPTY_BANCARIO = {
 };
 
 export default function Socios() {
+  const navigate = useNavigate();
   const [socios, setSocios]   = useState([]);
   const [search, setSearch]   = useState("");
   const [loading, setLoading] = useState(true);
@@ -252,7 +255,7 @@ export default function Socios() {
                 { key: "tipologia", label: "Tipología" },
                 { key: "alta",      label: "Alta" },
                 { key: "estado",    label: "Estado" },
-                { key: "acciones",  label: "" },
+                { key: "acciones",  label: "Acciones" },
               ].map(({ key, label }) => (
                 <th key={key} style={{ width: widths[key] }}
                   className="relative text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide select-none">
@@ -285,15 +288,16 @@ export default function Socios() {
                   </span>
                 </td>
                 <td className="px-4 py-3 overflow-hidden">
-                  <div className="flex gap-2">
-                    <button onClick={() => openEdit(s)} className="text-blue-600 hover:underline text-xs">Editar</button>
-                    {s.baja ? (
-                      <button onClick={() => setModalBaja({ id: s.id, nombre: `${s.nombre} ${s.apellidos}`, tipo: 'reactivar' })} className="text-green-600 hover:underline text-xs">Reactivar</button>
-                    ) : (
-                      <button onClick={() => setModalBaja({ id: s.id, nombre: `${s.nombre} ${s.apellidos}`, tipo: 'baja' })} className="text-orange-600 hover:underline text-xs">Dar de baja</button>
-                    )}
-                    <button onClick={() => setModalEliminar({ id: s.id, nombre: `${s.nombre} ${s.apellidos}` })} className="text-red-500 hover:underline text-xs">Eliminar</button>
-                  </div>
+                  <RowMenu items={[
+                    { label: "🤝 Ver ficha", onClick: () => navigate(`/socios/${s.id}`) },
+                    { label: "✏️ Editar",    onClick: () => openEdit(s) },
+                    "divider",
+                    s.baja
+                      ? { label: "✅ Reactivar",   onClick: () => setModalBaja({ id: s.id, nombre: `${s.nombre} ${s.apellidos}`, tipo: "reactivar" }), className: "text-green-600" }
+                      : { label: "⏸ Dar de baja", onClick: () => setModalBaja({ id: s.id, nombre: `${s.nombre} ${s.apellidos}`, tipo: "baja" }), className: "text-orange-600" },
+                    "divider",
+                    { label: "🗑 Eliminar", onClick: () => setModalEliminar({ id: s.id, nombre: `${s.nombre} ${s.apellidos}` }), className: "text-red-600" },
+                  ]} />
                 </td>
               </tr>
             ))}

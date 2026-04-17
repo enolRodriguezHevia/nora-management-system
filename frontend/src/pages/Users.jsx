@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { usuariosService, sociosService } from "../services/api";
 import ConfirmModal from "../components/ConfirmModal";
 import AdvancedFilters from "../components/AdvancedFilters";
 import { FormField, BankField } from "../components/FormField";
 import { useResizableColumns } from "../hooks/useResizableColumns";
+import RowMenu from "../components/RowMenu";
 
 // Aliases para los campos de formulario
 const Field = FormField;
@@ -24,6 +26,7 @@ const EMPTY_BANCARIO = {
 };
 
 export default function Users() {
+  const navigate = useNavigate();
   const [usuarios, setUsuarios]   = useState([]);
   const [socios, setSocios]       = useState([]);
   const [search, setSearch]       = useState("");
@@ -36,7 +39,6 @@ export default function Users() {
   
   // Filtros avanzados
   const [filtroEstado, setFiltroEstado] = useState("activos");
-  const [filtroCentro, setFiltroCentro] = useState("");
   const [filtroSocio, setFiltroSocio] = useState("");
   const [mostrarFiltros, setMostrarFiltros] = useState(false);
   
@@ -139,24 +141,12 @@ export default function Users() {
     // Filtro por estado
     if (filtroEstado === "activos" && u.baja) return false;
     if (filtroEstado === "bajas" && !u.baja) return false;
-    
-    // Filtro por centro
-    if (filtroCentro && u.centroAlQueAcude !== filtroCentro) return false;
-    
-    // Filtro por socio
     if (filtroSocio && u.socioVinculadoId !== Number(filtroSocio)) return false;
     
     return true;
   });
 
-  // Obtener centros únicos para el filtro
-  const centrosUnicos = [...new Set(usuarios.map(u => u.centroAlQueAcude).filter(Boolean))];
-  
-  const contadorFiltros = [
-    filtroEstado !== "activos",
-    filtroCentro,
-    filtroSocio
-  ].filter(Boolean).length;
+  const contadorFiltros = [filtroEstado !== "activos", filtroSocio].filter(Boolean).length;
 
   return (
     <div>
@@ -190,11 +180,10 @@ export default function Users() {
         activeCount={contadorFiltros}
         onClear={() => {
           setFiltroEstado("activos");
-          setFiltroCentro("");
           setFiltroSocio("");
         }}
       >
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {/* Filtro por estado */}
           <div>
             <label className="block text-xs text-gray-600 mb-1 font-medium">Estado</label>
@@ -206,21 +195,6 @@ export default function Users() {
               <option value="activos">Solo activos</option>
               <option value="bajas">Solo bajas</option>
               <option value="todos">Todos</option>
-            </select>
-          </div>
-
-          {/* Filtro por centro */}
-          <div>
-            <label className="block text-xs text-gray-600 mb-1 font-medium">Centro</label>
-            <select
-              value={filtroCentro}
-              onChange={e => setFiltroCentro(e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              <option value="">Todos los centros</option>
-              {centrosUnicos.map(centro => (
-                <option key={centro} value={centro}>{centro}</option>
-              ))}
             </select>
           </div>
 
@@ -254,7 +228,7 @@ export default function Users() {
                 { key: "diagnostico", label: "Diagnóstico" },
                 { key: "alta",        label: "Alta" },
                 { key: "estado",      label: "Estado" },
-                { key: "acciones",    label: "" },
+                { key: "acciones",    label: "Acciones" },
               ].map(({ key, label }) => (
                 <th key={key} style={{ width: widths[key] }}
                   className="relative text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide select-none">
@@ -287,15 +261,16 @@ export default function Users() {
                   </span>
                 </td>
                 <td className="px-4 py-3 overflow-hidden">
-                  <div className="flex gap-2">
-                    <button onClick={() => openEdit(u)} className="text-blue-600 hover:underline text-xs">Editar</button>
-                    {u.baja ? (
-                      <button onClick={() => setModalBaja({ id: u.id, nombre: `${u.nombre} ${u.apellidos}`, tipo: 'reactivar' })} className="text-green-600 hover:underline text-xs">Reactivar</button>
-                    ) : (
-                      <button onClick={() => setModalBaja({ id: u.id, nombre: `${u.nombre} ${u.apellidos}`, tipo: 'baja' })} className="text-orange-600 hover:underline text-xs">Dar de baja</button>
-                    )}
-                    <button onClick={() => setModalEliminar({ id: u.id, nombre: `${u.nombre} ${u.apellidos}` })} className="text-red-500 hover:underline text-xs">Eliminar</button>
-                  </div>
+                  <RowMenu items={[
+                    { label: "👤 Ver ficha", onClick: () => navigate(`/usuarios/${u.id}`) },
+                    { label: "✏️ Editar",    onClick: () => openEdit(u) },
+                    "divider",
+                    u.baja
+                      ? { label: "✅ Reactivar",   onClick: () => setModalBaja({ id: u.id, nombre: `${u.nombre} ${u.apellidos}`, tipo: "reactivar" }), className: "text-green-600" }
+                      : { label: "⏸ Dar de baja", onClick: () => setModalBaja({ id: u.id, nombre: `${u.nombre} ${u.apellidos}`, tipo: "baja" }), className: "text-orange-600" },
+                    "divider",
+                    { label: "🗑 Eliminar", onClick: () => setModalEliminar({ id: u.id, nombre: `${u.nombre} ${u.apellidos}` }), className: "text-red-600" },
+                  ]} />
                 </td>
               </tr>
             ))}

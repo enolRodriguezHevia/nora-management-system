@@ -10,6 +10,8 @@ import Facturacion  from "../pages/Facturacion";
 import Servicios    from "../pages/Servicios";
 import Estadisticas from "../pages/Estadisticas";
 import Importar     from "../pages/Importar";
+import FichaUsuario from "../pages/FichaUsuario";
+import FichaSocio   from "../pages/FichaSocio";
 
 export default function AppRouter() {
   return (
@@ -25,6 +27,8 @@ export default function AppRouter() {
           <Route path="/servicios"     element={<Servicios />} />
           <Route path="/estadisticas"  element={<Estadisticas />} />
           <Route path="/importar"      element={<Importar />} />
+          <Route path="/usuarios/:id"  element={<FichaUsuario />} />
+          <Route path="/socios/:id"    element={<FichaSocio />} />
         </Routes>
       </MainLayout>
     </BrowserRouter>
