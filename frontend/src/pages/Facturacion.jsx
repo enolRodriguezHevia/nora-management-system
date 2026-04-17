@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { facturasService, usuariosService } from "../services/api";
+import { generarPDFFactura } from "../utils/pdfGenerator";
 
 const MESES_LABEL = ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
 
@@ -45,6 +46,11 @@ export default function Facturacion() {
     } finally {
       setGenerating(false);
     }
+  };
+
+  const handlePDF = (factura) => {
+    console.log("Intentando generar PDF para:", factura);
+    generarPDFFactura(factura);
   };
 
   const handleEstado = async (id, estado) => {
@@ -122,14 +128,23 @@ export default function Facturacion() {
                     {f.estado}
                   </span>
                 </td>
-                <td className="px-4 py-3 flex gap-2 justify-end">
-                  <button onClick={() => setDetalle(f)} className="text-blue-600 hover:underline text-xs">Ver</button>
-                  {f.estado === "pendiente" && (
-                    <button onClick={() => handleEstado(f.id, "cobrada")} className="text-green-600 hover:underline text-xs">Cobrar</button>
-                  )}
-                  {f.estado !== "anulada" && (
-                    <button onClick={() => handleEstado(f.id, "anulada")} className="text-red-500 hover:underline text-xs">Anular</button>
-                  )}
+                <td className="px-4 py-3">
+                  <div className="flex gap-2 justify-end">
+                    <button onClick={() => setDetalle(f)} className="text-blue-600 hover:underline text-xs">Ver</button>
+                    <button 
+                      onClick={() => handlePDF(f)} 
+                      className="text-purple-600 hover:underline text-xs font-medium"
+                      title="Descargar PDF"
+                    >
+                      📄 PDF
+                    </button>
+                    {f.estado === "pendiente" && (
+                      <button onClick={() => handleEstado(f.id, "cobrada")} className="text-green-600 hover:underline text-xs">Cobrar</button>
+                    )}
+                    {f.estado !== "anulada" && (
+                      <button onClick={() => handleEstado(f.id, "anulada")} className="text-red-500 hover:underline text-xs">Anular</button>
+                    )}
+                  </div>
                 </td>
               </tr>
             ))}
@@ -143,7 +158,16 @@ export default function Facturacion() {
           <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg">
             <div className="flex items-center justify-between px-6 py-4 border-b">
               <h2 className="text-lg font-bold text-gray-800">Factura {detalle.numRecibo}</h2>
-              <button onClick={() => setDetalle(null)} className="text-gray-400 hover:text-gray-600 text-xl">✕</button>
+              <div className="flex items-center gap-3">
+                <button 
+                  onClick={() => handlePDF(detalle)}
+                  className="bg-purple-600 hover:bg-purple-700 text-white px-3 py-1.5 rounded-lg text-xs font-medium transition-colors"
+                  title="Descargar PDF"
+                >
+                  📄 Descargar PDF
+                </button>
+                <button onClick={() => setDetalle(null)} className="text-gray-400 hover:text-gray-600 text-xl">✕</button>
+              </div>
             </div>
             <div className="p-6 space-y-4">
               <div className="text-sm text-gray-600 space-y-1">

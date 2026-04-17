@@ -7,6 +7,7 @@ const navItems = [
   { to: "/terapeutas",  label: "Terapeutas",   icon: "🩺" },
   { to: "/sesiones",    label: "Sesiones",     icon: "📅" },
   { to: "/facturacion", label: "Facturación",  icon: "🧾" },
+  { to: "/servicios",   label: "Servicios",    icon: "💶" },
 ];
 
 export default function MainLayout({ children }) {

@@ -67,9 +67,7 @@ router.post("/generar", async (req, res) => {
     const agrupado = {};
     for (const s of sesiones) {
       const key = s.servicioId;
-      if (!agrupado[key]) {
-        agrupado[key] = { servicio: s.servicio, count: 0 };
-      }
+      if (!agrupado[key]) agrupado[key] = { servicio: s.servicio, count: 0 };
       agrupado[key].count++;
     }
 
@@ -81,10 +79,67 @@ router.post("/generar", async (req, res) => {
     }));
 
     const subtotal = lineas.reduce((acc, l) => acc + l.suma, 0);
-    const descuento = subtotal > 120 ? subtotal * 0.1 : 0;
-    const total = subtotal - descuento;
 
-    // Número de recibo: MM/YYYY
+    // ── Lógica de descuento ──────────────────────────────────────────────────
+    // Regla 1: descuento si el recibo individual supera 120€
+    // Regla 2: descuento si la suma con el recibo de un hermano/a supera 120€
+    //          (hermano = usuario con el mismo socioVinculadoId)
+    let aplicarDescuento = subtotal > 120;
+
+    if (!aplicarDescuento) {
+      // Buscar si este usuario tiene socio vinculado
+      const usuario = await prisma.usuario.findUnique({
+        where: { id: usuarioId },
+        select: { socioVinculadoId: true },
+      });
+
+      if (usuario?.socioVinculadoId) {
+        // Buscar hermanos: otros usuarios con el mismo socioVinculadoId
+        const hermanos = await prisma.usuario.findMany({
+          where: {
+            socioVinculadoId: usuario.socioVinculadoId,
+            id: { not: usuarioId },
+          },
+          select: { id: true },
+        });
+
+        if (hermanos.length > 0) {
+          // Buscar facturas de hermanos en el mismo mes
+          const facturasHermanos = await prisma.factura.findMany({
+            where: {
+              usuarioId: { in: hermanos.map(h => h.id) },
+              mes,
+              anio,
+            },
+            select: { id: true, subtotal: true, descuento: true },
+          });
+
+          if (facturasHermanos.length > 0) {
+            const sumaHermano = facturasHermanos.reduce((acc, f) => acc + f.subtotal, 0);
+            if (subtotal + sumaHermano > 120) {
+              aplicarDescuento = true;
+
+              // Aplicar también el descuento retroactivamente a las facturas del hermano
+              // que aún no lo tenían aplicado
+              for (const fh of facturasHermanos) {
+                if (fh.descuento === 0) {
+                  await prisma.factura.update({
+                    where: { id: fh.id },
+                    data: {
+                      descuento: fh.subtotal * 0.1,
+                      total:     fh.subtotal * 0.9,
+                    },
+                  });
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+
+    const descuento = aplicarDescuento ? subtotal * 0.1 : 0;
+    const total     = subtotal - descuento;
     const numRecibo = `${String(mes).padStart(2, "0")}/${anio}-${usuarioId}`;
 
     const factura = await prisma.factura.create({

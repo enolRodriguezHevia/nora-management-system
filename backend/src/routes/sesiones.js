@@ -39,11 +39,29 @@ router.post("/", async (req, res) => {
     const noCobrables = ["festivo", "vacaciones_terapeuta", "permiso", "hospitalizacion"];
     data.cobrable = !noCobrables.includes(data.estado);
 
-    const sesion = await prisma.sesion.create({
-      data,
-      include: { usuario: true, terapeuta: true, servicio: true },
+    // Evitar duplicados: si ya existe una sesión para este usuario/terapeuta/fecha, actualizar en lugar de crear
+    const existing = await prisma.sesion.findFirst({
+      where: {
+        usuarioId:   data.usuarioId,
+        terapeutaId: data.terapeutaId,
+        fecha:       data.fecha,
+      },
     });
-    res.status(201).json(sesion);
+
+    let sesion;
+    if (existing) {
+      sesion = await prisma.sesion.update({
+        where: { id: existing.id },
+        data,
+        include: { usuario: true, terapeuta: true, servicio: true },
+      });
+    } else {
+      sesion = await prisma.sesion.create({
+        data,
+        include: { usuario: true, terapeuta: true, servicio: true },
+      });
+    }
+    res.status(existing ? 200 : 201).json(sesion);
   } catch (e) {
     res.status(400).json({ error: e.message });
   }
