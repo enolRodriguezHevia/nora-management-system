@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { facturasService, usuariosService } from "../services/api";
 import { generarPDFFactura } from "../utils/pdfGenerator";
+import AdvancedFilters from "../components/AdvancedFilters";
 
 const MESES_LABEL = ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
 
@@ -162,100 +163,74 @@ export default function Facturacion() {
       </div>
 
       {/* Filtros avanzados */}
-      <div className="bg-white rounded-xl shadow-sm mb-5 overflow-hidden">
-        <button
-          onClick={() => setMostrarFiltros(!mostrarFiltros)}
-          className="w-full px-4 py-3 flex items-center justify-between hover:bg-gray-50 transition-colors"
-        >
-          <div className="flex items-center gap-2">
-            <span className="text-sm font-medium text-gray-700">🔍 Filtros avanzados</span>
-            {contadorFiltros > 0 && (
-              <span className="bg-blue-100 text-blue-700 text-xs px-2 py-0.5 rounded-full font-medium">
-                {contadorFiltros} activo{contadorFiltros > 1 ? 's' : ''}
-              </span>
-            )}
+      <AdvancedFilters
+        isOpen={mostrarFiltros}
+        onToggle={() => setMostrarFiltros(!mostrarFiltros)}
+        activeCount={contadorFiltros}
+        onClear={() => {
+          setFiltroEstado("todos");
+          setFiltroBusqueda("");
+          setFiltroMinImporte("");
+          setFiltroMaxImporte("");
+        }}
+      >
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          {/* Filtro por estado */}
+          <div>
+            <label className="block text-xs text-gray-600 mb-1 font-medium">Estado</label>
+            <select
+              value={filtroEstado}
+              onChange={e => setFiltroEstado(e.target.value)}
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="todos">Todos los estados</option>
+              <option value="pendiente">Pendiente</option>
+              <option value="cobrada">Cobrada</option>
+              <option value="anulada">Anulada</option>
+            </select>
           </div>
-          <span className={`text-gray-400 transition-transform ${mostrarFiltros ? 'rotate-180' : ''}`}>▼</span>
-        </button>
-        
-        {mostrarFiltros && (
-          <div className="p-4 border-t border-gray-200 bg-gray-50">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              {/* Filtro por estado */}
-              <div>
-                <label className="block text-xs text-gray-600 mb-1 font-medium">Estado</label>
-                <select
-                  value={filtroEstado}
-                  onChange={e => setFiltroEstado(e.target.value)}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                >
-                  <option value="todos">Todos los estados</option>
-                  <option value="pendiente">Pendiente</option>
-                  <option value="cobrada">Cobrada</option>
-                  <option value="anulada">Anulada</option>
-                </select>
-              </div>
 
-              {/* Búsqueda por usuario */}
-              <div>
-                <label className="block text-xs text-gray-600 mb-1 font-medium">Buscar usuario</label>
-                <input
-                  type="text"
-                  value={filtroBusqueda}
-                  onChange={e => setFiltroBusqueda(e.target.value)}
-                  placeholder="Nombre o apellidos..."
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-
-              {/* Importe mínimo */}
-              <div>
-                <label className="block text-xs text-gray-600 mb-1 font-medium">Importe mínimo (€)</label>
-                <input
-                  type="number"
-                  value={filtroMinImporte}
-                  onChange={e => setFiltroMinImporte(e.target.value)}
-                  placeholder="0"
-                  min="0"
-                  step="10"
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-
-              {/* Importe máximo */}
-              <div>
-                <label className="block text-xs text-gray-600 mb-1 font-medium">Importe máximo (€)</label>
-                <input
-                  type="number"
-                  value={filtroMaxImporte}
-                  onChange={e => setFiltroMaxImporte(e.target.value)}
-                  placeholder="999"
-                  min="0"
-                  step="10"
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-            </div>
-
-            {/* Botón limpiar filtros */}
-            {contadorFiltros > 0 && (
-              <div className="mt-3 flex justify-end">
-                <button
-                  onClick={() => {
-                    setFiltroEstado("todos");
-                    setFiltroBusqueda("");
-                    setFiltroMinImporte("");
-                    setFiltroMaxImporte("");
-                  }}
-                  className="text-sm text-gray-600 hover:text-gray-800 underline"
-                >
-                  Limpiar todos los filtros
-                </button>
-              </div>
-            )}
+          {/* Búsqueda por usuario */}
+          <div>
+            <label className="block text-xs text-gray-600 mb-1 font-medium">Buscar usuario</label>
+            <input
+              type="text"
+              value={filtroBusqueda}
+              onChange={e => setFiltroBusqueda(e.target.value)}
+              placeholder="Nombre o apellidos..."
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
           </div>
-        )}
-      </div>
+
+          {/* Importe mínimo */}
+          <div>
+            <label className="block text-xs text-gray-600 mb-1 font-medium">Importe mínimo (€)</label>
+            <input
+              type="number"
+              value={filtroMinImporte}
+              onChange={e => setFiltroMinImporte(e.target.value)}
+              placeholder="0"
+              min="0"
+              step="10"
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+
+          {/* Importe máximo */}
+          <div>
+            <label className="block text-xs text-gray-600 mb-1 font-medium">Importe máximo (€)</label>
+            <input
+              type="number"
+              value={filtroMaxImporte}
+              onChange={e => setFiltroMaxImporte(e.target.value)}
+              placeholder="999"
+              min="0"
+              step="10"
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+        </div>
+      </AdvancedFilters>
 
       {/* Tabla facturas */}
       <div className="bg-white rounded-xl shadow-sm overflow-hidden">

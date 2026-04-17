@@ -291,6 +291,7 @@ function PanelDetalle({ panel, mes, anio, terapeutaId, terapeutas, servicios, on
   });
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
 
   const fecha = `${anio}-${String(mes).padStart(2,"0")}-${String(panel.dia).padStart(2,"0")}`;
   const terapeutaActual = terapeutas.find(t => String(t.id) === String(terapeutaId));
@@ -347,7 +348,7 @@ function PanelDetalle({ panel, mes, anio, terapeutaId, terapeutas, servicios, on
   };
 
   const handleDelete = async () => {
-    if (!sesion || !confirm("¿Eliminar esta sesión?")) return;
+    if (!sesion) return;
     setDeleting(true);
     try {
       await sesionesService.delete(sesion.id);
@@ -355,6 +356,7 @@ function PanelDetalle({ panel, mes, anio, terapeutaId, terapeutas, servicios, on
       onClose();
     } finally {
       setDeleting(false);
+      setConfirmDelete(false);
     }
   };
 
@@ -437,12 +439,32 @@ function PanelDetalle({ panel, mes, anio, terapeutaId, terapeutas, servicios, on
           {saving ? "Guardando..." : sesion ? "Actualizar sesión" : "Registrar sesión"}
         </button>
         {sesion && (
-          <button onClick={handleDelete} disabled={deleting}
+          <button onClick={() => setConfirmDelete(true)} disabled={deleting}
             className="w-full border border-red-300 text-red-600 hover:bg-red-50 py-2 rounded-lg text-sm font-medium disabled:opacity-50 transition-colors">
             {deleting ? "Eliminando..." : "Eliminar sesión"}
           </button>
         )}
       </div>
+
+      {confirmDelete && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm">
+            <div className="px-6 py-4 border-b">
+              <h2 className="text-base font-bold text-gray-800">¿Eliminar esta sesión?</h2>
+            </div>
+            <div className="p-6 flex gap-3">
+              <button onClick={() => setConfirmDelete(false)}
+                className="flex-1 px-4 py-2 text-sm text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50">
+                Cancelar
+              </button>
+              <button onClick={handleDelete} disabled={deleting}
+                className="flex-1 px-4 py-2 text-sm bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium disabled:opacity-50">
+                {deleting ? "Eliminando..." : "Eliminar"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

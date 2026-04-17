@@ -1,5 +1,13 @@
 import { useEffect, useState } from "react";
 import { usuariosService, sociosService } from "../services/api";
+import ConfirmModal from "../components/ConfirmModal";
+import AdvancedFilters from "../components/AdvancedFilters";
+import { FormField, BankField } from "../components/FormField";
+import { useResizableColumns } from "../hooks/useResizableColumns";
+
+// Aliases para los campos de formulario
+const Field = FormField;
+const BField = BankField;
 
 const EMPTY_FORM = {
   nombre: "", apellidos: "", dni: "", fechaNacimiento: "",
@@ -19,7 +27,6 @@ export default function Users() {
   const [usuarios, setUsuarios]   = useState([]);
   const [socios, setSocios]       = useState([]);
   const [search, setSearch]       = useState("");
-  const [showBaja, setShowBaja]   = useState(false);
   const [loading, setLoading]     = useState(true);
   const [modal, setModal]         = useState(false);
   const [editing, setEditing]     = useState(null);
@@ -32,15 +39,23 @@ export default function Users() {
   const [filtroCentro, setFiltroCentro] = useState("");
   const [filtroSocio, setFiltroSocio] = useState("");
   const [mostrarFiltros, setMostrarFiltros] = useState(false);
+  
+  // Modales de confirmación
+  const [modalBaja, setModalBaja] = useState(null);
+  const [modalEliminar, setModalEliminar] = useState(null);
+
+  const { widths, getResizeHandleProps } = useResizableColumns({
+    id: 50, nombre: 180, dni: 110, telefono: 120, diagnostico: 200, alta: 100, estado: 90, acciones: 160,
+  });
 
   const fetchUsuarios = () => {
     setLoading(true);
-    usuariosService.getAll({ search: search || undefined, baja: showBaja })
+    usuariosService.getAll({ search: search || undefined })
       .then(r => setUsuarios(r.data))
       .finally(() => setLoading(false));
   };
 
-  useEffect(() => { fetchUsuarios(); }, [search, showBaja]);
+  useEffect(() => { fetchUsuarios(); }, [search]);
   useEffect(() => { sociosService.getAll().then(r => setSocios(r.data)); }, []);
 
   const openCreate = () => { setEditing(null); setForm(EMPTY_FORM); setBancario(EMPTY_BANCARIO); setModal(true); };
@@ -94,10 +109,29 @@ export default function Users() {
     }
   };
 
-  const handleDelete = async (id) => {
-    if (!confirm("¿Eliminar este usuario?")) return;
-    await usuariosService.delete(id);
-    fetchUsuarios();
+  const handleBaja = async () => {
+    if (!modalBaja) return;
+    try {
+      const payload = modalBaja.tipo === 'baja' 
+        ? { baja: true, fechaBaja: new Date().toISOString().slice(0, 10) }
+        : { baja: false, fechaBaja: null };
+      await usuariosService.update(modalBaja.id, payload);
+      setModalBaja(null);
+      fetchUsuarios();
+    } catch (err) {
+      alert("Error: " + (err.response?.data?.error || err.message));
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!modalEliminar) return;
+    try {
+      await usuariosService.delete(modalEliminar.id);
+      setModalEliminar(null);
+      fetchUsuarios();
+    } catch (err) {
+      alert("Error: " + (err.response?.data?.error || err.message));
+    }
   };
 
   // Aplicar filtros locales
@@ -141,109 +175,94 @@ export default function Users() {
       </div>
 
       {/* Búsqueda básica */}
-      <div className="flex gap-3 mb-5">
+      <div className="mb-5">
         <input
           type="text" placeholder="Buscar por nombre, apellidos o DNI..."
           value={search} onChange={e => setSearch(e.target.value)}
-          className="flex-1 border border-gray-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full border border-gray-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
-        <label className="flex items-center gap-2 text-sm text-gray-600 cursor-pointer">
-          <input type="checkbox" checked={showBaja} onChange={e => setShowBaja(e.target.checked)} />
-          Mostrar bajas
-        </label>
       </div>
 
       {/* Filtros avanzados */}
-      <div className="bg-white rounded-xl shadow-sm mb-5 overflow-hidden">
-        <button
-          onClick={() => setMostrarFiltros(!mostrarFiltros)}
-          className="w-full px-4 py-3 flex items-center justify-between hover:bg-gray-50 transition-colors"
-        >
-          <div className="flex items-center gap-2">
-            <span className="text-sm font-medium text-gray-700">🔍 Filtros avanzados</span>
-            {contadorFiltros > 0 && (
-              <span className="bg-blue-100 text-blue-700 text-xs px-2 py-0.5 rounded-full font-medium">
-                {contadorFiltros} activo{contadorFiltros > 1 ? 's' : ''}
-              </span>
-            )}
+      <AdvancedFilters
+        isOpen={mostrarFiltros}
+        onToggle={() => setMostrarFiltros(!mostrarFiltros)}
+        activeCount={contadorFiltros}
+        onClear={() => {
+          setFiltroEstado("activos");
+          setFiltroCentro("");
+          setFiltroSocio("");
+        }}
+      >
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {/* Filtro por estado */}
+          <div>
+            <label className="block text-xs text-gray-600 mb-1 font-medium">Estado</label>
+            <select
+              value={filtroEstado}
+              onChange={e => setFiltroEstado(e.target.value)}
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="activos">Solo activos</option>
+              <option value="bajas">Solo bajas</option>
+              <option value="todos">Todos</option>
+            </select>
           </div>
-          <span className={`text-gray-400 transition-transform ${mostrarFiltros ? 'rotate-180' : ''}`}>▼</span>
-        </button>
-        
-        {mostrarFiltros && (
-          <div className="p-4 border-t border-gray-200 bg-gray-50">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {/* Filtro por estado */}
-              <div>
-                <label className="block text-xs text-gray-600 mb-1 font-medium">Estado</label>
-                <select
-                  value={filtroEstado}
-                  onChange={e => setFiltroEstado(e.target.value)}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                >
-                  <option value="activos">Solo activos</option>
-                  <option value="bajas">Solo bajas</option>
-                  <option value="todos">Todos</option>
-                </select>
-              </div>
 
-              {/* Filtro por centro */}
-              <div>
-                <label className="block text-xs text-gray-600 mb-1 font-medium">Centro</label>
-                <select
-                  value={filtroCentro}
-                  onChange={e => setFiltroCentro(e.target.value)}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                >
-                  <option value="">Todos los centros</option>
-                  {centrosUnicos.map(centro => (
-                    <option key={centro} value={centro}>{centro}</option>
-                  ))}
-                </select>
-              </div>
-
-              {/* Filtro por socio */}
-              <div>
-                <label className="block text-xs text-gray-600 mb-1 font-medium">Socio vinculado</label>
-                <select
-                  value={filtroSocio}
-                  onChange={e => setFiltroSocio(e.target.value)}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                >
-                  <option value="">Todos los socios</option>
-                  {socios.map(s => (
-                    <option key={s.id} value={s.id}>{s.nombre} {s.apellidos}</option>
-                  ))}
-                </select>
-              </div>
-            </div>
-
-            {/* Botón limpiar filtros */}
-            {contadorFiltros > 0 && (
-              <div className="mt-3 flex justify-end">
-                <button
-                  onClick={() => {
-                    setFiltroEstado("activos");
-                    setFiltroCentro("");
-                    setFiltroSocio("");
-                  }}
-                  className="text-sm text-gray-600 hover:text-gray-800 underline"
-                >
-                  Limpiar todos los filtros
-                </button>
-              </div>
-            )}
+          {/* Filtro por centro */}
+          <div>
+            <label className="block text-xs text-gray-600 mb-1 font-medium">Centro</label>
+            <select
+              value={filtroCentro}
+              onChange={e => setFiltroCentro(e.target.value)}
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="">Todos los centros</option>
+              {centrosUnicos.map(centro => (
+                <option key={centro} value={centro}>{centro}</option>
+              ))}
+            </select>
           </div>
-        )}
-      </div>
+
+          {/* Filtro por socio */}
+          <div>
+            <label className="block text-xs text-gray-600 mb-1 font-medium">Socio vinculado</label>
+            <select
+              value={filtroSocio}
+              onChange={e => setFiltroSocio(e.target.value)}
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="">Todos los socios</option>
+              {socios.map(s => (
+                <option key={s.id} value={s.id}>{s.nombre} {s.apellidos}</option>
+              ))}
+            </select>
+          </div>
+        </div>
+      </AdvancedFilters>
 
       {/* Tabla */}
-      <div className="bg-white rounded-xl shadow-sm overflow-hidden">
-        <table className="w-full text-sm">
+      <div className="bg-white rounded-xl shadow-sm overflow-x-auto w-full">
+        <table className="text-sm" style={{ tableLayout: "fixed", minWidth: "100%", width: Object.values(widths).reduce((a, b) => a + b, 0) }}>
           <thead className="bg-gray-50 border-b border-gray-200">
             <tr>
-              {["ID", "Nombre", "DNI", "Teléfono", "Diagnóstico", "Alta", "Estado", ""].map(h => (
-                <th key={h} className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">{h}</th>
+              {[
+                { key: "id",          label: "ID" },
+                { key: "nombre",      label: "Nombre" },
+                { key: "dni",         label: "DNI" },
+                { key: "telefono",    label: "Teléfono" },
+                { key: "diagnostico", label: "Diagnóstico" },
+                { key: "alta",        label: "Alta" },
+                { key: "estado",      label: "Estado" },
+                { key: "acciones",    label: "" },
+              ].map(({ key, label }) => (
+                <th key={key} style={{ width: widths[key] }}
+                  className="relative text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide select-none">
+                  {label}
+                  <span {...getResizeHandleProps(key)}>
+                    <span className="w-px h-4 bg-gray-300 group-hover:bg-blue-400 transition-colors" />
+                  </span>
+                </th>
               ))}
             </tr>
           </thead>
@@ -256,20 +275,27 @@ export default function Users() {
               </td></tr>
             ) : usuariosFiltrados.map(u => (
               <tr key={u.id} className="hover:bg-gray-50 transition-colors">
-                <td className="px-4 py-3 text-gray-400 font-mono text-xs">{u.id}</td>
-                <td className="px-4 py-3 font-medium text-gray-800">{u.nombre} {u.apellidos}</td>
-                <td className="px-4 py-3 text-gray-600">{u.dni || "—"}</td>
-                <td className="px-4 py-3 text-gray-600">{u.telefono || "—"}</td>
-                <td className="px-4 py-3 text-gray-600 max-w-[160px] truncate">{u.diagnostico || "—"}</td>
-                <td className="px-4 py-3 text-gray-600">{u.fechaAlta ? new Date(u.fechaAlta).toLocaleDateString("es-ES") : "—"}</td>
-                <td className="px-4 py-3">
+                <td className="px-4 py-3 text-gray-400 font-mono text-xs overflow-hidden text-ellipsis whitespace-nowrap">{u.id}</td>
+                <td className="px-4 py-3 font-medium text-gray-800 overflow-hidden text-ellipsis whitespace-nowrap" title={`${u.nombre} ${u.apellidos}`}>{u.nombre} {u.apellidos}</td>
+                <td className="px-4 py-3 text-gray-600 overflow-hidden text-ellipsis whitespace-nowrap">{u.dni || "—"}</td>
+                <td className="px-4 py-3 text-gray-600 overflow-hidden text-ellipsis whitespace-nowrap">{u.telefono || "—"}</td>
+                <td className="px-4 py-3 text-gray-600 overflow-hidden text-ellipsis whitespace-nowrap" title={u.diagnostico}>{u.diagnostico || "—"}</td>
+                <td className="px-4 py-3 text-gray-600 overflow-hidden text-ellipsis whitespace-nowrap">{u.fechaAlta ? new Date(u.fechaAlta).toLocaleDateString("es-ES") : "—"}</td>
+                <td className="px-4 py-3 overflow-hidden">
                   <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${u.baja ? "bg-red-100 text-red-700" : "bg-green-100 text-green-700"}`}>
                     {u.baja ? "Baja" : "Activo"}
                   </span>
                 </td>
-                <td className="px-4 py-3 flex gap-2 justify-end">
-                  <button onClick={() => openEdit(u)} className="text-blue-600 hover:underline text-xs">Editar</button>
-                  <button onClick={() => handleDelete(u.id)} className="text-red-500 hover:underline text-xs">Eliminar</button>
+                <td className="px-4 py-3 overflow-hidden">
+                  <div className="flex gap-2">
+                    <button onClick={() => openEdit(u)} className="text-blue-600 hover:underline text-xs">Editar</button>
+                    {u.baja ? (
+                      <button onClick={() => setModalBaja({ id: u.id, nombre: `${u.nombre} ${u.apellidos}`, tipo: 'reactivar' })} className="text-green-600 hover:underline text-xs">Reactivar</button>
+                    ) : (
+                      <button onClick={() => setModalBaja({ id: u.id, nombre: `${u.nombre} ${u.apellidos}`, tipo: 'baja' })} className="text-orange-600 hover:underline text-xs">Dar de baja</button>
+                    )}
+                    <button onClick={() => setModalEliminar({ id: u.id, nombre: `${u.nombre} ${u.apellidos}` })} className="text-red-500 hover:underline text-xs">Eliminar</button>
+                  </div>
                 </td>
               </tr>
             ))}
@@ -391,28 +417,25 @@ export default function Users() {
           </div>
         </div>
       )}
-    </div>
-  );
-}
 
-function Field({ label, name, value, onChange, type = "text", required, className = "" }) {
-  return (
-    <div className={className}>
-      <label className="block text-xs text-gray-600 mb-1">{label}</label>
-      <input
-        type={type} name={name} value={value ?? ""} onChange={onChange} required={required}
-        className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+      {/* Modales de confirmación */}
+      <ConfirmModal
+        isOpen={!!modalBaja}
+        onClose={() => setModalBaja(null)}
+        onConfirm={handleBaja}
+        type={modalBaja?.tipo}
+        entityName={modalBaja?.nombre}
+        entityType="usuario"
       />
-    </div>
-  );
-}
 
-function BField({ label, name, value, onChange, type = "text", className = "" }) {
-  return (
-    <div className={className}>
-      <label className="block text-xs text-gray-600 mb-1">{label}</label>
-      <input type={type} name={name} value={value ?? ""} onChange={onChange}
-        className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+      <ConfirmModal
+        isOpen={!!modalEliminar}
+        onClose={() => setModalEliminar(null)}
+        onConfirm={handleDelete}
+        type="eliminar"
+        entityName={modalEliminar?.nombre}
+        entityType="usuario"
+      />
     </div>
   );
 }

@@ -46,7 +46,7 @@ export default function MainLayout({ children }) {
       </aside>
 
       {/* Main content */}
-      <main className="flex-1 overflow-y-auto">
+      <main className="flex-1 overflow-y-auto overflow-x-hidden min-w-0">
         <div className="p-8">
           {children}
         </div>

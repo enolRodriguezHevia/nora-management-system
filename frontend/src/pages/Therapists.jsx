@@ -1,5 +1,9 @@
 import { useEffect, useState } from "react";
 import { terapeutasService } from "../services/api";
+import { FormField } from "../components/FormField";
+
+// Alias para los campos de formulario
+const Field = FormField;
 
 const ESPECIALIDADES = ["Logopedia", "Psicología", "Fisioterapia", "Terapia Ocupacional"];
 
@@ -127,16 +131,6 @@ export default function Therapists() {
           </div>
         </div>
       )}
-    </div>
-  );
-}
-
-function Field({ label, name, value, onChange, type = "text", required }) {
-  return (
-    <div>
-      <label className="block text-xs text-gray-600 mb-1">{label}</label>
-      <input type={type} name={name} value={value ?? ""} onChange={onChange} required={required}
-        className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
     </div>
   );
 }
