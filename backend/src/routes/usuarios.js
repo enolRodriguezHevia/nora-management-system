@@ -1,5 +1,11 @@
 const router = require("express").Router();
 const prisma = require("../lib/prisma");
+const { z } = require("zod");
+const { UsuarioSchema, BancarioSchema, validate } = require("../lib/schemas");
+
+const UsuarioWithBancarioSchema = UsuarioSchema.extend({
+  datosBancarios: z.array(BancarioSchema).optional(),
+});
 
 // GET /api/usuarios
 router.get("/", async (req, res) => {
@@ -18,7 +24,7 @@ router.get("/", async (req, res) => {
       },
       include: {
         datosBancarios: true,
-        socioVinculado: { select: { id: true, numSocio: true, nombre: true, apellidos: true } },
+        socioVinculado:  { select: { id: true, numSocio: true, nombre: true, apellidos: true } },
         socioVinculado2: { select: { id: true, numSocio: true, nombre: true, apellidos: true } },
       },
       orderBy: { apellidos: "asc" },
@@ -36,7 +42,7 @@ router.get("/:id", async (req, res) => {
       where: { id: Number(req.params.id) },
       include: {
         datosBancarios: true,
-        socioVinculado: true,
+        socioVinculado:  true,
         socioVinculado2: true,
         sesiones: { include: { servicio: true, terapeuta: true }, orderBy: { fecha: "desc" }, take: 20 },
       },
@@ -49,15 +55,12 @@ router.get("/:id", async (req, res) => {
 });
 
 // POST /api/usuarios
-router.post("/", async (req, res) => {
+router.post("/", validate(UsuarioWithBancarioSchema), async (req, res) => {
   try {
     const { datosBancarios, ...data } = req.body;
     const usuario = await prisma.usuario.create({
       data: {
         ...data,
-        fechaNacimiento: data.fechaNacimiento ? new Date(data.fechaNacimiento) : null,
-        fechaAlta: data.fechaAlta ? new Date(data.fechaAlta) : null,
-        fechaBaja: data.fechaBaja ? new Date(data.fechaBaja) : null,
         datosBancarios: datosBancarios ? { create: datosBancarios } : undefined,
       },
       include: { datosBancarios: true },
@@ -69,22 +72,13 @@ router.post("/", async (req, res) => {
 });
 
 // PUT /api/usuarios/:id
-router.put("/:id", async (req, res) => {
+router.put("/:id", validate(UsuarioWithBancarioSchema), async (req, res) => {
   try {
     const { datosBancarios, ...data } = req.body;
     const id = Number(req.params.id);
 
-    await prisma.usuario.update({
-      where: { id },
-      data: {
-        ...data,
-        fechaNacimiento: data.fechaNacimiento ? new Date(data.fechaNacimiento) : null,
-        fechaAlta: data.fechaAlta ? new Date(data.fechaAlta) : null,
-        fechaBaja: data.fechaBaja ? new Date(data.fechaBaja) : null,
-      },
-    });
+    await prisma.usuario.update({ where: { id }, data });
 
-    // Upsert datos bancarios
     if (datosBancarios && datosBancarios.length > 0) {
       await prisma.usuarioBancario.deleteMany({ where: { usuarioId: id } });
       await prisma.usuarioBancario.createMany({

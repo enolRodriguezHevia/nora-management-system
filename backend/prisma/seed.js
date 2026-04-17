@@ -36,8 +36,8 @@ async function main() {
     { nombre: "Peluquería",             categoria: "Taller",                 precio: 6  },
     { nombre: "Gimnasia",               categoria: "Taller",                 precio: 11 },
     { nombre: "Escuela de Padres",      categoria: "Escuela de Padres",      precio: 12 },
-    { nombre: "Hipoterapia Centro 1",   categoria: "Hipoterapia",            precio: 0  },
-    { nombre: "Hipoterapia Centro 2",   categoria: "Hipoterapia",            precio: 0  },
+    { nombre: "Hipoterapia - Equitación Positiva",                    categoria: "Hipoterapia", precio: 0 },
+    { nombre: "Hipoterapia - Asoc. Asturiana de Terapias Ecuestres",  categoria: "Hipoterapia", precio: 0 },
   ];
 
   const servicios = [];

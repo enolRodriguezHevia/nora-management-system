@@ -36,10 +36,12 @@ El sistema permite generar facturas en formato PDF descargable con el diseño of
 
 El archivo se descarga con el formato:
 ```
-Factura_MM-YYYY-userId_Apellidos.pdf
+Factura_XX-YYYY_Apellidos.pdf
 ```
 
-Ejemplo: `Factura_04-2026-1_García.pdf`
+Donde XX es el número secuencial de la factura en ese año.
+
+Ejemplo: `Factura_01-2026_García.pdf`, `Factura_02-2026_López.pdf`
 
 ## Tecnología
 

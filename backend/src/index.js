@@ -10,12 +10,14 @@ app.use(cors({ origin: "http://localhost:5173" }));
 app.use(express.json());
 
 // Rutas
-app.use("/api/socios",     require("./routes/socios"));
-app.use("/api/usuarios",   require("./routes/usuarios"));
-app.use("/api/terapeutas", require("./routes/terapeutas"));
-app.use("/api/servicios",  require("./routes/servicios"));
-app.use("/api/sesiones",   require("./routes/sesiones"));
-app.use("/api/facturas",   require("./routes/facturas"));
+app.use("/api/socios",        require("./routes/socios"));
+app.use("/api/usuarios",      require("./routes/usuarios"));
+app.use("/api/terapeutas",    require("./routes/terapeutas"));
+app.use("/api/servicios",     require("./routes/servicios"));
+app.use("/api/sesiones",      require("./routes/sesiones"));
+app.use("/api/facturas",      require("./routes/facturas"));
+app.use("/api/estadisticas",  require("./routes/estadisticas"));
+app.use("/api/importar",      require("./routes/importar"));
 
 // Health check
 app.get("/api/health", (req, res) => {

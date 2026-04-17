@@ -1,13 +1,15 @@
 import { Link, useLocation } from "react-router-dom";
 
 const navItems = [
-  { to: "/",            label: "Dashboard",    icon: "📊" },
-  { to: "/usuarios",    label: "Usuarios",     icon: "👤" },
-  { to: "/socios",      label: "Socios",       icon: "🤝" },
-  { to: "/terapeutas",  label: "Terapeutas",   icon: "🩺" },
-  { to: "/sesiones",    label: "Sesiones",     icon: "📅" },
-  { to: "/facturacion", label: "Facturación",  icon: "🧾" },
-  { to: "/servicios",   label: "Servicios",    icon: "💶" },
+  { to: "/",             label: "Dashboard",    icon: "📊" },
+  { to: "/usuarios",     label: "Usuarios",     icon: "👤" },
+  { to: "/socios",       label: "Socios",       icon: "🤝" },
+  { to: "/terapeutas",   label: "Terapeutas",   icon: "🩺" },
+  { to: "/sesiones",     label: "Sesiones",     icon: "📅" },
+  { to: "/facturacion",  label: "Facturación",  icon: "🧾" },
+  { to: "/servicios",    label: "Servicios",    icon: "💶" },
+  { to: "/estadisticas", label: "Estadísticas", icon: "📈" },
+  { to: "/importar",     label: "Importar",     icon: "📥" },
 ];
 
 export default function MainLayout({ children }) {

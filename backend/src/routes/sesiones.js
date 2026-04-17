@@ -1,5 +1,8 @@
 const router = require("express").Router();
 const prisma = require("../lib/prisma");
+const { SesionSchema, validate } = require("../lib/schemas");
+
+const NO_COBRABLES = ["festivo", "vacaciones_terapeuta", "permiso", "hospitalizacion"];
 
 // GET /api/sesiones?mes=4&anio=2026&terapeutaId=1
 router.get("/", async (req, res) => {
@@ -32,20 +35,13 @@ router.get("/", async (req, res) => {
 });
 
 // POST /api/sesiones
-router.post("/", async (req, res) => {
+router.post("/", validate(SesionSchema), async (req, res) => {
   try {
-    const data = { ...req.body, fecha: new Date(req.body.fecha) };
-    // cobrable = true si asistió o falta del usuario; false si festivo/vacaciones/hospitalización
-    const noCobrables = ["festivo", "vacaciones_terapeuta", "permiso", "hospitalizacion"];
-    data.cobrable = !noCobrables.includes(data.estado);
+    const data = { ...req.body };
+    data.cobrable = !NO_COBRABLES.includes(data.estado);
 
-    // Evitar duplicados: si ya existe una sesión para este usuario/terapeuta/fecha, actualizar en lugar de crear
     const existing = await prisma.sesion.findFirst({
-      where: {
-        usuarioId:   data.usuarioId,
-        terapeutaId: data.terapeutaId,
-        fecha:       data.fecha,
-      },
+      where: { usuarioId: data.usuarioId, terapeutaId: data.terapeutaId, fecha: data.fecha },
     });
 
     let sesion;
@@ -68,14 +64,10 @@ router.post("/", async (req, res) => {
 });
 
 // PUT /api/sesiones/:id
-router.put("/:id", async (req, res) => {
+router.put("/:id", validate(SesionSchema.partial()), async (req, res) => {
   try {
     const data = { ...req.body };
-    if (data.fecha) data.fecha = new Date(data.fecha);
-    if (data.estado) {
-      const noCobrables = ["festivo", "vacaciones_terapeuta", "permiso", "hospitalizacion"];
-      data.cobrable = !noCobrables.includes(data.estado);
-    }
+    if (data.estado) data.cobrable = !NO_COBRABLES.includes(data.estado);
     const sesion = await prisma.sesion.update({
       where: { id: Number(req.params.id) },
       data,

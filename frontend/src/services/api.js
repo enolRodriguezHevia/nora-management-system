@@ -1,7 +1,9 @@
 import axios from "axios";
 
+export const API_URL = "http://localhost:3001/api";
+
 const api = axios.create({
-  baseURL: "http://localhost:3001/api",
+  baseURL: API_URL,
   headers: { "Content-Type": "application/json" },
 });
 
@@ -47,6 +49,10 @@ export const facturasService = {
   generar:  (data)   => api.post("/facturas/generar", data),
   generarMasivo: (data) => api.post("/facturas/generar-masivo", data),
   updateEstado: (id, estado) => api.put(`/facturas/${id}/estado`, { estado }),
+};
+
+export const estadisticasService = {
+  get: (params) => api.get("/estadisticas", { params }),
 };
 
 export default api;

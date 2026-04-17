@@ -1,5 +1,14 @@
 const router = require("express").Router();
 const prisma = require("../lib/prisma");
+const { z } = require("zod");
+const { SocioCreateSchema, SocioSchema, BancarioSchema, validate } = require("../lib/schemas");
+
+const SocioWithBancarioSchema = SocioCreateSchema.extend({
+  datosBancarios: z.array(BancarioSchema).optional(),
+});
+const SocioUpdateWithBancarioSchema = SocioSchema.extend({
+  datosBancarios: z.array(BancarioSchema).optional(),
+});
 
 // GET /api/socios
 router.get("/", async (req, res) => {
@@ -40,14 +49,12 @@ router.get("/:id", async (req, res) => {
 });
 
 // POST /api/socios
-router.post("/", async (req, res) => {
+router.post("/", validate(SocioWithBancarioSchema), async (req, res) => {
   try {
     const { datosBancarios, ...data } = req.body;
     const socio = await prisma.socio.create({
       data: {
         ...data,
-        fechaAlta: data.fechaAlta ? new Date(data.fechaAlta) : null,
-        fechaBaja: data.fechaBaja ? new Date(data.fechaBaja) : null,
         datosBancarios: datosBancarios ? { create: datosBancarios } : undefined,
       },
       include: { datosBancarios: true },
@@ -59,21 +66,13 @@ router.post("/", async (req, res) => {
 });
 
 // PUT /api/socios/:id
-router.put("/:id", async (req, res) => {
+router.put("/:id", validate(SocioUpdateWithBancarioSchema), async (req, res) => {
   try {
     const { datosBancarios, ...data } = req.body;
     const id = Number(req.params.id);
 
-    await prisma.socio.update({
-      where: { id },
-      data: {
-        ...data,
-        fechaAlta: data.fechaAlta ? new Date(data.fechaAlta) : null,
-        fechaBaja: data.fechaBaja ? new Date(data.fechaBaja) : null,
-      },
-    });
+    await prisma.socio.update({ where: { id }, data });
 
-    // Upsert datos bancarios
     if (datosBancarios && datosBancarios.length > 0) {
       await prisma.socioBancario.deleteMany({ where: { socioId: id } });
       await prisma.socioBancario.createMany({

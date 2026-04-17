@@ -236,6 +236,7 @@ function generarRestoPDF(doc, factura, pageWidth) {
     doc.text(textoFecha, pageWidth / 2, yFinal, { align: "center" });
     
     // ─── DESCARGAR PDF ─────────────────────────────────────────────────────────
+    // Formato: Factura_XX-YYYY_Apellidos.pdf (ej: Factura_01-2026_García.pdf)
     const nombreArchivo = `Factura_${factura.numRecibo.replace(/\//g, "-")}_${usuario.apellidos || "Usuario"}.pdf`;
     console.log("Descargando PDF:", nombreArchivo);
     doc.save(nombreArchivo);

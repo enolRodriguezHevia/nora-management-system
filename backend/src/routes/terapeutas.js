@@ -1,5 +1,6 @@
 const router = require("express").Router();
 const prisma = require("../lib/prisma");
+const { TerapeutaSchema, validate } = require("../lib/schemas");
 
 // GET /api/terapeutas
 router.get("/", async (req, res) => {
@@ -21,7 +22,10 @@ router.get("/:id", async (req, res) => {
       where: { id: Number(req.params.id) },
       include: {
         sesiones: {
-          include: { usuario: { select: { id: true, nombre: true, apellidos: true } }, servicio: true },
+          include: {
+            usuario: { select: { id: true, nombre: true, apellidos: true } },
+            servicio: true,
+          },
           orderBy: { fecha: "desc" },
           take: 50,
         },
@@ -35,7 +39,7 @@ router.get("/:id", async (req, res) => {
 });
 
 // POST /api/terapeutas
-router.post("/", async (req, res) => {
+router.post("/", validate(TerapeutaSchema), async (req, res) => {
   try {
     const terapeuta = await prisma.terapeuta.create({ data: req.body });
     res.status(201).json(terapeuta);
@@ -45,7 +49,7 @@ router.post("/", async (req, res) => {
 });
 
 // PUT /api/terapeutas/:id
-router.put("/:id", async (req, res) => {
+router.put("/:id", validate(TerapeutaSchema.partial()), async (req, res) => {
   try {
     const terapeuta = await prisma.terapeuta.update({
       where: { id: Number(req.params.id) },

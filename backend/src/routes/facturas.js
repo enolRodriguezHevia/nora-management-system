@@ -140,7 +140,24 @@ router.post("/generar", async (req, res) => {
 
     const descuento = aplicarDescuento ? subtotal * 0.1 : 0;
     const total     = subtotal - descuento;
-    const numRecibo = `${String(mes).padStart(2, "0")}/${anio}-${usuarioId}`;
+    
+    // Generar número de recibo secuencial por año (formato: XX/YYYY)
+    const ultimaFacturaAnio = await prisma.factura.findFirst({
+      where: { anio },
+      orderBy: { numRecibo: 'desc' },
+      select: { numRecibo: true }
+    });
+    
+    let numeroSecuencial = 1;
+    if (ultimaFacturaAnio) {
+      // Extraer el número secuencial del formato "XX/YYYY"
+      const match = ultimaFacturaAnio.numRecibo.match(/^(\d+)\//);
+      if (match) {
+        numeroSecuencial = parseInt(match[1]) + 1;
+      }
+    }
+    
+    const numRecibo = `${String(numeroSecuencial).padStart(2, "0")}/${anio}`;
 
     const factura = await prisma.factura.create({
       data: {
@@ -300,7 +317,24 @@ router.post("/generar-masivo", async (req, res) => {
 
         const descuento = aplicarDescuento ? subtotal * 0.1 : 0;
         const total     = subtotal - descuento;
-        const numRecibo = `${String(mes).padStart(2, "0")}/${anio}-${uid}`;
+        
+        // Generar número de recibo secuencial por año (formato: XX/YYYY)
+        const ultimaFacturaAnio = await prisma.factura.findFirst({
+          where: { anio },
+          orderBy: { numRecibo: 'desc' },
+          select: { numRecibo: true }
+        });
+        
+        let numeroSecuencial = 1;
+        if (ultimaFacturaAnio) {
+          // Extraer el número secuencial del formato "XX/YYYY"
+          const match = ultimaFacturaAnio.numRecibo.match(/^(\d+)\//);
+          if (match) {
+            numeroSecuencial = parseInt(match[1]) + 1;
+          }
+        }
+        
+        const numRecibo = `${String(numeroSecuencial).padStart(2, "0")}/${anio}`;
 
         const factura = await prisma.factura.create({
           data: {
