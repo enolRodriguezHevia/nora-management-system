@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { facturasService, usuariosService } from "../services/api";
 import { generarPDFFactura } from "../utils/pdfGenerator";
+import { exportarFacturasExcel } from "../utils/excelExport";
 import AdvancedFilters from "../components/AdvancedFilters";
 
 const MESES_LABEL = ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
@@ -113,7 +114,7 @@ export default function Facturacion() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-start justify-between mb-6">
         <div>
           <h1 className="text-3xl font-bold text-gray-800">Facturación</h1>
           <p className="text-gray-500 text-sm mt-1">
@@ -123,13 +124,22 @@ export default function Facturacion() {
             {totalMes.toFixed(2)}€
           </p>
         </div>
-        <button
-          onClick={() => setModalMasivo(true)}
-          className="bg-green-600 hover:bg-green-700 text-white px-5 py-2.5 rounded-lg text-sm font-medium transition-colors flex items-center gap-2"
-        >
-          <span className="text-lg">⚡</span>
-          Generar todas las facturas del mes
-        </button>
+        <div className="flex gap-2 shrink-0">
+          <button
+            onClick={() => exportarFacturasExcel(facturasFiltradas, mes, anio)}
+            disabled={facturasFiltradas.length === 0}
+            className="bg-emerald-600 hover:bg-emerald-700 disabled:opacity-40 text-white px-4 py-2.5 rounded-lg text-sm font-medium transition-colors flex items-center gap-2"
+            title="Exportar facturas visibles a Excel"
+          >
+            📊 Exportar Excel
+          </button>
+          <button
+            onClick={() => setModalMasivo(true)}
+            className="bg-green-600 hover:bg-green-700 text-white px-4 py-2.5 rounded-lg text-sm font-medium transition-colors flex items-center gap-2"
+          >
+            <span>⚡</span> Generar todas
+          </button>
+        </div>
       </div>
 
       {/* Filtros + Generar */}
