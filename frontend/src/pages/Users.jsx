@@ -6,6 +6,8 @@ import AdvancedFilters from "../components/AdvancedFilters";
 import { FormField, BankField } from "../components/FormField";
 import { useResizableColumns } from "../hooks/useResizableColumns";
 import RowMenu from "../components/RowMenu";
+import { useToast } from "../components/Toast";
+import { getErrorMessage } from "../utils/errorHandler";
 
 // Aliases para los campos de formulario
 const Field = FormField;
@@ -27,6 +29,7 @@ const EMPTY_BANCARIO = {
 
 export default function Users() {
   const navigate = useNavigate();
+  const toast = useToast();
   const [usuarios, setUsuarios]   = useState([]);
   const [socios, setSocios]       = useState([]);
   const [search, setSearch]       = useState("");
@@ -63,8 +66,11 @@ export default function Users() {
   const openCreate = () => { setEditing(null); setForm(EMPTY_FORM); setBancario(EMPTY_BANCARIO); setModal(true); };
   const openEdit   = (u) => {
     setEditing(u.id);
+    const normalized = Object.fromEntries(
+      Object.entries({ ...EMPTY_FORM, ...u }).map(([k, v]) => [k, v === null ? "" : v])
+    );
     setForm({
-      ...EMPTY_FORM, ...u,
+      ...normalized,
       fechaNacimiento: u.fechaNacimiento ? u.fechaNacimiento.slice(0, 10) : "",
       fechaAlta:       u.fechaAlta       ? u.fechaAlta.slice(0, 10)       : "",
       fechaBaja:       u.fechaBaja       ? u.fechaBaja.slice(0, 10)       : "",
@@ -72,7 +78,10 @@ export default function Users() {
       socioVinculado2Id: u.socioVinculado2Id ?? "",
     });
     const db = u.datosBancarios?.[0];
-    setBancario(db ? { ...EMPTY_BANCARIO, ...db } : EMPTY_BANCARIO);
+    const dbNorm = db
+      ? Object.fromEntries(Object.entries({ ...EMPTY_BANCARIO, ...db }).map(([k, v]) => [k, v === null ? "" : v]))
+      : EMPTY_BANCARIO;
+    setBancario(dbNorm);
     setModal(true);
   };
 
@@ -104,8 +113,9 @@ export default function Users() {
       else         await usuariosService.create(payload);
       setModal(false);
       fetchUsuarios();
+      toast.success(editing ? "Usuario actualizado correctamente" : "Usuario creado correctamente");
     } catch (err) {
-      alert("Error: " + (err.response?.data?.error || err.message));
+      toast.error(getErrorMessage(err));
     } finally {
       setSaving(false);
     }
@@ -120,8 +130,9 @@ export default function Users() {
       await usuariosService.update(modalBaja.id, payload);
       setModalBaja(null);
       fetchUsuarios();
+      toast.success(modalBaja.tipo === 'baja' ? "Usuario dado de baja" : "Usuario reactivado");
     } catch (err) {
-      alert("Error: " + (err.response?.data?.error || err.message));
+      toast.error(getErrorMessage(err));
     }
   };
 
@@ -131,8 +142,9 @@ export default function Users() {
       await usuariosService.delete(modalEliminar.id);
       setModalEliminar(null);
       fetchUsuarios();
+      toast.success("Usuario eliminado");
     } catch (err) {
-      alert("Error: " + (err.response?.data?.error || err.message));
+      toast.error(getErrorMessage(err));
     }
   };
 

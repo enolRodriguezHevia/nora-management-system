@@ -7,6 +7,9 @@ const UsuarioWithBancarioSchema = UsuarioSchema.extend({
   datosBancarios: z.array(BancarioSchema).optional(),
 });
 
+// Para PUT: todos los campos opcionales (permite actualizaciones parciales como dar de baja)
+const UsuarioUpdateSchema = UsuarioWithBancarioSchema.partial();
+
 // GET /api/usuarios
 router.get("/", async (req, res) => {
   try {
@@ -80,12 +83,17 @@ router.post("/", validate(UsuarioWithBancarioSchema), async (req, res) => {
 });
 
 // PUT /api/usuarios/:id
-router.put("/:id", validate(UsuarioWithBancarioSchema), async (req, res) => {
+router.put("/:id", validate(UsuarioUpdateSchema), async (req, res) => {
   try {
     const { datosBancarios, ...data } = req.body;
     const id = Number(req.params.id);
 
-    await prisma.usuario.update({ where: { id }, data });
+    // Eliminar claves undefined para no sobreescribir campos no enviados
+    const cleanData = Object.fromEntries(
+      Object.entries(data).filter(([, v]) => v !== undefined)
+    );
+
+    await prisma.usuario.update({ where: { id }, data: cleanData });
 
     if (datosBancarios && datosBancarios.length > 0) {
       await prisma.usuarioBancario.deleteMany({ where: { usuarioId: id } });

@@ -6,7 +6,8 @@ const { SocioCreateSchema, SocioSchema, BancarioSchema, validate } = require("..
 const SocioWithBancarioSchema = SocioCreateSchema.extend({
   datosBancarios: z.array(BancarioSchema).optional(),
 });
-const SocioUpdateWithBancarioSchema = SocioSchema.extend({
+// Para PUT: todos los campos opcionales (permite actualizaciones parciales como dar de baja)
+const SocioUpdateWithBancarioSchema = SocioSchema.partial().extend({
   datosBancarios: z.array(BancarioSchema).optional(),
 });
 
@@ -71,7 +72,11 @@ router.put("/:id", validate(SocioUpdateWithBancarioSchema), async (req, res) => 
     const { datosBancarios, ...data } = req.body;
     const id = Number(req.params.id);
 
-    await prisma.socio.update({ where: { id }, data });
+    const cleanData = Object.fromEntries(
+      Object.entries(data).filter(([, v]) => v !== undefined)
+    );
+
+    await prisma.socio.update({ where: { id }, data: cleanData });
 
     if (datosBancarios && datosBancarios.length > 0) {
       await prisma.socioBancario.deleteMany({ where: { socioId: id } });

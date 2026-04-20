@@ -24,12 +24,16 @@ function validarIBAN(iban) {
   return resto === 1;
 }
 
-// Campos opcionales con formato
-const optionalString  = z.string().nullable().optional();
-const optionalEmail   = z.string().email("Email no válido").nullable().optional().transform(v => v || null);
-const optionalTel     = z.string().regex(telefonoRegex, "Teléfono no válido (7-15 dígitos)").nullable().optional().transform(v => v || null);
-const optionalCP      = z.string().regex(cpRegex, "Código postal debe tener 5 dígitos").nullable().optional().transform(v => v || null);
-const optionalDNI     = z.string().regex(dniRegex, "DNI/NIE/CIF no válido").nullable().optional().transform(v => v || null);
+// Campos opcionales con formato — string vacío se trata como "no informado" (null)
+const optionalString  = z.string().nullable().optional().transform(v => v || null);
+const optionalEmail   = z.union([z.literal(""), z.string().email("Email no válido")])
+                         .nullable().optional().transform(v => v || null);
+const optionalTel     = z.union([z.literal(""), z.string().regex(telefonoRegex, "Teléfono no válido (7-15 dígitos)")])
+                         .nullable().optional().transform(v => v || null);
+const optionalCP      = z.union([z.literal(""), z.string().regex(cpRegex, "Código postal debe tener 5 dígitos")])
+                         .nullable().optional().transform(v => v || null);
+const optionalDNI     = z.union([z.literal(""), z.string().regex(dniRegex, "DNI/NIE/CIF no válido")])
+                         .nullable().optional().transform(v => v || null);
 const optionalIBAN    = z.string().nullable().optional()
   .transform(v => v ? v.replace(/\s/g, "").toUpperCase() : null)
   .refine(validarIBAN, "IBAN no válido — comprueba longitud y dígitos de control");
@@ -49,8 +53,8 @@ const SocioSchema = z.object({
   telefono:       optionalTel,
   telefono2:      optionalTel,
   email:          optionalEmail,
-  tipologia:      z.enum(["Afectado", "Colaborador"]).nullable().optional().transform(v => v || null),
-  notificaciones: z.enum(["Email", "Correo Postal"]).nullable().optional().transform(v => v || null),
+  tipologia:      z.union([z.literal(""), z.enum(["Afectado", "Colaborador"])]).nullable().optional().transform(v => v || null),
+  notificaciones: z.union([z.literal(""), z.enum(["Email", "Correo Postal"])]).nullable().optional().transform(v => v || null),
   referencias:    optionalString,
   observaciones:  optionalString,
   empresa:        z.boolean().optional().default(false),
@@ -70,7 +74,7 @@ const BancarioSchema = z.object({
   codigoSucursal:  optionalString,
   dc:              optionalString,
   numeroCuenta:    optionalString,
-  cadencia:        z.enum(["Mensual", "Trimestral", "Anual"]).nullable().optional().transform(v => v || null),
+  cadencia:        z.union([z.literal(""), z.enum(["Mensual", "Trimestral", "Anual"])]).nullable().optional().transform(v => v || null),
   cuota:           z.number().positive("La cuota debe ser mayor que 0").nullable().optional(),
   observaciones:   optionalString,
 });
@@ -91,7 +95,7 @@ const UsuarioSchema = z.object({
   email:                  optionalEmail,
   diagnostico:            optionalString,
   porcentajeDiscapacidad: z.number().min(0, "Mínimo 0%").max(100, "Máximo 100%").nullable().optional(),
-  grado:                  z.enum(["Grado I", "Grado II", "Grado III"]).nullable().optional().transform(v => v || null),
+  grado:                  z.union([z.literal(""), z.enum(["Grado I", "Grado II", "Grado III"])]).nullable().optional().transform(v => v || null),
   centroAlQueAcude:       optionalString,
   socioVinculadoId:       z.number().int().positive().nullable().optional(),
   socioVinculado2Id:      z.number().int().positive().nullable().optional(),
@@ -143,7 +147,12 @@ function validate(schema, source = "body") {
       }));
       return res.status(422).json({ error: "Datos no válidos", errores });
     }
-    req[source] = result.data; // reemplaza con datos limpios/transformados
+    // Solo reemplaza las claves que vinieron en el body original (no añade nulls de Zod)
+    const originalKeys = new Set(Object.keys(req[source]));
+    const filtered = Object.fromEntries(
+      Object.entries(result.data).filter(([k]) => originalKeys.has(k))
+    );
+    req[source] = filtered;
     next();
   };
 }

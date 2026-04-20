@@ -4,6 +4,8 @@ import { generarPDFFactura } from "../utils/pdfGenerator";
 import { exportarFacturasExcel } from "../utils/excelExport";
 import AdvancedFilters from "../components/AdvancedFilters";
 import RowMenu from "../components/RowMenu";
+import { useToast } from "../components/Toast";
+import { getErrorMessage } from "../utils/errorHandler";
 
 const MESES_LABEL = ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
 
@@ -14,6 +16,7 @@ const ESTADO_COLOR = {
 };
 
 export default function Facturacion() {
+  const toast = useToast();
   const now = new Date();
   const [mes, setMes]           = useState(now.getMonth() + 1);
   const [anio, setAnio]         = useState(now.getFullYear());
@@ -48,14 +51,18 @@ export default function Facturacion() {
   useEffect(() => { fetchFacturas(); }, [mes, anio]);
 
   const handleGenerar = async () => {
-    if (!selectedUsuario) return alert("Selecciona un usuario");
+    if (!selectedUsuario) {
+      toast.warning("Selecciona un usuario");
+      return;
+    }
     setGenerating(true);
     try {
       await facturasService.generar({ usuarioId: Number(selectedUsuario), mes, anio });
       fetchFacturas();
       setSelectedUsuario("");
+      toast.success("Factura generada correctamente");
     } catch (err) {
-      alert("Error: " + (err.response?.data?.error || err.message));
+      toast.error(getErrorMessage(err));
     } finally {
       setGenerating(false);
     }
@@ -72,8 +79,9 @@ export default function Facturacion() {
       const response = await facturasService.generarMasivo({ mes, anio });
       setResultadoMasivo(response.data);
       fetchFacturas();
+      toast.success(`${response.data.generadas} facturas generadas correctamente`);
     } catch (err) {
-      alert("Error: " + (err.response?.data?.error || err.message));
+      toast.error(getErrorMessage(err));
     } finally {
       setGeneratingMasivo(false);
     }

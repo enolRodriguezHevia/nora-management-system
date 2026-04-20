@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { terapeutasService } from "../services/api";
 import { FormField } from "../components/FormField";
+import { useToast } from "../components/Toast";
+import { getErrorMessage } from "../utils/errorHandler";
 
 // Alias para los campos de formulario
 const Field = FormField;
@@ -17,6 +19,7 @@ const ESPECIALIDAD_COLOR = {
 const EMPTY_FORM = { nombre: "", apellidos: "", especialidad: "", email: "", telefono: "", activo: true };
 
 export default function Therapists() {
+  const toast = useToast();
   const [terapeutas, setTerapeutas] = useState([]);
   const [loading, setLoading]       = useState(true);
   const [modal, setModal]           = useState(false);
@@ -47,8 +50,9 @@ export default function Therapists() {
       else         await terapeutasService.create(form);
       setModal(false);
       fetch();
+      toast.success(editing ? "Terapeuta actualizado" : "Terapeuta creado correctamente");
     } catch (err) {
-      alert("Error: " + (err.response?.data?.error || err.message));
+      toast.error(getErrorMessage(err));
     } finally {
       setSaving(false);
     }

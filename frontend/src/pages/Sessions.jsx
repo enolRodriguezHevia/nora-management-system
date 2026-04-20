@@ -1,5 +1,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { sesionesService, terapeutasService, usuariosService, serviciosService } from "../services/api";
+import { useToast } from "../components/Toast";
+import { getErrorMessage } from "../utils/errorHandler";
 
 // ── Configuración de estados ──────────────────────────────────────────────────
 const ESTADOS = {
@@ -25,6 +27,7 @@ function esFinde(dia, mes, anio) {
 
 // ── Componente principal ──────────────────────────────────────────────────────
 export default function Sessions() {
+  const toast = useToast();
   const now = new Date();
   const [mes, setMes]                     = useState(now.getMonth() + 1);
   const [anio, setAnio]                   = useState(now.getFullYear());
@@ -282,6 +285,7 @@ export default function Sessions() {
 
 // ── Panel lateral de detalle ──────────────────────────────────────────────────
 function PanelDetalle({ panel, mes, anio, terapeutaId, terapeutas, servicios, onClose, onRefresh }) {
+  const toast = useToast();
   const [form, setForm] = useState({
     estado: "asistio",
     servicioId: "",
@@ -318,7 +322,7 @@ function PanelDetalle({ panel, mes, anio, terapeutaId, terapeutas, servicios, on
 
   const handleSave = async () => {
     if (!form.servicioId) {
-      alert("Selecciona un servicio antes de guardar");
+      toast.warning("Selecciona un servicio antes de guardar");
       return;
     }
     setSaving(true);
@@ -340,8 +344,9 @@ function PanelDetalle({ panel, mes, anio, terapeutaId, terapeutas, servicios, on
       }
       onRefresh();
       onClose();
+      toast.success("Sesión guardada");
     } catch (err) {
-      alert("Error: " + (err.response?.data?.error || err.message));
+      toast.error(getErrorMessage(err));
     } finally {
       setSaving(false);
     }
@@ -471,6 +476,7 @@ function PanelDetalle({ panel, mes, anio, terapeutaId, terapeutas, servicios, on
 
 // ── Modal añadir sesión ───────────────────────────────────────────────────────
 function ModalAddSesion({ usuarios, terapeutas, servicios, defaultTerapeutaId, defaultMes, defaultAnio, onClose, onSave }) {
+  const toast = useToast();
   const [form, setForm] = useState({
     usuarioId:   "",
     terapeutaId: defaultTerapeutaId,
@@ -499,8 +505,9 @@ function ModalAddSesion({ usuarios, terapeutas, servicios, defaultTerapeutaId, d
         servicioId:  Number(form.servicioId),
       });
       onSave();
+      toast.success("Sesión creada correctamente");
     } catch (err) {
-      alert("Error: " + (err.response?.data?.error || err.message));
+      toast.error(getErrorMessage(err));
     } finally {
       setSaving(false);
     }

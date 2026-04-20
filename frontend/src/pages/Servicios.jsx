@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import { serviciosService } from "../services/api";
+import { useToast } from "../components/Toast";
+import { getErrorMessage } from "../utils/errorHandler";
 
 const CATEGORIA_COLOR = {
   "Tratamiento Individual": "bg-blue-100 text-blue-700",
@@ -11,6 +13,7 @@ const CATEGORIA_COLOR = {
 };
 
 export default function Servicios() {
+  const toast = useToast();
   const [servicios, setServicios] = useState([]);
   const [loading, setLoading]     = useState(true);
   const [editingId, setEditingId] = useState(null);
@@ -42,8 +45,9 @@ export default function Servicios() {
       await serviciosService.update(id, { precio: Number(editPrecio) });
       setEditingId(null);
       fetchServicios();
+      toast.success("Precio actualizado correctamente");
     } catch (err) {
-      alert("Error: " + (err.response?.data?.error || err.message));
+      toast.error(getErrorMessage(err));
     } finally {
       setSaving(false);
     }

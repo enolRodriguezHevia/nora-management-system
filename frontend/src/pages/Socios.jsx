@@ -6,6 +6,8 @@ import AdvancedFilters from "../components/AdvancedFilters";
 import { FormField, BankField } from "../components/FormField";
 import { useResizableColumns } from "../hooks/useResizableColumns";
 import RowMenu from "../components/RowMenu";
+import { useToast } from "../components/Toast";
+import { getErrorMessage } from "../utils/errorHandler";
 
 // Aliases para los campos de formulario
 const Field = FormField;
@@ -32,6 +34,7 @@ const EMPTY_BANCARIO = {
 
 export default function Socios() {
   const navigate = useNavigate();
+  const toast = useToast();
   const [socios, setSocios]   = useState([]);
   const [search, setSearch]   = useState("");
   const [loading, setLoading] = useState(true);
@@ -67,14 +70,20 @@ export default function Socios() {
   const openCreate = () => { setEditing(null); setForm(EMPTY_FORM); setBancario(EMPTY_BANCARIO); setModal(true); };
   const openEdit   = (s) => {
     setEditing(s.id);
+    // Normalizar null -> "" para evitar warnings de React en inputs controlados
+    const normalized = Object.fromEntries(
+      Object.entries({ ...EMPTY_FORM, ...s }).map(([k, v]) => [k, v === null ? "" : v])
+    );
     setForm({
-      ...EMPTY_FORM, ...s,
+      ...normalized,
       fechaAlta: s.fechaAlta ? s.fechaAlta.slice(0, 10) : "",
       fechaBaja: s.fechaBaja ? s.fechaBaja.slice(0, 10) : "",
     });
-    // Cargar primer dato bancario si existe
     const db = s.datosBancarios?.[0];
-    setBancario(db ? { ...EMPTY_BANCARIO, ...db } : EMPTY_BANCARIO);
+    const dbNorm = db
+      ? Object.fromEntries(Object.entries({ ...EMPTY_BANCARIO, ...db }).map(([k, v]) => [k, v === null ? "" : v]))
+      : EMPTY_BANCARIO;
+    setBancario(dbNorm);
     setModal(true);
   };
 
@@ -104,8 +113,9 @@ export default function Socios() {
       else         await sociosService.create(payload);
       setModal(false);
       fetchSocios();
+      toast.success(editing ? "Socio actualizado correctamente" : "Socio creado correctamente");
     } catch (err) {
-      alert("Error: " + (err.response?.data?.error || err.message));
+      toast.error(getErrorMessage(err));
     } finally {
       setSaving(false);
     }
@@ -120,8 +130,9 @@ export default function Socios() {
       await sociosService.update(modalBaja.id, payload);
       setModalBaja(null);
       fetchSocios();
+      toast.success(modalBaja.tipo === 'baja' ? "Socio dado de baja" : "Socio reactivado");
     } catch (err) {
-      alert("Error: " + (err.response?.data?.error || err.message));
+      toast.error(getErrorMessage(err));
     }
   };
 
@@ -131,8 +142,9 @@ export default function Socios() {
       await sociosService.delete(modalEliminar.id);
       setModalEliminar(null);
       fetchSocios();
+      toast.success("Socio eliminado");
     } catch (err) {
-      alert("Error: " + (err.response?.data?.error || err.message));
+      toast.error(getErrorMessage(err));
     }
   };
 

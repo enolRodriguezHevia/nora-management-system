@@ -67,8 +67,8 @@ export default function ConfirmModal({ isOpen, onClose, onConfirm, type, entityN
   const currentConfig = config[type] || config.baja;
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md">
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 animate-fade-in">
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md animate-slide-up">
         <div className={`px-6 py-4 border-b ${currentConfig.headerClass || ''}`}>
           <h2 className={`text-lg font-bold ${currentConfig.titleClass || 'text-gray-800'}`}>
             {currentConfig.title}
