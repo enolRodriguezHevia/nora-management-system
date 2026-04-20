@@ -1,0 +1,29 @@
+services:
+
+  backend:
+    build: ./backend
+    container_name: nora-backend
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: file:./dev.db
+      PORT: 3001
+      NODE_ENV: production
+    volumes:
+      - nora-db:/app/prisma   # Persistencia de la base de datos SQLite
+    ports:
+      - "3001:3001"
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        VITE_API_URL: /api   # nginx hace proxy a backend:3001
+    container_name: nora-frontend
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+
+volumes:
+  nora-db:

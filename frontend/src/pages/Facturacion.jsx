@@ -3,6 +3,7 @@ import { facturasService, usuariosService } from "../services/api";
 import { generarPDFFactura } from "../utils/pdfGenerator";
 import { exportarFacturasExcel } from "../utils/excelExport";
 import AdvancedFilters from "../components/AdvancedFilters";
+import RowMenu from "../components/RowMenu";
 
 const MESES_LABEL = ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
 
@@ -273,22 +274,13 @@ export default function Facturacion() {
                   </span>
                 </td>
                 <td className="px-4 py-3">
-                  <div className="flex gap-2 justify-end">
-                    <button onClick={() => setDetalle(f)} className="text-blue-600 hover:underline text-xs">Ver</button>
-                    <button 
-                      onClick={() => handlePDF(f)} 
-                      className="text-purple-600 hover:underline text-xs font-medium"
-                      title="Descargar PDF"
-                    >
-                      📄 PDF
-                    </button>
-                    {f.estado === "pendiente" && (
-                      <button onClick={() => handleEstado(f.id, "cobrada")} className="text-green-600 hover:underline text-xs">Cobrar</button>
-                    )}
-                    {f.estado !== "anulada" && (
-                      <button onClick={() => handleEstado(f.id, "anulada")} className="text-red-500 hover:underline text-xs">Anular</button>
-                    )}
-                  </div>
+                  <RowMenu items={[
+                    { label: "🔍 Ver detalle",  onClick: () => setDetalle(f) },
+                    { label: "📄 Descargar PDF", onClick: () => handlePDF(f) },
+                    "divider",
+                    ...(f.estado === "pendiente" ? [{ label: "✅ Cobrar", onClick: () => handleEstado(f.id, "cobrada"), className: "text-green-600" }] : []),
+                    ...(f.estado !== "anulada"   ? [{ label: "🚫 Anular", onClick: () => handleEstado(f.id, "anulada"), className: "text-red-600" }] : []),
+                  ]} />
                 </td>
               </tr>
             ))}

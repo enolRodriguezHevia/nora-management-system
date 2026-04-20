@@ -5,8 +5,13 @@ require("dotenv").config();
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-// Middleware
-app.use(cors({ origin: "http://localhost:5173" }));
+// En producción (Docker) el frontend hace proxy desde nginx, no hay CORS
+// En desarrollo permitimos localhost:5173
+app.use(cors({
+  origin: process.env.NODE_ENV === "production"
+    ? true  // nginx hace proxy, misma origin
+    : "http://localhost:5173"
+}));
 app.use(express.json());
 
 // Rutas
