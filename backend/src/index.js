@@ -18,6 +18,7 @@ app.use("/api/sesiones",      require("./routes/sesiones"));
 app.use("/api/facturas",      require("./routes/facturas"));
 app.use("/api/estadisticas",  require("./routes/estadisticas"));
 app.use("/api/importar",      require("./routes/importar"));
+app.use("/api/sepa",         require("./routes/sepa"));
 
 // Health check
 app.get("/api/health", (req, res) => {

@@ -32,6 +32,7 @@ const navGroups = [
     label: "Herramientas",
     items: [
       { to: "/importar",     label: "Importar",     icon: "📥" },
+      { to: "/sepa",         label: "Remesas SEPA",  icon: "🏦" },
     ],
   },
 ];

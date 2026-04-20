@@ -55,4 +55,8 @@ export const estadisticasService = {
   get: (params) => api.get("/estadisticas", { params }),
 };
 
+export const sepaService = {
+  preview: (mes, anio) => api.get("/sepa/preview", { params: { mes, anio } }),
+};
+
 export default api;
