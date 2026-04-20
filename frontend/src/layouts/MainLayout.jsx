@@ -1,4 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 import {
   Squares2X2Icon,
   UserGroupIcon,
@@ -51,13 +52,15 @@ const navGroups = [
 
 export default function MainLayout({ children }) {
   const { pathname } = useLocation();
+  const { user, logout } = useAuth();
 
   return (
     <div className="flex h-screen bg-gray-50 font-sans">
       {/* Sidebar */}
       <aside className="w-52 bg-slate-900 text-white flex flex-col shadow-xl shrink-0">
         <div className="px-5 py-4 border-b border-slate-700/60">
-          <img src="/nora-icono-solo.png" alt="NORA" className="h-10 w-auto object-contain" />
+          <h1 className="text-lg font-bold text-white tracking-wide">NORA</h1>
+          <p className="text-xs text-slate-500 mt-0.5">Gestión Interna</p>
         </div>
 
         <nav className="flex flex-col flex-1 p-2 gap-0.5 overflow-y-auto">
@@ -90,7 +93,16 @@ export default function MainLayout({ children }) {
         </nav>
 
         <div className="px-4 py-3 border-t border-slate-700/60">
-          <p className="text-xs text-slate-600 text-center">Asociación Nora © 2026</p>
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-xs text-slate-300 font-medium">{user?.nombre}</p>
+              <p className="text-xs text-slate-500">{user?.username}</p>
+            </div>
+            <button onClick={logout} title="Cerrar sesión"
+              className="text-slate-500 hover:text-red-400 transition-colors text-xs px-2 py-1 rounded hover:bg-slate-800">
+              Salir
+            </button>
+          </div>
         </div>
       </aside>
 

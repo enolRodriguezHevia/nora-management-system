@@ -5,6 +5,7 @@ import { FormField } from "../components/FormField";
 import { useToast } from "../components/Toast";
 import { getErrorMessage } from "../utils/errorHandler";
 import { SkeletonCard } from "../components/Skeleton";
+import { HeartIcon } from "@heroicons/react/24/outline";
 
 const Field = FormField;
 const ESPECIALIDADES = ["Logopedia", "Psicología", "Fisioterapia", "Terapia Ocupacional"];
@@ -33,7 +34,9 @@ function TerapeutaCard({ t, mes, anio, onEdit, onVerSesiones }) {
     <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-5 flex flex-col gap-4">
       {/* Cabecera */}
       <div className="flex items-start justify-between">
-        <div className="w-11 h-11 rounded-xl bg-slate-100 flex items-center justify-center text-xl shrink-0">🩺</div>
+        <div className="w-11 h-11 rounded-xl bg-slate-100 flex items-center justify-center shrink-0">
+          <HeartIcon className="w-5 h-5 text-slate-500" />
+        </div>
         <span className={`text-xs font-medium px-2 py-0.5 rounded-full border ${colorClass}`}>
           {t.especialidad}
         </span>

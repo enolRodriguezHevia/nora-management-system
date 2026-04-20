@@ -7,8 +7,6 @@ import autoTable from "jspdf-autotable";
  */
 export function generarPDFFactura(factura) {
   try {
-    console.log("Generando PDF para factura:", factura);
-    
     if (!factura || !factura.lineas || factura.lineas.length === 0) {
       console.error("Factura inválida o sin líneas:", factura);
       alert("Error: La factura no tiene líneas de detalle");
@@ -238,9 +236,7 @@ function generarRestoPDF(doc, factura, pageWidth) {
     // ─── DESCARGAR PDF ─────────────────────────────────────────────────────────
     // Formato: Factura_XX-YYYY_Apellidos.pdf (ej: Factura_01-2026_García.pdf)
     const nombreArchivo = `Factura_${factura.numRecibo.replace(/\//g, "-")}_${usuario.apellidos || "Usuario"}.pdf`;
-    console.log("Descargando PDF:", nombreArchivo);
     doc.save(nombreArchivo);
-    console.log("PDF generado exitosamente");
   } catch (error) {
     console.error("Error al generar resto del PDF:", error);
     alert("Error al generar el PDF: " + error.message);

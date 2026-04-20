@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { usuariosService } from "../services/api";
+import { usuariosService, avisosService } from "../services/api";
 import { generarPDFFactura } from "../utils/pdfGenerator";
 import { SkeletonFicha } from "../components/Skeleton";
+import { useToast } from "../components/Toast";
 
 const MESES = ["Ene","Feb","Mar","Abr","May","Jun","Jul","Ago","Sep","Oct","Nov","Dic"];
 const ESTADO_SESION = {
@@ -34,14 +35,21 @@ function InfoRow({ label, value }) {
   );
 }
 
-function Section({ title, icon, children }) {
+function Section({ title, icon, children, defaultOpen = true }) {
+  const [open, setOpen] = useState(defaultOpen);
   return (
     <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
-      <div className="px-5 py-3 border-b border-gray-100 flex items-center gap-2">
-        <span>{icon}</span>
-        <h2 className="font-semibold text-gray-700">{title}</h2>
-      </div>
-      <div className="p-5">{children}</div>
+      <button
+        onClick={() => setOpen(o => !o)}
+        className="w-full px-5 py-3 flex items-center justify-between hover:bg-gray-50 transition-colors"
+      >
+        <div className="flex items-center gap-2">
+          <span>{icon}</span>
+          <h2 className="font-semibold text-gray-700 text-sm">{title}</h2>
+        </div>
+        <span className={`text-gray-400 text-xs transition-transform duration-200 ${open ? "rotate-180" : ""}`}>▼</span>
+      </button>
+      {open && <div className="p-5 border-t border-gray-100">{children}</div>}
     </div>
   );
 }
@@ -49,9 +57,13 @@ function Section({ title, icon, children }) {
 export default function FichaUsuario() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const [usuario, setUsuario] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const toast = useToast();
+  const [usuario, setUsuario]       = useState(null);
+  const [loading, setLoading]       = useState(true);
   const [tabSesiones, setTabSesiones] = useState("recientes");
+  // Avisos
+  const [nuevoAviso, setNuevoAviso] = useState("");
+  const [savingAviso, setSavingAviso] = useState(false);
 
   useEffect(() => {
     usuariosService.getById(id)
@@ -65,6 +77,35 @@ export default function FichaUsuario() {
 
   const fmt = (d) => d ? new Date(d).toLocaleDateString("es-ES") : "—";
   const fmtEur = (n) => n != null ? `${Number(n).toFixed(2)} €` : "—";
+
+  const recargar = () => usuariosService.getById(id).then(r => setUsuario(r.data));
+
+  const handleAddAviso = async () => {
+    if (!nuevoAviso.trim()) return;
+    setSavingAviso(true);
+    try {
+      await avisosService.create({ usuarioId: Number(id), texto: nuevoAviso.trim() });
+      setNuevoAviso("");
+      await recargar();
+      toast.success("Aviso añadido");
+    } catch { toast.error("Error al añadir aviso"); }
+    finally { setSavingAviso(false); }
+  };
+
+  const handleToggleAviso = async (aviso) => {
+    try {
+      await avisosService.update(aviso.id, { resuelto: !aviso.resuelto });
+      await recargar();
+    } catch { toast.error("Error al actualizar aviso"); }
+  };
+
+  const handleDeleteAviso = async (avisoId) => {
+    try {
+      await avisosService.delete(avisoId);
+      await recargar();
+      toast.success("Aviso eliminado");
+    } catch { toast.error("Error al eliminar aviso"); }
+  };
 
   // Sesiones del mes actual
   const ahora = new Date();
@@ -193,7 +234,7 @@ export default function FichaUsuario() {
 
           {/* Datos bancarios */}
           {iban && (
-            <Section title="Datos bancarios" icon="🏦">
+            <Section title="Datos bancarios" icon="🏦" defaultOpen={false}>
               <div className="space-y-2">
                 <InfoRow label="IBAN" value={iban} />
                 <InfoRow label="Entidad" value={usuario.datosBancarios[0].entidadBancaria} />
@@ -242,7 +283,7 @@ export default function FichaUsuario() {
           </Section>
 
           {/* Historial de sesiones */}
-          <Section title="Historial de sesiones" icon="📊">
+          <Section title="Historial de sesiones" icon="📊" defaultOpen={false}>
             <div className="flex gap-2 mb-4">
               {["recientes", "stats"].map(t => (
                 <button key={t} onClick={() => setTabSesiones(t)}
@@ -306,7 +347,7 @@ export default function FichaUsuario() {
           </Section>
 
           {/* Facturas */}
-          <Section title="Historial de facturas" icon="🧾">
+          <Section title="Historial de facturas" icon="🧾" defaultOpen={false}>
             {usuario.facturas.length === 0 ? (
               <p className="text-sm text-gray-400">Sin facturas generadas</p>
             ) : (
@@ -352,6 +393,44 @@ export default function FichaUsuario() {
           </Section>
         </div>
       </div>
+
+      {/* ── Avisos ── */}
+      <Section title="Avisos" icon="📌">
+        <div className="space-y-3">
+          {/* Lista de avisos */}
+          {(usuario.avisos || []).length === 0 && (
+            <p className="text-sm text-gray-400">Sin avisos registrados</p>
+          )}
+          {(usuario.avisos || []).map(a => (
+            <div key={a.id} className={`flex items-start gap-3 p-3 rounded-lg border ${a.resuelto ? "bg-gray-50 border-gray-100 opacity-60" : "bg-amber-50 border-amber-100"}`}>
+              <button onClick={() => handleToggleAviso(a)} title={a.resuelto ? "Marcar pendiente" : "Marcar resuelto"}
+                className={`mt-0.5 w-5 h-5 rounded-full border-2 shrink-0 flex items-center justify-center transition-colors ${a.resuelto ? "bg-green-500 border-green-500 text-white" : "border-amber-400 hover:bg-amber-100"}`}>
+                {a.resuelto && <span className="text-xs">✓</span>}
+              </button>
+              <div className="flex-1">
+                <p className={`text-sm ${a.resuelto ? "line-through text-gray-400" : "text-gray-800"}`}>{a.texto}</p>
+                <p className="text-xs text-gray-400 mt-0.5">{fmt(a.createdAt)}</p>
+              </div>
+              <button onClick={() => handleDeleteAviso(a.id)} className="text-gray-300 hover:text-red-400 transition-colors text-sm">✕</button>
+            </div>
+          ))}
+          {/* Nuevo aviso */}
+          <div className="flex gap-2 pt-1">
+            <input
+              type="text"
+              value={nuevoAviso}
+              onChange={e => setNuevoAviso(e.target.value)}
+              onKeyDown={e => e.key === "Enter" && handleAddAviso()}
+              placeholder="Escribe un aviso y pulsa Enter..."
+              className="flex-1 border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+            <button onClick={handleAddAviso} disabled={savingAviso || !nuevoAviso.trim()}
+              className="px-4 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 disabled:opacity-40 transition-colors">
+              Añadir
+            </button>
+          </div>
+        </div>
+      </Section>
     </div>
   );
 }

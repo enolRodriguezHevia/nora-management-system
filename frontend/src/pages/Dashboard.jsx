@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { usuariosService, sociosService, terapeutasService, sesionesService, facturasService } from "../services/api";
+import { useNavigate } from "react-router-dom";
+import { usuariosService, sociosService, terapeutasService, sesionesService, facturasService, avisosService } from "../services/api";
 import {
   UserGroupIcon,
   UsersIcon,
@@ -18,8 +19,10 @@ const STAT_CARDS = [
 ];
 
 export default function Dashboard() {
-  const [stats, setStats]   = useState({});
+  const navigate = useNavigate();
+  const [stats, setStats]     = useState({});
   const [loading, setLoading] = useState(true);
+  const [avisos, setAvisos]   = useState([]);
 
   useEffect(() => {
     const now = new Date();
@@ -38,6 +41,9 @@ export default function Dashboard() {
         facturasPendientes: facturasPendientes.data.length,
       });
     }).finally(() => setLoading(false));
+
+    // Avisos pendientes de todos los usuarios
+    avisosService.getAll({ resuelto: false }).then(r => setAvisos(r.data));
   }, []);
 
   const now = new Date();
@@ -48,7 +54,7 @@ export default function Dashboard() {
       {/* Cabecera */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-5">
-          <img src="/nora-icono-solo.png" alt="NORA" className="h-16 w-auto object-contain rounded-xl" />
+          <img src="/nora-icono-solo.png" alt="NORA" className="h-16 w-auto object-contain" style={{ mixBlendMode: "multiply" }} />
           <div>
             <h1 className="text-2xl font-bold text-gray-800">Bienvenido al sistema de gestión</h1>
             <p className="text-gray-400 text-sm mt-0.5 capitalize">{mes}</p>
@@ -89,6 +95,41 @@ export default function Dashboard() {
           <a href="/facturacion" className="ml-auto text-sm text-amber-700 font-semibold hover:underline whitespace-nowrap">
             Ver facturas →
           </a>
+        </div>
+      )}
+
+      {/* Avisos pendientes */}
+      {avisos.length > 0 && (
+        <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+          <div className="px-5 py-3 border-b border-gray-100 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <span className="text-amber-500">📌</span>
+              <h2 className="font-semibold text-gray-700 text-sm">Avisos pendientes</h2>
+              <span className="bg-amber-100 text-amber-700 text-xs px-2 py-0.5 rounded-full font-medium">{avisos.length}</span>
+            </div>
+          </div>
+          <div className="divide-y divide-gray-50">
+            {avisos.slice(0, 5).map(a => (
+              <div key={a.id} className="px-5 py-3 flex items-center gap-3 hover:bg-gray-50 transition-colors">
+                <div className="w-2 h-2 rounded-full bg-amber-400 shrink-0" />
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm text-gray-800 truncate">{a.texto}</p>
+                  <p className="text-xs text-gray-400 mt-0.5">{a.usuario?.nombre} {a.usuario?.apellidos}</p>
+                </div>
+                <button
+                  onClick={() => navigate(`/usuarios/${a.usuarioId}`)}
+                  className="text-xs text-blue-600 hover:underline shrink-0"
+                >
+                  Ver ficha →
+                </button>
+              </div>
+            ))}
+            {avisos.length > 5 && (
+              <div className="px-5 py-2 text-xs text-gray-400 text-center">
+                y {avisos.length - 5} más...
+              </div>
+            )}
+          </div>
         </div>
       )}
 

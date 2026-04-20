@@ -56,6 +56,7 @@ router.get("/:id", async (req, res) => {
           include: { lineas: { include: { servicio: true } } },
           orderBy: [{ anio: "desc" }, { mes: "desc" }],
         },
+        avisos: { orderBy: { createdAt: "desc" } },
       },
     });
     if (!usuario) return res.status(404).json({ error: "Usuario no encontrado" });

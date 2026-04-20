@@ -1,8 +1,18 @@
 const { PrismaClient } = require("@prisma/client");
+const bcrypt = require("bcryptjs");
 const prisma = new PrismaClient();
 
 async function main() {
   console.log("🌱 Sembrando base de datos...");
+
+  // ── Usuario admin del sistema ────────────────────────────────────────────────
+  const hash = await bcrypt.hash("nora2026", 10);
+  await prisma.userSistema.upsert({
+    where:  { username: "admin" },
+    update: {},
+    create: { username: "admin", password: hash, nombre: "Administrador" },
+  });
+  console.log("✅ Usuario admin creado (admin / nora2026)");
 
   // ── Terapeutas ──────────────────────────────────────────────────────────────
   const terapeutasData = [

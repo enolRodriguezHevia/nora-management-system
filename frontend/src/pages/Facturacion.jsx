@@ -82,7 +82,6 @@ export default function Facturacion() {
   };
 
   const handlePDF = (factura) => {
-    console.log("Intentando generar PDF para:", factura);
     generarPDFFactura(factura);
   };
 

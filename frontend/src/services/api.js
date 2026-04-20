@@ -7,6 +7,26 @@ const api = axios.create({
   headers: { "Content-Type": "application/json" },
 });
 
+// Interceptor: añade el token JWT a todas las peticiones
+api.interceptors.request.use(config => {
+  const token = localStorage.getItem("nora_token");
+  if (token) config.headers.Authorization = `Bearer ${token}`;
+  return config;
+});
+
+// Interceptor: si el servidor devuelve 401, redirige al login
+api.interceptors.response.use(
+  res => res,
+  err => {
+    if (err.response?.status === 401) {
+      localStorage.removeItem("nora_token");
+      localStorage.removeItem("nora_user");
+      window.location.href = "/login";
+    }
+    return Promise.reject(err);
+  }
+);
+
 export const sociosService = {
   getAll:  (params) => api.get("/socios", { params }),
   getById: (id)     => api.get(`/socios/${id}`),
@@ -59,6 +79,18 @@ export const estadisticasService = {
 
 export const sepaService = {
   preview: (mes, anio) => api.get("/sepa/preview", { params: { mes, anio } }),
+};
+
+export const authService = {
+  login: (username, password) => api.post("/auth/login", { username, password }),
+  me:    () => api.get("/auth/me"),
+};
+
+export const avisosService = {
+  getAll:  (params)    => api.get("/avisos", { params }),
+  create:  (data)      => api.post("/avisos", data),
+  update:  (id, data)  => api.put(`/avisos/${id}`, data),
+  delete:  (id)        => api.delete(`/avisos/${id}`),
 };
 
 export default api;

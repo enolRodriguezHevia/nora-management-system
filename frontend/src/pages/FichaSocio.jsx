@@ -13,14 +13,21 @@ function InfoRow({ label, value }) {
   );
 }
 
-function Section({ title, icon, children }) {
+function Section({ title, icon, children, defaultOpen = true }) {
+  const [open, setOpen] = useState(defaultOpen);
   return (
     <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
-      <div className="px-5 py-3 border-b border-gray-100 flex items-center gap-2">
-        <span>{icon}</span>
-        <h2 className="font-semibold text-gray-700">{title}</h2>
-      </div>
-      <div className="p-5">{children}</div>
+      <button
+        onClick={() => setOpen(o => !o)}
+        className="w-full px-5 py-3 flex items-center justify-between hover:bg-gray-50 transition-colors"
+      >
+        <div className="flex items-center gap-2">
+          <span>{icon}</span>
+          <h2 className="font-semibold text-gray-700 text-sm">{title}</h2>
+        </div>
+        <span className={`text-gray-400 text-xs transition-transform duration-200 ${open ? "rotate-180" : ""}`}>▼</span>
+      </button>
+      {open && <div className="p-5 border-t border-gray-100">{children}</div>}
     </div>
   );
 }

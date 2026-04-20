@@ -85,6 +85,7 @@ model Usuario {
   datosBancarios        UsuarioBancario[]
   sesiones              Sesion[]
   facturas              Factura[]
+  avisos                Aviso[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -188,4 +189,26 @@ model LineaFactura {
   numSesiones Int
   precioSesion Float
   suma        Float
+}
+
+// ─── USUARIOS DEL SISTEMA (autenticación) ────────────────────────────────────
+
+model UserSistema {
+  id        Int      @id @default(autoincrement())
+  username  String   @unique
+  password  String   // hash bcrypt
+  nombre    String
+  createdAt DateTime @default(now())
+}
+
+// ─── AVISOS ───────────────────────────────────────────────────────────────────
+
+model Aviso {
+  id         Int      @id @default(autoincrement())
+  usuarioId  Int
+  usuario    Usuario  @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  texto      String
+  resuelto   Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 }
