@@ -1,11 +1,14 @@
 import { useEffect, useState } from "react";
-import { facturasService, usuariosService } from "../services/api";
+import { facturasService, usuariosService, sesionesService } from "../services/api";
 import { generarPDFFactura } from "../utils/pdfGenerator";
 import { exportarFacturasExcel } from "../utils/excelExport";
 import AdvancedFilters from "../components/AdvancedFilters";
 import RowMenu from "../components/RowMenu";
 import { useToast } from "../components/Toast";
 import { getErrorMessage } from "../utils/errorHandler";
+import { SkeletonTable } from "../components/Skeleton";
+import EmptyState from "../components/EmptyState";
+import { DocumentTextIcon } from "@heroicons/react/24/outline";
 
 const MESES_LABEL = ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
 
@@ -23,6 +26,8 @@ export default function Facturacion() {
   const [facturas, setFacturas] = useState([]);
   const [usuarios, setUsuarios] = useState([]);
   const [loading, setLoading]   = useState(true);
+  const [programadasCount, setProgramadasCount] = useState(0);
+  const [programadasUsuarios, setProgramadasUsuarios] = useState(new Set());
   const [generating, setGenerating] = useState(false);
   const [generatingMasivo, setGeneratingMasivo] = useState(false);
   const [selectedUsuario, setSelectedUsuario] = useState("");
@@ -48,7 +53,15 @@ export default function Facturacion() {
     usuariosService.getAll({ baja: false }).then(r => setUsuarios(r.data));
   }, []);
 
-  useEffect(() => { fetchFacturas(); }, [mes, anio]);
+  useEffect(() => {
+    fetchFacturas();
+    sesionesService.programadasCount(mes, anio)
+      .then(r => {
+        setProgramadasCount(r.data.count);
+        setProgramadasUsuarios(new Set(r.data.usuarioIds));
+      })
+      .catch(() => { setProgramadasCount(0); setProgramadasUsuarios(new Set()); });
+  }, [mes, anio]);
 
   const handleGenerar = async () => {
     if (!selectedUsuario) {
@@ -251,6 +264,17 @@ export default function Facturacion() {
         </div>
       </AdvancedFilters>
 
+      {/* Aviso sesiones programadas */}
+      {programadasCount > 0 && (
+        <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 flex items-center gap-3">
+          <span className="text-amber-500 text-lg shrink-0">⚠️</span>
+          <p className="text-sm text-amber-700">
+            Hay <span className="font-semibold">{programadasCount} sesion{programadasCount !== 1 ? "es" : ""} en estado "Programada"</span> este mes.
+            Actualiza los estados antes de generar facturas para que se contabilicen correctamente.
+          </p>
+        </div>
+      )}
+
       {/* Tabla facturas */}
       <div className="bg-white rounded-xl shadow-sm overflow-hidden">
         <table className="w-full text-sm">
@@ -263,15 +287,31 @@ export default function Facturacion() {
           </thead>
           <tbody className="divide-y divide-gray-100">
             {loading ? (
-              <tr><td colSpan={8} className="text-center py-10 text-gray-400">Cargando...</td></tr>
+              <tr><td colSpan={8} className="p-0">
+                <SkeletonTable rows={8} cols={7} />
+              </td></tr>
             ) : facturasFiltradas.length === 0 ? (
-              <tr><td colSpan={8} className="text-center py-10 text-gray-400">
-                {contadorFiltros > 0 ? "No hay facturas que coincidan con los filtros" : "No hay facturas para este período"}
+              <tr><td colSpan={8}>
+                <EmptyState
+                  icon={DocumentTextIcon}
+                  title="No hay facturas"
+                  description="Genera facturas desde el selector de usuario o con el botón de generación masiva"
+                  isFiltered={contadorFiltros > 0}
+                />
               </td></tr>
             ) : facturasFiltradas.map(f => (
               <tr key={f.id} className="hover:bg-gray-50 transition-colors">
                 <td className="px-4 py-3 font-mono text-xs text-gray-500">{f.numRecibo}</td>
-                <td className="px-4 py-3 font-medium text-gray-800">{f.usuario?.nombre} {f.usuario?.apellidos}</td>
+                <td className="px-4 py-3 font-medium text-gray-800">
+                  <div className="flex items-center gap-2">
+                    {f.usuario?.nombre} {f.usuario?.apellidos}
+                    {programadasUsuarios.has(f.usuarioId) && (
+                      <span title="Este usuario tiene sesiones en estado Programada" className="text-amber-500 text-xs bg-amber-50 border border-amber-200 px-1.5 py-0.5 rounded-full font-medium shrink-0">
+                        ⚠️ Programadas
+                      </span>
+                    )}
+                  </div>
+                </td>
                 <td className="px-4 py-3 text-gray-600">{MESES_LABEL[f.mes - 1]} {f.anio}</td>
                 <td className="px-4 py-3 text-gray-600">{f.subtotal.toFixed(2)}€</td>
                 <td className="px-4 py-3 text-red-600">{f.descuento > 0 ? `-${f.descuento.toFixed(2)}€` : "—"}</td>

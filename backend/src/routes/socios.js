@@ -98,7 +98,21 @@ router.put("/:id", validate(SocioUpdateWithBancarioSchema), async (req, res) => 
 // DELETE /api/socios/:id
 router.delete("/:id", async (req, res) => {
   try {
-    await prisma.socio.delete({ where: { id: Number(req.params.id) } });
+    const id = Number(req.params.id);
+
+    // Verificar si tiene usuarios vinculados
+    const usuarios = await prisma.usuario.count({
+      where: { OR: [{ socioVinculadoId: id }, { socioVinculado2Id: id }] },
+    });
+
+    if (usuarios > 0) {
+      return res.status(400).json({
+        error: `No se puede eliminar: el socio tiene ${usuarios} usuario${usuarios !== 1 ? "s" : ""} vinculado${usuarios !== 1 ? "s" : ""}. Desvincula primero los usuarios o usa "Dar de baja".`,
+      });
+    }
+
+    await prisma.socioBancario.deleteMany({ where: { socioId: id } });
+    await prisma.socio.delete({ where: { id } });
     res.json({ message: "Socio eliminado" });
   } catch (e) {
     res.status(400).json({ error: e.message });

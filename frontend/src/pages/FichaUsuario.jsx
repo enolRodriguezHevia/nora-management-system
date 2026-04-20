@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { usuariosService } from "../services/api";
 import { generarPDFFactura } from "../utils/pdfGenerator";
+import { SkeletonFicha } from "../components/Skeleton";
 
 const MESES = ["Ene","Feb","Mar","Abr","May","Jun","Jul","Ago","Sep","Oct","Nov","Dic"];
 const ESTADO_SESION = {
@@ -59,7 +60,7 @@ export default function FichaUsuario() {
       .finally(() => setLoading(false));
   }, [id]);
 
-  if (loading) return <div className="p-8 text-gray-400">Cargando ficha...</div>;
+  if (loading) return <div className="p-6"><SkeletonFicha /></div>;
   if (!usuario) return null;
 
   const fmt = (d) => d ? new Date(d).toLocaleDateString("es-ES") : "—";
@@ -104,7 +105,7 @@ export default function FichaUsuario() {
           </div>
         </div>
         <button
-          onClick={() => navigate("/usuarios")}
+          onClick={() => navigate("/usuarios", { state: { editId: usuario.id } })}
           className="px-4 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700"
         >
           ✏️ Editar

@@ -10,12 +10,12 @@ Desarrollado como propuesta para el **Reto Solidario NTT Data**, sustituyendo el
 
 | Capa | Tecnología |
 |---|---|
-| Frontend | React 19 + Vite + Tailwind CSS |
+| Frontend | React 19 + Vite + Tailwind CSS + Heroicons |
 | Backend | Node.js + Express |
 | Base de datos | SQLite + Prisma ORM |
 | Validación | Zod |
 | Gráficos | Recharts |
-| Iconos | Heroicons |
+| Contenedores | Docker + nginx |
 
 Todo open-source, sin costes de licencia.
 
@@ -24,15 +24,17 @@ Todo open-source, sin costes de licencia.
 ## Funcionalidades
 
 ### Gestión de personas
-- **Usuarios** — personas con discapacidad que reciben servicios. CRUD completo con datos personales, clínicos (diagnóstico, % discapacidad, grado), socio vinculado y datos bancarios.
-- **Socios** — familiares o colaboradores que pagan las cuotas. CRUD con datos bancarios, IBAN y cadencia de cobro.
-- **Terapeutas** — profesionales que imparten sesiones. Gestión por especialidad.
-- **Fichas individuales** — vista detallada de cada usuario y socio con toda su información, sesiones del mes, historial de facturas y vínculos entre personas.
+- **Usuarios** — CRUD completo con datos personales, clínicos (diagnóstico, % discapacidad, grado), socio vinculado y datos bancarios. Dar de baja / reactivar conservando historial.
+- **Socios** — CRUD con datos bancarios, IBAN, cadencia y cuota de cobro.
+- **Terapeutas** — Gestión por especialidad con métricas del mes (sesiones, asistencia, cobrables, programadas) y acceso directo al grid de sesiones.
+- **Fichas individuales** — Vista detallada de cada usuario y socio: datos personales, sesiones del mes, historial de facturas, vínculos y KPIs. Botón de edición directo desde la ficha.
 
 ### Sesiones y asistencia
 - Grid mensual interactivo por terapeuta
-- 6 estados: Asistió, Falta, Festivo, Vacaciones terapeuta, Permiso, Hospitalización
+- 7 estados: **Programada**, Asistió, Falta, Festivo, Vacaciones terapeuta, Permiso, Hospitalización
+- Estado "Programada" para planificar sesiones futuras — no cobrable
 - Lógica de cobro automática: se cobra "asistió" y "falta", no se cobra el resto
+- Navegación directa desde Terapeutas al grid de cada terapeuta
 
 ### Facturación
 - Generación automática de facturas desde sesiones del mes
@@ -40,12 +42,14 @@ Todo open-source, sin costes de licencia.
 - Descuento del 10% automático: individual >120€ o suma con hermanos >120€
 - Estados: pendiente, cobrada, anulada
 - Numeración secuencial por año (formato `XX/YYYY`)
+- Aviso cuando hay sesiones en estado "Programada" sin actualizar
+- Badge de advertencia por usuario con sesiones programadas pendientes
 - Exportación a Excel con hoja de resumen y hoja de detalle por servicio
 
 ### PDFs de facturas
 - Generación client-side con jsPDF
 - Formato oficial NORA: logo, datos del usuario, tabla de servicios agrupados por categoría, subtotal, descuento y total
-- Pie de página con lugar y fecha
+- Pie de página con lugar y fecha: "En Pola de Siero a..."
 
 ### Importación de datos
 - Importador Excel/CSV para socios y usuarios
@@ -65,14 +69,26 @@ Todo open-source, sin costes de licencia.
 - Distribución de estados de facturas
 - Sesiones mensuales (total, cobrables, asistencia)
 - Distribución de estados de sesiones
-- Actividad por terapeuta
-- Top servicios
+- Actividad por terapeuta y top servicios
 - Filtros por año y rango de meses
 
 ### Catálogo de servicios
 - 13 servicios con precios del PDF de requisitos
 - 2 centros de hipoterapia reales: Equitación Positiva y Asoc. Asturiana de Terapias Ecuestres
 - Precios editables desde la interfaz
+
+---
+
+## UX y calidad
+
+- **Toasts** — notificaciones de éxito/error/aviso con auto-cierre (errores 10s, resto 3.5s)
+- **Skeleton loaders** — placeholders animados en tablas, fichas y gráficos durante la carga
+- **Empty states** — mensajes descriptivos cuando no hay datos o no hay resultados de filtro
+- **Menú de acciones** — menú `•••` con portal para evitar recortes en tablas
+- **Animaciones** — modales con fade + slide suave
+- **Mensajes de error legibles** — campos con nombres en español, formato con bullets
+- **Columnas redimensionables** — drag en cabeceras de tabla
+- **Filtros avanzados** — por estado, tipología, socio, importe, etc.
 
 ---
 
@@ -90,65 +106,10 @@ Todas las rutas de escritura validan con **Zod** antes de tocar la base de datos
 | `tipologia` | Enum: Afectado / Colaborador |
 | `grado` | Enum: Grado I / II / III |
 | `especialidad` | Enum: 4 especialidades válidas |
-| `estado` sesión | Enum: 6 estados válidos |
+| `estado` sesión | Enum: 7 estados válidos |
 | `porcentajeDiscapacidad` | Entre 0 y 100 |
 
-Los errores devuelven HTTP 422 con lista de campos y mensajes en español.
-
----
-
-## Estructura del proyecto
-
-```
-nora-management-system/
-├── backend/
-│   ├── prisma/
-│   │   ├── schema.prisma       # Modelos de datos
-│   │   ├── seed.js             # Datos de ejemplo
-│   │   └── dev.db              # Base de datos SQLite
-│   └── src/
-│       ├── index.js            # Servidor Express
-│       ├── lib/
-│       │   ├── prisma.js       # Cliente Prisma
-│       │   └── schemas.js      # Schemas Zod compartidos
-│       └── routes/
-│           ├── socios.js
-│           ├── usuarios.js
-│           ├── terapeutas.js
-│           ├── servicios.js
-│           ├── sesiones.js
-│           ├── facturas.js
-│           ├── estadisticas.js
-│           ├── importar.js
-│           └── sepa.js
-└── frontend/
-    └── src/
-        ├── components/
-        │   ├── AdvancedFilters.jsx
-        │   ├── ConfirmModal.jsx
-        │   ├── FormField.jsx
-        │   └── RowMenu.jsx
-        ├── hooks/
-        │   └── useResizableColumns.js
-        ├── layouts/
-        │   └── MainLayout.jsx
-        ├── pages/
-        │   ├── Dashboard.jsx
-        │   ├── Users.jsx / FichaUsuario.jsx
-        │   ├── Socios.jsx / FichaSocio.jsx
-        │   ├── Therapists.jsx
-        │   ├── Sessions.jsx
-        │   ├── Facturacion.jsx
-        │   ├── Servicios.jsx
-        │   ├── Estadisticas.jsx
-        │   ├── Importar.jsx
-        │   └── Sepa.jsx
-        ├── services/
-        │   └── api.js
-        └── utils/
-            ├── pdfGenerator.js
-            └── excelExport.js
-```
+Los errores devuelven HTTP 422 con lista de campos y mensajes en español. Los campos opcionales vacíos no generan error de formato.
 
 ---
 
@@ -157,36 +118,35 @@ nora-management-system/
 ### Con Docker (recomendado)
 
 ```bash
-docker-compose up --build
+docker compose up --build
 ```
 
 La aplicación estará disponible en **http://localhost**
 
-La primera vez tarda unos minutos en construir las imágenes. Las siguientes veces arranca en segundos con `docker-compose up`.
+La primera vez tarda unos minutos en construir las imágenes. Las siguientes veces arranca en segundos con `docker compose up`.
 
-Para parar: `docker-compose down`
-Para parar y borrar datos: `docker-compose down -v`
+```bash
+docker compose down        # Parar
+docker compose down -v     # Parar y borrar datos
+```
 
 ### Sin Docker (desarrollo local)
 
-#### Requisitos
-- Node.js 20+
+**Requisitos:** Node.js 20+
 
-### Backend
 ```bash
+# Backend
 cd backend
 npm install
 npx prisma generate
 npx prisma migrate deploy
 node prisma/seed.js      # Carga datos de ejemplo
-node src/index.js        # Arranca en http://localhost:3001
-```
+node src/index.js        # http://localhost:3001
 
-### Frontend
-```bash
+# Frontend (otra terminal)
 cd frontend
 npm install
-npm run dev              # Arranca en http://localhost:5173
+npm run dev              # http://localhost:5173
 ```
 
 ---

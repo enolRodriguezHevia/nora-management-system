@@ -127,9 +127,9 @@ const SesionSchema = z.object({
   servicioId:  z.number({ required_error: "servicioId es obligatorio" }).int().positive(),
   fecha:       z.coerce.date({ required_error: "fecha es obligatoria" }),
   estado:      z.enum(
-    ["asistio", "falta", "festivo", "vacaciones_terapeuta", "permiso", "hospitalizacion"],
+    ["programada", "asistio", "falta", "festivo", "vacaciones_terapeuta", "permiso", "hospitalizacion"],
     { message: "estado no válido" }
-  ).optional().default("asistio"),
+  ).optional().default("programada"),
   actividadRealizada: optionalString,
   motivacion:         optionalString,
   observaciones:      optionalString,

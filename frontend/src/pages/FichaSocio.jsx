@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { sociosService } from "../services/api";
+import { SkeletonFicha } from "../components/Skeleton";
 
 function InfoRow({ label, value }) {
   if (!value && value !== 0) return null;
@@ -37,7 +38,7 @@ export default function FichaSocio() {
       .finally(() => setLoading(false));
   }, [id]);
 
-  if (loading) return <div className="p-8 text-gray-400">Cargando ficha...</div>;
+  if (loading) return <div className="p-6"><SkeletonFicha /></div>;
   if (!socio) return null;
 
   const fmt = (d) => d ? new Date(d).toLocaleDateString("es-ES") : "—";
@@ -68,7 +69,7 @@ export default function FichaSocio() {
             </div>
           </div>
         </div>
-        <button onClick={() => navigate("/socios")} className="px-4 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+        <button onClick={() => navigate("/socios", { state: { editId: socio.id } })} className="px-4 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700">
           ✏️ Editar
         </button>
       </div>

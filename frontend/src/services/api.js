@@ -37,10 +37,12 @@ export const serviciosService = {
 };
 
 export const sesionesService = {
-  getAll:  (params) => api.get("/sesiones", { params }),
-  create:  (data)   => api.post("/sesiones", data),
-  update:  (id, data) => api.put(`/sesiones/${id}`, data),
-  delete:  (id)     => api.delete(`/sesiones/${id}`),
+  getAll:            (params)       => api.get("/sesiones", { params }),
+  programadasCount:  (mes, anio)    => api.get("/sesiones/programadas-count", { params: { mes, anio } }),
+  metricasTerapeuta: (terapeutaId, mes, anio) => api.get("/sesiones/metricas-terapeuta", { params: { terapeutaId, mes, anio } }),
+  create:  (data)      => api.post("/sesiones", data),
+  update:  (id, data)  => api.put(`/sesiones/${id}`, data),
+  delete:  (id)        => api.delete(`/sesiones/${id}`),
 };
 
 export const facturasService = {

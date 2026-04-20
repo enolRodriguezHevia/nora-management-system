@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { sociosService } from "../services/api";
 import ConfirmModal from "../components/ConfirmModal";
 import AdvancedFilters from "../components/AdvancedFilters";
@@ -8,6 +8,9 @@ import { useResizableColumns } from "../hooks/useResizableColumns";
 import RowMenu from "../components/RowMenu";
 import { useToast } from "../components/Toast";
 import { getErrorMessage } from "../utils/errorHandler";
+import { SkeletonTable } from "../components/Skeleton";
+import EmptyState from "../components/EmptyState";
+import { UsersIcon } from "@heroicons/react/24/outline";
 
 // Aliases para los campos de formulario
 const Field = FormField;
@@ -34,6 +37,7 @@ const EMPTY_BANCARIO = {
 
 export default function Socios() {
   const navigate = useNavigate();
+  const location = useLocation();
   const toast = useToast();
   const [socios, setSocios]   = useState([]);
   const [search, setSearch]   = useState("");
@@ -66,6 +70,14 @@ export default function Socios() {
   };
 
   useEffect(() => { fetchSocios(); }, [search]);
+
+  // Abrir modal de edición si venimos de la ficha con editId
+  useEffect(() => {
+    const editId = location.state?.editId;
+    if (!editId) return;
+    navigate("/socios", { replace: true, state: {} });
+    sociosService.getById(editId).then(r => openEdit(r.data));
+  }, [location.state]);
 
   const openCreate = () => { setEditing(null); setForm(EMPTY_FORM); setBancario(EMPTY_BANCARIO); setModal(true); };
   const openEdit   = (s) => {
@@ -281,10 +293,17 @@ export default function Socios() {
           </thead>
           <tbody className="divide-y divide-gray-100">
             {loading ? (
-              <tr><td colSpan={8} className="text-center py-10 text-gray-400">Cargando...</td></tr>
+              <tr><td colSpan={8} className="p-0">
+                <SkeletonTable rows={6} cols={7} />
+              </td></tr>
             ) : sociosFiltrados.length === 0 ? (
-              <tr><td colSpan={8} className="text-center py-10 text-gray-400">
-                {contadorFiltros > 0 ? "No hay socios que coincidan con los filtros" : "No hay socios"}
+              <tr><td colSpan={8}>
+                <EmptyState
+                  icon={UsersIcon}
+                  title="No hay socios"
+                  description="Crea el primer socio con el botón + Nuevo socio"
+                  isFiltered={contadorFiltros > 0}
+                />
               </td></tr>
             ) : sociosFiltrados.map(s => (
               <tr key={s.id} className="hover:bg-gray-50 transition-colors">

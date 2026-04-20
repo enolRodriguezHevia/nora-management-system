@@ -4,6 +4,7 @@ import {
   BarChart, Bar, LineChart, Line, PieChart, Pie, Cell,
   XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
 } from "recharts";
+import { SkeletonChart } from "../components/Skeleton";
 
 const COLORS_PIE = ["#22c55e", "#f59e0b", "#ef4444", "#8b5cf6", "#06b6d4", "#f97316"];
 const MESES_LABEL = ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
@@ -90,7 +91,9 @@ export default function Estadisticas() {
       </div>
 
       {loading ? (
-        <div className="flex items-center justify-center h-64 text-gray-400">Cargando estadísticas...</div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+          {[...Array(6)].map((_, i) => <SkeletonChart key={i} />)}
+        </div>
       ) : !data ? null : (
         <>
           {/* KPIs */}

@@ -23,15 +23,17 @@ const ICON_STYLES = {
 function ToastItem({ id, type = "success", message, onRemove }) {
   const [visible, setVisible] = useState(false);
   const Icon = ICONS[type];
+  // Los errores duran más tiempo (10s) para que el usuario pueda leerlos
+  const autoClose = true;
+  const duration  = type === "error" ? 10000 : 3500;
 
   useEffect(() => {
-    // Entrada
     requestAnimationFrame(() => setVisible(true));
-    // Auto-cierre
+    if (!autoClose) return;
     const t = setTimeout(() => {
       setVisible(false);
       setTimeout(() => onRemove(id), 300);
-    }, 3500);
+    }, duration);
     return () => clearTimeout(t);
   }, []);
 

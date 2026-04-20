@@ -1,12 +1,14 @@
 import { useEffect, useState, useCallback } from "react";
+import { useLocation } from "react-router-dom";
 import { sesionesService, terapeutasService, usuariosService, serviciosService } from "../services/api";
 import { useToast } from "../components/Toast";
 import { getErrorMessage } from "../utils/errorHandler";
 
 // ── Configuración de estados ──────────────────────────────────────────────────
 const ESTADOS = {
+  programada:           { label: "Programada",           color: "bg-slate-100 text-slate-600",   dot: "bg-slate-400",   cobrable: false },
   asistio:              { label: "Asistió",              color: "bg-green-200 text-green-800",   dot: "bg-green-500",   cobrable: true  },
-  falta:                { label: "Falta (cobra)",         color: "bg-yellow-200 text-yellow-800", dot: "bg-yellow-500",  cobrable: true  },
+  falta:                { label: "Falta",                color: "bg-yellow-200 text-yellow-800", dot: "bg-yellow-500",  cobrable: true  },
   festivo:              { label: "Festivo/Fin de semana", color: "bg-blue-200 text-blue-800",     dot: "bg-blue-500",    cobrable: false },
   vacaciones_terapeuta: { label: "Vacaciones terapeuta",  color: "bg-purple-200 text-purple-800", dot: "bg-purple-500",  cobrable: false },
   permiso:              { label: "Permiso",               color: "bg-orange-200 text-orange-800", dot: "bg-orange-500",  cobrable: false },
@@ -28,6 +30,7 @@ function esFinde(dia, mes, anio) {
 // ── Componente principal ──────────────────────────────────────────────────────
 export default function Sessions() {
   const toast = useToast();
+  const location = useLocation();
   const now = new Date();
   const [mes, setMes]                     = useState(now.getMonth() + 1);
   const [anio, setAnio]                   = useState(now.getFullYear());
@@ -44,7 +47,14 @@ export default function Sessions() {
   useEffect(() => {
     terapeutasService.getAll().then(r => {
       setTerapeutas(r.data);
-      if (r.data.length > 0) setTerapeutaId(String(r.data[0].id));
+      // Si venimos desde Terapeutas con un terapeutaId en la URL, usarlo
+      const params = new URLSearchParams(location.search);
+      const idFromUrl = params.get("terapeutaId");
+      if (idFromUrl && r.data.find(t => String(t.id) === idFromUrl)) {
+        setTerapeutaId(idFromUrl);
+      } else if (r.data.length > 0) {
+        setTerapeutaId(String(r.data[0].id));
+      }
     });
     usuariosService.getAll({ baja: false }).then(r => setUsuarios(r.data));
     serviciosService.getAll().then(r => setServicios(r.data));
@@ -74,18 +84,8 @@ export default function Sessions() {
     sesiones.some(s => s.usuarioId === u.id)
   );
 
-  // ── Métricas ──────────────────────────────────────────────────────────────
-  const totalSesiones  = sesiones.length;
-  const cobrables      = sesiones.filter(s => s.cobrable).length;
-  const noCobrables    = totalSesiones - cobrables;
-  const faltas         = sesiones.filter(s => s.estado === "falta").length;
-  const pctAsistencia  = totalSesiones > 0
-    ? Math.round((sesiones.filter(s => s.estado === "asistio").length / totalSesiones) * 100)
-    : 0;
-
   const numDias = diasEnMes(mes, anio);
   const dias = Array.from({ length: numDias }, (_, i) => i + 1);
-
   const terapeutaActual = terapeutas.find(t => String(t.id) === terapeutaId);
 
   return (
@@ -132,14 +132,6 @@ export default function Sessions() {
             {[2024, 2025, 2026, 2027].map(y => <option key={y} value={y}>{y}</option>)}
           </select>
         </div>
-      </div>
-
-      {/* ── Métricas ── */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <MetricCard label="Total sesiones"   value={totalSesiones} color="border-blue-500"   />
-        <MetricCard label="Cobrables"         value={cobrables}     color="border-green-500"  />
-        <MetricCard label="No cobrables"      value={noCobrables}   color="border-gray-400"   />
-        <MetricCard label="% Asistencia"      value={`${pctAsistencia}%`} color="border-purple-500" />
       </div>
 
       {/* ── Leyenda ── */}
@@ -207,7 +199,6 @@ export default function Sessions() {
                           return (
                             <td key={d}
                               className={`border border-gray-100 text-center cursor-pointer transition-colors w-8 h-7
-                                ${esHoy ? "bg-blue-50" : ""}
                                 ${panelActivo ? "ring-2 ring-inset ring-blue-400" : "hover:bg-blue-50"}`}
                               onClick={() => setPanel({ usuarioId: u.id, dia: d, sesiones: [], usuario: u })}
                             />
@@ -287,7 +278,7 @@ export default function Sessions() {
 function PanelDetalle({ panel, mes, anio, terapeutaId, terapeutas, servicios, onClose, onRefresh }) {
   const toast = useToast();
   const [form, setForm] = useState({
-    estado: "asistio",
+    estado: "programada",
     servicioId: "",
     actividadRealizada: "",
     motivacion: "",
@@ -311,7 +302,7 @@ function PanelDetalle({ panel, mes, anio, terapeutaId, terapeutas, servicios, on
         observaciones:      sesion.observaciones || "",
       });
     } else {
-      setForm({ estado: "asistio", servicioId: "", actividadRealizada: "", motivacion: "", observaciones: "" });
+      setForm({ estado: "programada", servicioId: "", actividadRealizada: "", motivacion: "", observaciones: "" });
     }
   }, [panel]);
 
@@ -482,7 +473,7 @@ function ModalAddSesion({ usuarios, terapeutas, servicios, defaultTerapeutaId, d
     terapeutaId: defaultTerapeutaId,
     servicioId:  "",
     fecha:       `${defaultAnio}-${String(defaultMes).padStart(2,"0")}-01`,
-    estado:      "asistio",
+    estado:      "programada",
     actividadRealizada: "",
     motivacion:  "",
     observaciones: "",
@@ -579,12 +570,4 @@ function ModalAddSesion({ usuarios, terapeutas, servicios, defaultTerapeutaId, d
   );
 }
 
-// ── Tarjeta de métrica ────────────────────────────────────────────────────────
-function MetricCard({ label, value, color }) {
-  return (
-    <div className={`bg-white rounded-xl shadow-sm p-4 border-l-4 ${color}`}>
-      <p className="text-xs text-gray-500 font-medium">{label}</p>
-      <p className="text-2xl font-bold text-gray-800 mt-1">{value}</p>
-    </div>
-  );
-}
+

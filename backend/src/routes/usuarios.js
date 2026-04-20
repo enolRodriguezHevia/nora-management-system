@@ -115,7 +115,23 @@ router.put("/:id", validate(UsuarioUpdateSchema), async (req, res) => {
 // DELETE /api/usuarios/:id
 router.delete("/:id", async (req, res) => {
   try {
-    await prisma.usuario.delete({ where: { id: Number(req.params.id) } });
+    const id = Number(req.params.id);
+
+    // Verificar si tiene sesiones o facturas antes de eliminar
+    const [sesiones, facturas] = await Promise.all([
+      prisma.sesion.count({ where: { usuarioId: id } }),
+      prisma.factura.count({ where: { usuarioId: id } }),
+    ]);
+
+    if (sesiones > 0 || facturas > 0) {
+      return res.status(400).json({
+        error: `No se puede eliminar: el usuario tiene ${sesiones} sesion${sesiones !== 1 ? "es" : ""} y ${facturas} factura${facturas !== 1 ? "s" : ""} asociadas. Usa "Dar de baja" para desactivarlo conservando el historial.`,
+      });
+    }
+
+    // Eliminar datos bancarios primero (no tienen cascade en schema)
+    await prisma.usuarioBancario.deleteMany({ where: { usuarioId: id } });
+    await prisma.usuario.delete({ where: { id } });
     res.json({ message: "Usuario eliminado" });
   } catch (e) {
     res.status(400).json({ error: e.message });
