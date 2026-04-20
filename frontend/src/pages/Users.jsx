@@ -5,6 +5,7 @@ import ConfirmModal from "../components/ConfirmModal";
 import AdvancedFilters from "../components/AdvancedFilters";
 import { FormField, BankField } from "../components/FormField";
 import { useResizableColumns } from "../hooks/useResizableColumns";
+import { useTableSort, SortHeader } from "../hooks/useTableSort.jsx";
 import RowMenu from "../components/RowMenu";
 import { useToast } from "../components/Toast";
 import { getErrorMessage } from "../utils/errorHandler";
@@ -172,6 +173,7 @@ export default function Users() {
   });
 
   const contadorFiltros = [filtroEstado !== "activos", filtroSocio].filter(Boolean).length;
+  const { sorted: usuariosOrdenados, sortKey, sortDir, toggleSort } = useTableSort(usuariosFiltrados, "apellidos");
 
   return (
     <div>
@@ -246,18 +248,20 @@ export default function Users() {
           <thead className="bg-gray-50 border-b border-gray-200">
             <tr>
               {[
-                { key: "id",          label: "ID" },
-                { key: "nombre",      label: "Nombre" },
-                { key: "dni",         label: "DNI" },
-                { key: "telefono",    label: "Teléfono" },
-                { key: "diagnostico", label: "Diagnóstico" },
-                { key: "alta",        label: "Alta" },
-                { key: "estado",      label: "Estado" },
-                { key: "acciones",    label: "Acciones" },
-              ].map(({ key, label }) => (
+                { key: "id",          label: "ID",           sortable: true },
+                { key: "nombre",      label: "Nombre",       sortable: true, sortField: "apellidos" },
+                { key: "dni",         label: "DNI",          sortable: true },
+                { key: "telefono",    label: "Teléfono",     sortable: false },
+                { key: "diagnostico", label: "Diagnóstico",  sortable: true },
+                { key: "alta",        label: "Alta",         sortable: true, sortField: "fechaAlta" },
+                { key: "estado",      label: "Estado",       sortable: true, sortField: "baja" },
+                { key: "acciones",    label: "Acciones",     sortable: false },
+              ].map(({ key, label, sortable, sortField }) => (
                 <th key={key} style={{ width: widths[key] }}
                   className="relative text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide select-none">
-                  {label}
+                  {sortable ? (
+                    <SortHeader label={label} sortKey={sortField || key} currentKey={sortKey} currentDir={sortDir} onSort={toggleSort} />
+                  ) : label}
                   <span {...getResizeHandleProps(key)}>
                     <span className="w-px h-4 bg-gray-300 group-hover:bg-blue-400 transition-colors" />
                   </span>
@@ -270,7 +274,7 @@ export default function Users() {
               <tr><td colSpan={8} className="p-0">
                 <SkeletonTable rows={6} cols={7} />
               </td></tr>
-            ) : usuariosFiltrados.length === 0 ? (
+            ) : usuariosOrdenados.length === 0 ? (
               <tr><td colSpan={8}>
                 <EmptyState
                   icon={UserGroupIcon}
@@ -279,7 +283,7 @@ export default function Users() {
                   isFiltered={contadorFiltros > 0}
                 />
               </td></tr>
-            ) : usuariosFiltrados.map(u => (
+            ) : usuariosOrdenados.map(u => (
               <tr key={u.id} className="hover:bg-gray-50 transition-colors">
                 <td className="px-4 py-3 text-gray-400 font-mono text-xs overflow-hidden text-ellipsis whitespace-nowrap">{u.id}</td>
                 <td className="px-4 py-3 font-medium text-gray-800 overflow-hidden text-ellipsis whitespace-nowrap" title={`${u.nombre} ${u.apellidos}`}>{u.nombre} {u.apellidos}</td>

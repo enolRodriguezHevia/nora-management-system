@@ -72,7 +72,16 @@ Todo open-source, sin costes de licencia.
 - Actividad por terapeuta y top servicios
 - Filtros por año y rango de meses
 
-### Catálogo de servicios
+### Autenticación
+- Login con usuario y contraseña (JWT, 8h de sesión)
+- Todas las rutas de la API protegidas con middleware JWT
+- Credenciales por defecto: `admin` / `nora2026`
+- Botón de cierre de sesión en el sidebar con nombre del usuario
+
+### Avisos por usuario
+- Notas internas por usuario visibles en su ficha
+- Estados: pendiente (ámbar) / resuelto (tachado)
+- Avisos pendientes visibles en el Dashboard para acceso rápido
 - 13 servicios con precios del PDF de requisitos
 - 2 centros de hipoterapia reales: Equitación Positiva y Asoc. Asturiana de Terapias Ecuestres
 - Precios editables desde la interfaz
@@ -88,7 +97,9 @@ Todo open-source, sin costes de licencia.
 - **Animaciones** — modales con fade + slide suave
 - **Mensajes de error legibles** — campos con nombres en español, formato con bullets
 - **Columnas redimensionables** — drag en cabeceras de tabla
+- **Ordenamiento de tablas** — clic en cabecera ordena asc/desc, flecha indica columna activa
 - **Filtros avanzados** — por estado, tipología, socio, importe, etc.
+- **Nº Socio automático** — generado por el sistema, no editable manualmente
 
 ---
 

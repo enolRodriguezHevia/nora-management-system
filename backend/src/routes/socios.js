@@ -3,12 +3,25 @@ const prisma = require("../lib/prisma");
 const { z } = require("zod");
 const { SocioCreateSchema, SocioSchema, BancarioSchema, validate } = require("../lib/schemas");
 
-const SocioWithBancarioSchema = SocioCreateSchema.extend({
+const SocioWithBancarioSchema = SocioSchema.extend({
   datosBancarios: z.array(BancarioSchema).optional(),
 });
 // Para PUT: todos los campos opcionales (permite actualizaciones parciales como dar de baja)
 const SocioUpdateWithBancarioSchema = SocioSchema.partial().extend({
   datosBancarios: z.array(BancarioSchema).optional(),
+});
+
+// GET /api/socios/next-num — devuelve el siguiente numSocio disponible
+router.get("/next-num", async (req, res) => {
+  try {
+    const ultimo = await prisma.socio.findFirst({
+      orderBy: { numSocio: "desc" },
+      select: { numSocio: true },
+    });
+    res.json({ nextNum: (ultimo?.numSocio ?? 0) + 1 });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
 });
 
 // GET /api/socios
@@ -53,6 +66,14 @@ router.get("/:id", async (req, res) => {
 router.post("/", validate(SocioWithBancarioSchema), async (req, res) => {
   try {
     const { datosBancarios, ...data } = req.body;
+
+    // Generar numSocio automáticamente
+    const ultimo = await prisma.socio.findFirst({
+      orderBy: { numSocio: "desc" },
+      select: { numSocio: true },
+    });
+    data.numSocio = (ultimo?.numSocio ?? 0) + 1;
+
     const socio = await prisma.socio.create({
       data: {
         ...data,

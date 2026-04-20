@@ -28,11 +28,12 @@ api.interceptors.response.use(
 );
 
 export const sociosService = {
-  getAll:  (params) => api.get("/socios", { params }),
-  getById: (id)     => api.get(`/socios/${id}`),
-  create:  (data)   => api.post("/socios", data),
-  update:  (id, data) => api.put(`/socios/${id}`, data),
-  delete:  (id)     => api.delete(`/socios/${id}`),
+  getAll:   (params)     => api.get("/socios", { params }),
+  getById:  (id)         => api.get(`/socios/${id}`),
+  nextNum:  ()           => api.get("/socios/next-num"),
+  create:   (data)       => api.post("/socios", data),
+  update:   (id, data)   => api.put(`/socios/${id}`, data),
+  delete:   (id)         => api.delete(`/socios/${id}`),
 };
 
 export const usuariosService = {

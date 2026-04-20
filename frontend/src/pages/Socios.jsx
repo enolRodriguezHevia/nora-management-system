@@ -5,6 +5,7 @@ import ConfirmModal from "../components/ConfirmModal";
 import AdvancedFilters from "../components/AdvancedFilters";
 import { FormField, BankField } from "../components/FormField";
 import { useResizableColumns } from "../hooks/useResizableColumns";
+import { useTableSort, SortHeader } from "../hooks/useTableSort.jsx";
 import RowMenu from "../components/RowMenu";
 import { useToast } from "../components/Toast";
 import { getErrorMessage } from "../utils/errorHandler";
@@ -79,7 +80,14 @@ export default function Socios() {
     sociosService.getById(editId).then(r => openEdit(r.data));
   }, [location.state]);
 
-  const openCreate = () => { setEditing(null); setForm(EMPTY_FORM); setBancario(EMPTY_BANCARIO); setModal(true); };
+  const openCreate = () => {
+    setEditing(null);
+    setForm(EMPTY_FORM);
+    setBancario(EMPTY_BANCARIO);
+    // Autocompletar el siguiente número de socio
+    sociosService.nextNum().then(r => setForm(f => ({ ...f, numSocio: String(r.data.nextNum) })));
+    setModal(true);
+  };
   const openEdit   = (s) => {
     setEditing(s.id);
     // Normalizar null -> "" para evitar warnings de React en inputs controlados
@@ -112,9 +120,9 @@ export default function Socios() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSaving(true);
+    const { numSocio: _num, ...formSinNum } = form;
     const payload = {
-      ...form,
-      numSocio: Number(form.numSocio),
+      ...(editing ? formSinNum : formSinNum),
       fechaAlta: form.fechaAlta || null,
       fechaBaja: form.fechaBaja || null,
       // Incluir datos bancarios si hay IBAN o entidad
@@ -183,6 +191,7 @@ export default function Socios() {
     filtroTipologia,
     filtroPoblacion
   ].filter(Boolean).length;
+  const { sorted: sociosOrdenados, sortKey, sortDir, toggleSort } = useTableSort(sociosFiltrados, "numSocio");
 
   return (
     <div>
@@ -272,18 +281,20 @@ export default function Socios() {
           <thead className="bg-gray-50 border-b border-gray-200">
             <tr>
               {[
-                { key: "numSocio",  label: "Nº Socio" },
-                { key: "nombre",    label: "Nombre" },
-                { key: "dni",       label: "DNI" },
-                { key: "telefono",  label: "Teléfono" },
-                { key: "tipologia", label: "Tipología" },
-                { key: "alta",      label: "Alta" },
-                { key: "estado",    label: "Estado" },
-                { key: "acciones",  label: "Acciones" },
-              ].map(({ key, label }) => (
+                { key: "numSocio",  label: "Nº Socio",  sortable: true },
+                { key: "nombre",    label: "Nombre",    sortable: true, sortField: "apellidos" },
+                { key: "dni",       label: "DNI",       sortable: true },
+                { key: "telefono",  label: "Teléfono",  sortable: false },
+                { key: "tipologia", label: "Tipología", sortable: true },
+                { key: "alta",      label: "Alta",      sortable: true, sortField: "fechaAlta" },
+                { key: "estado",    label: "Estado",    sortable: true, sortField: "baja" },
+                { key: "acciones",  label: "Acciones",  sortable: false },
+              ].map(({ key, label, sortable, sortField }) => (
                 <th key={key} style={{ width: widths[key] }}
                   className="relative text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide select-none">
-                  {label}
+                  {sortable ? (
+                    <SortHeader label={label} sortKey={sortField || key} currentKey={sortKey} currentDir={sortDir} onSort={toggleSort} />
+                  ) : label}
                   <span {...getResizeHandleProps(key)}>
                     <span className="w-px h-4 bg-gray-300 group-hover:bg-blue-400 transition-colors" />
                   </span>
@@ -296,7 +307,7 @@ export default function Socios() {
               <tr><td colSpan={8} className="p-0">
                 <SkeletonTable rows={6} cols={7} />
               </td></tr>
-            ) : sociosFiltrados.length === 0 ? (
+            ) : sociosOrdenados.length === 0 ? (
               <tr><td colSpan={8}>
                 <EmptyState
                   icon={UsersIcon}
@@ -305,7 +316,7 @@ export default function Socios() {
                   isFiltered={contadorFiltros > 0}
                 />
               </td></tr>
-            ) : sociosFiltrados.map(s => (
+            ) : sociosOrdenados.map(s => (
               <tr key={s.id} className="hover:bg-gray-50 transition-colors">
                 <td className="px-4 py-3 font-mono text-xs text-gray-500 overflow-hidden text-ellipsis whitespace-nowrap">{s.numSocio}</td>
                 <td className="px-4 py-3 font-medium text-gray-800 overflow-hidden text-ellipsis whitespace-nowrap" title={`${s.nombre} ${s.apellidos}`}>{s.nombre} {s.apellidos}</td>
@@ -348,7 +359,14 @@ export default function Socios() {
               <section>
                 <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3">Datos personales</h3>
                 <div className="grid grid-cols-2 gap-3">
-                  <Field label="Nº Socio *" name="numSocio" type="number" value={form.numSocio} onChange={handleChange} required />
+                  {editing && <Field label="Nº Socio" name="numSocio" type="number" value={form.numSocio} disabled className="bg-gray-50" />}
+                  {!editing && (
+                    <div>
+                      <label className="block text-xs text-gray-600 mb-1">Nº Socio (automático)</label>
+                      <input type="number" value={form.numSocio} disabled
+                        className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm bg-gray-50 text-gray-500" />
+                    </div>
+                  )}
                   <Field label="DNI"        name="dni"      value={form.dni}      onChange={handleChange} />
                   <Field label="Nombre *"   name="nombre"   value={form.nombre}   onChange={handleChange} required />
                   <Field label="Apellidos *" name="apellidos" value={form.apellidos} onChange={handleChange} required />
