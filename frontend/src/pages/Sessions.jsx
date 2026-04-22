@@ -3,6 +3,7 @@ import { useLocation } from "react-router-dom";
 import { sesionesService, terapeutasService, usuariosService, serviciosService } from "../services/api";
 import { useToast } from "../components/Toast";
 import { getErrorMessage } from "../utils/errorHandler";
+import SearchSelect from "../components/SearchSelect";
 
 // ── Configuración de estados ──────────────────────────────────────────────────
 const ESTADOS = {
@@ -395,12 +396,14 @@ function PanelDetalle({ panel, mes, anio, terapeutaId, terapeutas, servicios, on
           <label className="block text-xs text-gray-500 mb-1 font-medium">
             Servicio <span className="text-red-500">*</span>
           </label>
-          <select name="servicioId" value={form.servicioId} onChange={handleChange}
-            className={`w-full border rounded-lg px-2 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500
-              ${!form.servicioId ? "border-red-300 bg-red-50" : "border-gray-300"}`}>
-            <option value="">— Seleccionar servicio —</option>
-            {servicios.map(s => <option key={s.id} value={s.id}>{s.nombre} ({s.precio}€)</option>)}
-          </select>
+          <SearchSelect
+            value={form.servicioId}
+            onChange={v => setForm(f => ({ ...f, servicioId: v }))}
+            placeholder="— Seleccionar servicio —"
+            required
+            className={!form.servicioId ? "border-red-300 bg-red-50" : ""}
+            options={servicios.map(s => ({ value: s.id, label: `${s.nombre} (${s.precio}€)` }))}
+          />
           {!form.servicioId && (
             <p className="text-xs text-red-500 mt-0.5">Requerido para registrar la sesión</p>
           )}
@@ -514,26 +517,33 @@ function ModalAddSesion({ usuarios, terapeutas, servicios, defaultTerapeutaId, d
         <form onSubmit={handleSubmit} className="p-6 space-y-3">
           <div>
             <label className="block text-xs text-gray-600 mb-1">Usuario *</label>
-            <select name="usuarioId" value={form.usuarioId} onChange={handleChange} required
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-              <option value="">— Seleccionar —</option>
-              {usuarios.map(u => <option key={u.id} value={u.id}>{u.nombre} {u.apellidos}</option>)}
-            </select>
+            <SearchSelect
+              value={form.usuarioId}
+              onChange={v => setForm(f => ({ ...f, usuarioId: v }))}
+              placeholder="— Seleccionar —"
+              required
+              options={usuarios.map(u => ({ value: u.id, label: `${u.nombre} ${u.apellidos}` }))}
+            />
           </div>
           <div>
             <label className="block text-xs text-gray-600 mb-1">Terapeuta *</label>
-            <select name="terapeutaId" value={form.terapeutaId} onChange={handleChange} required
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-              {terapeutas.map(t => <option key={t.id} value={t.id}>{t.nombre} — {t.especialidad}</option>)}
-            </select>
+            <SearchSelect
+              value={form.terapeutaId}
+              onChange={v => setForm(f => ({ ...f, terapeutaId: v }))}
+              placeholder="— Seleccionar —"
+              required
+              options={terapeutas.map(t => ({ value: t.id, label: `${t.nombre} ${t.apellidos} — ${t.especialidad}` }))}
+            />
           </div>
           <div>
             <label className="block text-xs text-gray-600 mb-1">Servicio *</label>
-            <select name="servicioId" value={form.servicioId} onChange={handleChange} required
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-              <option value="">— Seleccionar —</option>
-              {servicios.map(s => <option key={s.id} value={s.id}>{s.nombre} ({s.precio}€)</option>)}
-            </select>
+            <SearchSelect
+              value={form.servicioId}
+              onChange={v => setForm(f => ({ ...f, servicioId: v }))}
+              placeholder="— Seleccionar —"
+              required
+              options={servicios.map(s => ({ value: s.id, label: `${s.nombre} (${s.precio}€)` }))}
+            />
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>

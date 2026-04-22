@@ -31,6 +31,7 @@ app.use("/api/estadisticas", require("./routes/estadisticas"));
 app.use("/api/importar",     require("./routes/importar"));
 app.use("/api/sepa",         require("./routes/sepa"));
 app.use("/api/avisos",       require("./routes/avisos"));
+app.use("/api/horarios",     require("./routes/horarios"));
 
 app.listen(PORT, () => {
   console.log(`Servidor corriendo en http://localhost:${PORT}`);

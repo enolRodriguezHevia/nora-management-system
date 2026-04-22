@@ -1,9 +1,11 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { authService } from "../services/api";
+import { useAuth } from "../context/AuthContext";
 
 export default function Login() {
   const navigate = useNavigate();
+  const { setLoggedUser } = useAuth();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error,    setError]    = useState("");
@@ -15,8 +17,10 @@ export default function Login() {
     setLoading(true);
     try {
       const res = await authService.login(username, password);
+      const userData = { nombre: res.data.nombre, username: res.data.username };
       localStorage.setItem("nora_token", res.data.token);
-      localStorage.setItem("nora_user",  JSON.stringify({ nombre: res.data.nombre, username: res.data.username }));
+      localStorage.setItem("nora_user",  JSON.stringify(userData));
+      setLoggedUser(userData); // actualiza el contexto en memoria
       navigate("/");
     } catch (err) {
       setError(err.response?.data?.error || "Error al iniciar sesión");

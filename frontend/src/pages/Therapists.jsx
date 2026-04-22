@@ -5,22 +5,9 @@ import { FormField } from "../components/FormField";
 import { useToast } from "../components/Toast";
 import { getErrorMessage } from "../utils/errorHandler";
 import { SkeletonCard } from "../components/Skeleton";
-
-const ESPECIALIDAD_BG = {
-  "Logopedia":           "bg-blue-600",
-  "Psicología":          "bg-purple-600",
-  "Fisioterapia":        "bg-green-600",
-  "Terapia Ocupacional": "bg-orange-600",
-};
+import { ESPECIALIDADES, ESPECIALIDAD_COLOR, ESPECIALIDAD_BG, ESPECIALIDAD_TITULO } from "../utils/especialidades";
 
 const Field = FormField;
-const ESPECIALIDADES = ["Logopedia", "Psicología", "Fisioterapia", "Terapia Ocupacional"];
-const ESPECIALIDAD_COLOR = {
-  "Logopedia":           "bg-blue-100 text-blue-700 border-blue-200",
-  "Psicología":          "bg-purple-100 text-purple-700 border-purple-200",
-  "Fisioterapia":        "bg-green-100 text-green-700 border-green-200",
-  "Terapia Ocupacional": "bg-orange-100 text-orange-700 border-orange-200",
-};
 const EMPTY_FORM = { nombre: "", apellidos: "", especialidad: "", email: "", telefono: "", activo: true };
 
 const MESES = ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
@@ -46,7 +33,7 @@ function TerapeutaCard({ t, mes, anio, onEdit, onVerSesiones }) {
           {iniciales}
         </div>
         <span className={`text-xs font-medium px-2 py-0.5 rounded-full border ${colorClass}`}>
-          {t.especialidad}
+          {ESPECIALIDAD_TITULO[t.especialidad] || t.especialidad}
         </span>
       </div>
 

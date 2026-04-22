@@ -9,6 +9,7 @@ import { getErrorMessage } from "../utils/errorHandler";
 import { SkeletonTable } from "../components/Skeleton";
 import EmptyState from "../components/EmptyState";
 import { DocumentTextIcon } from "@heroicons/react/24/outline";
+import SearchSelect from "../components/SearchSelect";
 
 const MESES_LABEL = ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
 
@@ -181,11 +182,12 @@ export default function Facturacion() {
         </div>
         <div className="flex-1 min-w-[200px]">
           <label className="block text-xs text-gray-500 mb-1">Generar factura para usuario</label>
-          <select value={selectedUsuario} onChange={e => setSelectedUsuario(e.target.value)}
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-            <option value="">— Seleccionar usuario —</option>
-            {usuarios.map(u => <option key={u.id} value={u.id}>{u.nombre} {u.apellidos}</option>)}
-          </select>
+          <SearchSelect
+            value={selectedUsuario}
+            onChange={setSelectedUsuario}
+            placeholder="— Seleccionar usuario —"
+            options={usuarios.map(u => ({ value: u.id, label: `${u.nombre} ${u.apellidos}` }))}
+          />
         </div>
         <button onClick={handleGenerar} disabled={generating || !selectedUsuario}
           className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium disabled:opacity-50 transition-colors">

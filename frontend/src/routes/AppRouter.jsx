@@ -12,6 +12,7 @@ import Servicios    from "../pages/Servicios";
 import Estadisticas from "../pages/Estadisticas";
 import Importar     from "../pages/Importar";
 import Sepa         from "../pages/Sepa";
+import Horarios     from "../pages/Horarios";
 import FichaUsuario from "../pages/FichaUsuario";
 import FichaSocio   from "../pages/FichaSocio";
 
@@ -37,6 +38,7 @@ function AppRoutes() {
       <Route path="/estadisticas" element={<ProtectedRoute><Estadisticas /></ProtectedRoute>} />
       <Route path="/importar"    element={<ProtectedRoute><Importar /></ProtectedRoute>} />
       <Route path="/sepa"        element={<ProtectedRoute><Sepa /></ProtectedRoute>} />
+      <Route path="/horarios"    element={<ProtectedRoute><Horarios /></ProtectedRoute>} />
       <Route path="*"            element={<Navigate to="/" replace />} />
     </Routes>
   );

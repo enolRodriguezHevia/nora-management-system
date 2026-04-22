@@ -86,6 +86,7 @@ model Usuario {
   sesiones              Sesion[]
   facturas              Factura[]
   avisos                Aviso[]
+  horariosHabituales    HorarioHabitual[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -116,6 +117,7 @@ model Terapeuta {
   activo      Boolean  @default(true)
 
   sesiones    Sesion[]
+  horariosHabituales HorarioHabitual[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -132,6 +134,7 @@ model Servicio {
 
   sesiones    Sesion[]
   lineasFactura LineaFactura[]
+  horariosHabituales HorarioHabitual[]
 }
 
 // ─── SESIONES / ASISTENCIA ────────────────────────────────────────────────────
@@ -199,6 +202,24 @@ model UserSistema {
   password  String   // hash bcrypt
   nombre    String
   createdAt DateTime @default(now())
+}
+
+// ─── HORARIO HABITUAL ─────────────────────────────────────────────────────────
+// Define qué días de la semana acude cada usuario a cada terapia
+
+model HorarioHabitual {
+  id          Int       @id @default(autoincrement())
+  usuarioId   Int
+  usuario     Usuario   @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  terapeutaId Int
+  terapeuta   Terapeuta @relation(fields: [terapeutaId], references: [id])
+  servicioId  Int
+  servicio    Servicio  @relation(fields: [servicioId], references: [id])
+  diaSemana   Int       // 1=Lunes, 2=Martes, 3=Miércoles, 4=Jueves, 5=Viernes
+  activo      Boolean   @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 // ─── AVISOS ───────────────────────────────────────────────────────────────────

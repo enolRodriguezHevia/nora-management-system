@@ -1,15 +1,27 @@
 /**
- * Modal de confirmación reutilizable para acciones de baja/reactivación/eliminación
+ * Modal de confirmación reutilizable.
+ *
+ * Props:
+ * - isOpen, onClose, onConfirm — control del modal
+ * - type: "baja" | "reactivar" | "eliminar" — define título, colores y texto por defecto
+ * - entityName — nombre del elemento afectado
+ * - entityType — tipo de entidad (ej: "usuario", "socio", "horario")
+ * - message — (opcional) JSX o string para sobreescribir el mensaje por defecto
+ * - confirmText — (opcional) texto del botón de confirmación
+ * - title — (opcional) título personalizado
  */
-export default function ConfirmModal({ isOpen, onClose, onConfirm, type, entityName, entityType = "registro" }) {
+export default function ConfirmModal({
+  isOpen, onClose, onConfirm,
+  type, entityName, entityType = "registro",
+  message, confirmText, title,
+}) {
   if (!isOpen) return null;
 
-  const config = {
+  const defaults = {
     baja: {
-      title: `⚠️ Dar de baja ${entityType}`,
-      color: 'orange',
-      buttonClass: 'bg-orange-600 hover:bg-orange-700',
-      buttonText: 'Dar de baja',
+      title:       `⚠️ Dar de baja ${entityType}`,
+      buttonClass: "bg-orange-600 hover:bg-orange-700",
+      buttonText:  "Dar de baja",
       message: (
         <>
           ¿Estás seguro de que quieres dar de baja a <strong>{entityName}</strong>?
@@ -17,79 +29,58 @@ export default function ConfirmModal({ isOpen, onClose, onConfirm, type, entityN
           El {entityType} no aparecerá en los listados activos y no se podrán generar nuevas facturas.
           El historial de sesiones y facturas se conservará.
         </>
-      )
+      ),
     },
     reactivar: {
-      title: `✅ Reactivar ${entityType}`,
-      color: 'green',
-      buttonClass: 'bg-green-600 hover:bg-green-700',
-      buttonText: 'Reactivar',
+      title:       `✅ Reactivar ${entityType}`,
+      buttonClass: "bg-green-600 hover:bg-green-700",
+      buttonText:  "Reactivar",
       message: (
         <>
           ¿Estás seguro de que quieres reactivar a <strong>{entityName}</strong>?
           <br /><br />
           El {entityType} volverá a aparecer en los listados activos y se podrán generar facturas.
         </>
-      )
+      ),
     },
     eliminar: {
-      title: `🗑️ Eliminar ${entityType} permanentemente`,
-      color: 'red',
-      buttonClass: 'bg-red-600 hover:bg-red-700',
-      buttonText: 'Eliminar permanentemente',
-      headerClass: 'bg-red-50',
-      titleClass: 'text-red-800',
-      warning: true,
+      title:       `🗑️ Eliminar ${entityType}`,
+      buttonClass: "bg-red-600 hover:bg-red-700",
+      buttonText:  "Eliminar",
+      headerClass: "bg-red-50",
+      titleClass:  "text-red-800",
       message: (
         <>
-          <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
-            <p className="text-sm text-red-800 font-medium">⚠️ ADVERTENCIA: Esta acción no se puede deshacer</p>
-          </div>
-          <p className="text-gray-700 mb-4">
-            ¿Estás seguro de que quieres eliminar permanentemente a <strong>{entityName}</strong>?
-            <br /><br />
-            Se eliminarán <strong>todos los datos</strong> incluyendo:
-          </p>
-          <ul className="list-disc list-inside text-sm text-gray-600 mb-4 space-y-1">
-            <li>Historial de sesiones</li>
-            <li>Facturas generadas</li>
-            <li>Datos bancarios</li>
-            <li>Toda la información personal</li>
-          </ul>
-          <p className="text-sm text-gray-500 italic">
-            💡 Recomendación: Usa "Dar de baja" en lugar de eliminar para conservar el historial.
-          </p>
+          ¿Estás seguro de que quieres eliminar <strong>{entityName}</strong>?
+          <br />
+          <span className="text-sm text-gray-400">Esta acción no se puede deshacer.</span>
         </>
-      )
-    }
+      ),
+    },
   };
 
-  const currentConfig = config[type] || config.baja;
+  const cfg = defaults[type] || defaults.baja;
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 animate-fade-in">
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md animate-slide-up">
-        <div className={`px-6 py-4 border-b ${currentConfig.headerClass || ''}`}>
-          <h2 className={`text-lg font-bold ${currentConfig.titleClass || 'text-gray-800'}`}>
-            {currentConfig.title}
+        <div className={`px-6 py-4 border-b ${cfg.headerClass || ""}`}>
+          <h2 className={`text-lg font-bold ${cfg.titleClass || "text-gray-800"}`}>
+            {title || cfg.title}
           </h2>
         </div>
         <div className="p-6">
           <div className="text-gray-700 mb-4">
-            {currentConfig.message}
+            {message || cfg.message}
           </div>
           <div className="flex gap-3 mt-6">
-            <button
-              onClick={onClose}
-              className="flex-1 px-4 py-2 text-sm text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50"
-            >
+            <button onClick={onClose}
+              className="flex-1 px-4 py-2 text-sm text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50">
               Cancelar
             </button>
-            <button
-              onClick={onConfirm}
-              className={`flex-1 px-4 py-2 text-sm text-white rounded-lg font-medium ${currentConfig.buttonClass}`}
-            >
-              {currentConfig.buttonText}
+            <button onClick={onConfirm}
+              className={`flex-1 px-4 py-2 text-sm text-white rounded-lg font-medium ${cfg.buttonClass}`}>
+              {confirmText || cfg.buttonText}
             </button>
           </div>
         </div>

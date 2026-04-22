@@ -44,6 +44,7 @@ const navGroups = [
   {
     label: "Herramientas",
     items: [
+      { to: "/horarios",     label: "Horarios",     icon: CalendarDaysIcon },
       { to: "/importar",     label: "Importar",     icon: ArrowUpTrayIcon },
       { to: "/sepa",         label: "Remesas SEPA", icon: BuildingLibraryIcon },
     ],

@@ -6,6 +6,7 @@ import AdvancedFilters from "../components/AdvancedFilters";
 import { FormField, BankField } from "../components/FormField";
 import { useResizableColumns } from "../hooks/useResizableColumns";
 import { useTableSort, SortHeader } from "../hooks/useTableSort.jsx";
+import SearchSelect from "../components/SearchSelect";
 import RowMenu from "../components/RowMenu";
 import { useToast } from "../components/Toast";
 import { getErrorMessage } from "../utils/errorHandler";
@@ -359,19 +360,21 @@ export default function Users() {
                 <div className="grid grid-cols-2 gap-3">
                   <div>
                     <label className="block text-xs text-gray-600 mb-1">Socio vinculado 1</label>
-                    <select name="socioVinculadoId" value={form.socioVinculadoId} onChange={handleChange}
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-                      <option value="">— Sin socio —</option>
-                      {socios.map(s => <option key={s.id} value={s.id}>{s.numSocio} — {s.nombre} {s.apellidos}</option>)}
-                    </select>
+                    <SearchSelect
+                      value={form.socioVinculadoId}
+                      onChange={v => setForm(f => ({ ...f, socioVinculadoId: v }))}
+                      placeholder="— Sin socio —"
+                      options={socios.map(s => ({ value: s.id, label: `${s.numSocio} — ${s.nombre} ${s.apellidos}` }))}
+                    />
                   </div>
                   <div>
                     <label className="block text-xs text-gray-600 mb-1">Socio vinculado 2</label>
-                    <select name="socioVinculado2Id" value={form.socioVinculado2Id} onChange={handleChange}
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-                      <option value="">— Sin socio —</option>
-                      {socios.map(s => <option key={s.id} value={s.id}>{s.numSocio} — {s.nombre} {s.apellidos}</option>)}
-                    </select>
+                    <SearchSelect
+                      value={form.socioVinculado2Id}
+                      onChange={v => setForm(f => ({ ...f, socioVinculado2Id: v }))}
+                      placeholder="— Sin socio —"
+                      options={socios.map(s => ({ value: s.id, label: `${s.numSocio} — ${s.nombre} ${s.apellidos}` }))}
+                    />
                   </div>
                 </div>
               </section>

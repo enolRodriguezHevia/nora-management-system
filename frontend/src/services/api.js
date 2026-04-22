@@ -87,6 +87,13 @@ export const authService = {
   me:    () => api.get("/auth/me"),
 };
 
+export const horariosService = {
+  getAll:      (params) => api.get("/horarios", { params }),
+  create:      (data)   => api.post("/horarios", data),
+  delete:      (id)     => api.delete(`/horarios/${id}`),
+  generarMes:  (data)   => api.post("/horarios/generar-mes", data),
+};
+
 export const avisosService = {
   getAll:  (params)    => api.get("/avisos", { params }),
   create:  (data)      => api.post("/avisos", data),
