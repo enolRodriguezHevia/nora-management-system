@@ -17,10 +17,10 @@ export default function Login() {
     setLoading(true);
     try {
       const res = await authService.login(username, password);
-      const userData = { nombre: res.data.nombre, username: res.data.username };
+      const userData = { nombre: res.data.nombre, username: res.data.username, rol: res.data.rol, terapeutaId: res.data.terapeutaId };
       localStorage.setItem("nora_token", res.data.token);
       localStorage.setItem("nora_user",  JSON.stringify(userData));
-      setLoggedUser(userData); // actualiza el contexto en memoria
+      setLoggedUser(userData);
       navigate("/");
     } catch (err) {
       setError(err.response?.data?.error || "Error al iniciar sesión");

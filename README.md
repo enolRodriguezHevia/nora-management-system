@@ -24,11 +24,10 @@ Todo open-source, sin costes de licencia.
 
 ## Funcionalidades
 
-### Autenticación
-- Login con usuario y contraseña (JWT, 8h de sesión)
-- Todas las rutas de la API protegidas con middleware JWT
-- Credenciales por defecto: `admin` / `nora2026`
-- Botón de cierre de sesión en el sidebar con nombre del usuario
+### Roles de usuario
+- **Admin (Aroa)** — acceso completo a todo el sistema
+- **Terapeutas** — acceso solo a su grid de sesiones y fichas de sus usuarios (sin facturas, socios ni configuración)
+- Credenciales terapeutas: `maria/maria2026`, `laura/laura2026`, `carmen/carmen2026`, `ana/ana2026`
 
 ### Gestión de personas
 - **Usuarios** — CRUD completo con datos personales, clínicos (diagnóstico, % discapacidad, grado), socio vinculado y datos bancarios. Dar de baja / reactivar conservando historial. Nº de socio generado automáticamente.
@@ -55,6 +54,8 @@ Todo open-source, sin costes de licencia.
 - Descuento del 10% automático: individual >120€ o suma con hermanos >120€
 - Estados: pendiente, cobrada, anulada
 - Numeración secuencial por año (formato `XX/YYYY`)
+- **Detección de facturas desactualizadas** — aviso cuando las sesiones han cambiado tras generar la factura
+- **Recalculo masivo** — actualiza todas las facturas pendientes del mes con un clic
 - Aviso cuando hay sesiones en estado "Programada" sin actualizar
 - Badge de advertencia por usuario con sesiones programadas pendientes
 - Exportación a Excel con hoja de resumen y hoja de detalle por servicio

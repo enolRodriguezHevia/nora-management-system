@@ -53,7 +53,14 @@ const navGroups = [
 
 export default function MainLayout({ children }) {
   const { pathname } = useLocation();
-  const { user, logout } = useAuth();
+  const { user, isAdmin, logout } = useAuth();
+
+  // Terapeutas solo ven sesiones
+  const visibleGroups = isAdmin ? navGroups : [
+    {
+      items: [{ to: "/sesiones", label: "Sesiones", icon: CalendarDaysIcon }],
+    },
+  ];
 
   return (
     <div className="flex h-screen bg-gray-50 font-sans">
@@ -65,7 +72,7 @@ export default function MainLayout({ children }) {
         </div>
 
         <nav className="flex flex-col flex-1 p-2 gap-0.5 overflow-y-auto">
-          {navGroups.map((group, gi) => (
+          {visibleGroups.map((group, gi) => (
             <div key={gi} className={gi > 0 ? "mt-4" : ""}>
               {group.label && (
                 <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-widest px-3 mb-1">

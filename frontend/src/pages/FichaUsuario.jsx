@@ -4,6 +4,7 @@ import { usuariosService, avisosService } from "../services/api";
 import { generarPDFFactura } from "../utils/pdfGenerator";
 import { SkeletonFicha } from "../components/Skeleton";
 import { useToast } from "../components/Toast";
+import { useAuth } from "../context/AuthContext";
 
 const MESES = ["Ene","Feb","Mar","Abr","May","Jun","Jul","Ago","Sep","Oct","Nov","Dic"];
 const ESTADO_SESION = {
@@ -30,7 +31,7 @@ function InfoRow({ label, value }) {
   return (
     <div className="flex gap-2 text-sm">
       <span className="text-gray-400 w-36 shrink-0">{label}</span>
-      <span className="text-gray-800 font-medium">{value}</span>
+      <span className="text-gray-800 font-medium break-all min-w-0">{value}</span>
     </div>
   );
 }
@@ -58,6 +59,9 @@ export default function FichaUsuario() {
   const { id } = useParams();
   const navigate = useNavigate();
   const toast = useToast();
+  const { isAdmin } = useAuth();
+
+  const backUrl = isAdmin ? "/usuarios" : "/sesiones";
   const [usuario, setUsuario]       = useState(null);
   const [loading, setLoading]       = useState(true);
   const [tabSesiones, setTabSesiones] = useState("recientes");
@@ -133,7 +137,7 @@ export default function FichaUsuario() {
       {/* Cabecera */}
       <div className="flex items-start justify-between">
         <div className="flex items-center gap-4">
-          <button onClick={() => navigate("/usuarios")} className="text-gray-400 hover:text-gray-600 text-xl">←</button>
+          <button onClick={() => navigate(backUrl)} className="text-gray-400 hover:text-gray-600 text-xl">←</button>
           <div>
             <h1 className="text-2xl font-bold text-gray-800">{usuario.nombre} {usuario.apellidos}</h1>
             <div className="flex items-center gap-3 mt-1">
@@ -145,12 +149,14 @@ export default function FichaUsuario() {
             </div>
           </div>
         </div>
-        <button
-          onClick={() => navigate("/usuarios", { state: { editId: usuario.id } })}
-          className="px-4 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-        >
-          ✏️ Editar
-        </button>
+        {isAdmin && (
+          <button
+            onClick={() => navigate("/usuarios", { state: { editId: usuario.id } })}
+            className="px-4 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+          >
+            ✏️ Editar
+          </button>
+        )}
       </div>
 
       {/* KPIs */}
@@ -158,8 +164,10 @@ export default function FichaUsuario() {
         {[
           { label: "Sesiones totales", value: totalSesiones, icon: "📅", color: "blue" },
           { label: "Tasa asistencia", value: `${tasaAsistencia}%`, icon: "✅", color: "green" },
-          { label: "Total facturado", value: fmtEur(totalFacturado), icon: "🧾", color: "purple" },
-          { label: "Pendiente cobro", value: fmtEur(totalPendiente), icon: "⏳", color: totalPendiente > 0 ? "yellow" : "gray" },
+          ...(isAdmin ? [
+            { label: "Total facturado", value: fmtEur(totalFacturado), icon: "🧾", color: "purple" },
+            { label: "Pendiente cobro", value: fmtEur(totalPendiente), icon: "⏳", color: totalPendiente > 0 ? "yellow" : "gray" },
+          ] : []),
         ].map(k => (
           <div key={k.label} className="bg-white rounded-xl border border-gray-200 p-4">
             <div className="text-2xl mb-1">{k.icon}</div>
@@ -232,8 +240,8 @@ export default function FichaUsuario() {
             )}
           </Section>
 
-          {/* Datos bancarios */}
-          {iban && (
+          {/* Datos bancarios — solo admin */}
+          {iban && isAdmin && (
             <Section title="Datos bancarios" icon="🏦" defaultOpen={false}>
               <div className="space-y-2">
                 <InfoRow label="IBAN" value={iban} />
@@ -346,7 +354,8 @@ export default function FichaUsuario() {
             )}
           </Section>
 
-          {/* Facturas */}
+          {/* Facturas — solo admin */}
+          {isAdmin && (
           <Section title="Historial de facturas" icon="🧾" defaultOpen={false}>
             {usuario.facturas.length === 0 ? (
               <p className="text-sm text-gray-400">Sin facturas generadas</p>
@@ -391,10 +400,12 @@ export default function FichaUsuario() {
               </table>
             )}
           </Section>
+          )}
         </div>
       </div>
 
-      {/* ── Avisos ── */}
+      {/* ── Avisos — solo admin ── */}
+      {isAdmin && (
       <Section title="Avisos" icon="📌">
         <div className="space-y-3">
           {/* Lista de avisos */}
@@ -431,6 +442,7 @@ export default function FichaUsuario() {
           </div>
         </div>
       </Section>
+      )}
     </div>
   );
 }

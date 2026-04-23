@@ -10,6 +10,9 @@ export function AuthProvider({ children }) {
     } catch { return null; }
   });
 
+  const isAdmin = user?.rol === "admin";
+  const isTerapeuta = user?.rol === "terapeuta";
+
   function logout() {
     localStorage.removeItem("nora_token");
     localStorage.removeItem("nora_user");
@@ -22,7 +25,7 @@ export function AuthProvider({ children }) {
   }
 
   return (
-    <AuthContext.Provider value={{ user, logout, setLoggedUser }}>
+    <AuthContext.Provider value={{ user, isAdmin, isTerapeuta, logout, setLoggedUser }}>
       {children}
     </AuthContext.Provider>
   );

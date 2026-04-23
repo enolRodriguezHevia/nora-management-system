@@ -10,7 +10,7 @@ async function main() {
   await prisma.userSistema.upsert({
     where:  { username: "admin" },
     update: {},
-    create: { username: "admin", password: hash, nombre: "Administrador" },
+    create: { username: "admin", password: hash, nombre: "Administrador", rol: "admin" },
   });
   console.log("✅ Usuario admin creado (admin / nora2026)");
 
@@ -32,6 +32,24 @@ async function main() {
     terapeutas.push(ter);
   }
   console.log(`✅ ${terapeutas.length} terapeutas`);
+
+  // ── Usuarios del sistema para terapeutas ────────────────────────────────────
+  const credencialesTerapeutas = [
+    { username: "maria",  nombre: "María García",   password: "maria2026"  },
+    { username: "laura",  nombre: "Laura Martínez", password: "laura2026"  },
+    { username: "carmen", nombre: "Carmen Rodríguez",password: "carmen2026"},
+    { username: "ana",    nombre: "Ana Fernández",  password: "ana2026"    },
+  ];
+  for (let i = 0; i < terapeutas.length; i++) {
+    const cred = credencialesTerapeutas[i];
+    const hashT = await bcrypt.hash(cred.password, 10);
+    await prisma.userSistema.upsert({
+      where:  { username: cred.username },
+      update: {},
+      create: { username: cred.username, password: hashT, nombre: cred.nombre, rol: "terapeuta", terapeutaId: terapeutas[i].id },
+    });
+  }
+  console.log("✅ Usuarios terapeutas creados (maria/maria2026, laura/laura2026, carmen/carmen2026, ana/ana2026)");
 
   // ── Servicios ───────────────────────────────────────────────────────────────
   const serviciosData = [

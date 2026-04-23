@@ -8,7 +8,7 @@ function InfoRow({ label, value }) {
   return (
     <div className="flex gap-2 text-sm">
       <span className="text-gray-400 w-36 shrink-0">{label}</span>
-      <span className="text-gray-800 font-medium">{value}</span>
+      <span className="text-gray-800 font-medium break-all min-w-0">{value}</span>
     </div>
   );
 }

@@ -1,9 +1,10 @@
 import { useEffect, useState, useCallback } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { sesionesService, terapeutasService, usuariosService, serviciosService } from "../services/api";
 import { useToast } from "../components/Toast";
 import { getErrorMessage } from "../utils/errorHandler";
 import SearchSelect from "../components/SearchSelect";
+import { useAuth } from "../context/AuthContext";
 
 // ── Configuración de estados ──────────────────────────────────────────────────
 const ESTADOS = {
@@ -31,7 +32,9 @@ function esFinde(dia, mes, anio) {
 // ── Componente principal ──────────────────────────────────────────────────────
 export default function Sessions() {
   const toast = useToast();
+  const { user, isTerapeuta } = useAuth();
   const location = useLocation();
+  const navigate = useNavigate();
   const now = new Date();
   const [mes, setMes]                     = useState(now.getMonth() + 1);
   const [anio, setAnio]                   = useState(now.getFullYear());
@@ -48,6 +51,11 @@ export default function Sessions() {
   useEffect(() => {
     terapeutasService.getAll().then(r => {
       setTerapeutas(r.data);
+      // Si es terapeuta, forzar su propio terapeutaId
+      if (isTerapeuta && user?.terapeutaId) {
+        setTerapeutaId(String(user.terapeutaId));
+        return;
+      }
       // Si venimos desde Terapeutas con un terapeutaId en la URL, usarlo
       const params = new URLSearchParams(location.search);
       const idFromUrl = params.get("terapeutaId");
@@ -110,15 +118,17 @@ export default function Sessions() {
 
       {/* ── Filtros ── */}
       <div className="bg-white rounded-xl shadow-sm p-4 flex flex-wrap gap-3 items-end">
-        <div>
-          <label className="block text-xs text-gray-500 mb-1">Terapeuta</label>
-          <select value={terapeutaId} onChange={e => setTerapeutaId(e.target.value)}
-            className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-            {terapeutas.map(t => (
-              <option key={t.id} value={t.id}>{t.nombre} {t.apellidos} — {t.especialidad}</option>
-            ))}
-          </select>
-        </div>
+        {!isTerapeuta && (
+          <div>
+            <label className="block text-xs text-gray-500 mb-1">Terapeuta</label>
+            <select value={terapeutaId} onChange={e => setTerapeutaId(e.target.value)}
+              className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+              {terapeutas.map(t => (
+                <option key={t.id} value={t.id}>{t.nombre} {t.apellidos} — {t.especialidad}</option>
+              ))}
+            </select>
+          </div>
+        )}
         <div>
           <label className="block text-xs text-gray-500 mb-1">Mes</label>
           <select value={mes} onChange={e => setMes(Number(e.target.value))}
@@ -152,8 +162,15 @@ export default function Sessions() {
           {loading ? (
             <div className="p-10 text-center text-gray-400">Cargando...</div>
           ) : usuariosConSesion.length === 0 ? (
-            <div className="p-10 text-center text-gray-400">
-              No hay sesiones registradas para este terapeuta en {MESES[mes-1]} {anio}
+            <div className="p-10 text-center space-y-2">
+              {isTerapeuta ? (
+                <>
+                  <p className="text-gray-500 font-medium">No hay sesiones programadas para {MESES[mes-1]} {anio}</p>
+                  <p className="text-gray-400 text-xs">Las sesiones las genera la administración a principios de mes. Si crees que es un error, contacta con Aroa.</p>
+                </>
+              ) : (
+                <p className="text-gray-400">No hay sesiones registradas para este terapeuta en {MESES[mes-1]} {anio}</p>
+              )}
             </div>
           ) : (
             <table className="text-xs border-collapse w-full">
@@ -188,7 +205,13 @@ export default function Sessions() {
                   return (
                     <tr key={u.id} className={`${idx % 2 === 0 ? "bg-white" : "bg-gray-50"} hover:brightness-95 transition-all`}>
                       <td className={`sticky left-0 z-10 px-3 py-1.5 font-medium text-gray-700 border-r border-gray-200 text-xs ${idx % 2 === 0 ? "bg-white" : "bg-gray-50"}`}>
-                        {u.nombre} {u.apellidos}
+                        <button
+                          onClick={() => navigate(`/usuarios/${u.id}`)}
+                          className="hover:text-blue-600 hover:underline text-left transition-colors"
+                          title="Ver ficha del usuario"
+                        >
+                          {u.nombre} {u.apellidos}
+                        </button>
                       </td>
                       {dias.filter(d => !esFinde(d, mes, anio)).map(d => {
                         const key = `${u.id}-${d}`;

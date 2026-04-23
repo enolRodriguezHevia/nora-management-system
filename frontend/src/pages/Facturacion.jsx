@@ -29,6 +29,8 @@ export default function Facturacion() {
   const [loading, setLoading]   = useState(true);
   const [programadasCount, setProgramadasCount] = useState(0);
   const [programadasUsuarios, setProgramadasUsuarios] = useState(new Set());
+  const [desactualizadas, setDesactualizadas] = useState(0);
+  const [recalculando, setRecalculando] = useState(false);
   const [generating, setGenerating] = useState(false);
   const [generatingMasivo, setGeneratingMasivo] = useState(false);
   const [selectedUsuario, setSelectedUsuario] = useState("");
@@ -62,6 +64,10 @@ export default function Facturacion() {
         setProgramadasUsuarios(new Set(r.data.usuarioIds));
       })
       .catch(() => { setProgramadasCount(0); setProgramadasUsuarios(new Set()); });
+
+    facturasService.desactualizadas(mes, anio)
+      .then(r => setDesactualizadas(r.data.count))
+      .catch(() => setDesactualizadas(0));
   }, [mes, anio]);
 
   const handleGenerar = async () => {
@@ -104,6 +110,20 @@ export default function Facturacion() {
     await facturasService.updateEstado(id, estado);
     fetchFacturas();
     if (detalle?.id === id) setDetalle(prev => ({ ...prev, estado }));
+  };
+
+  const handleRecalcularTodas = async () => {
+    setRecalculando(true);
+    try {
+      const r = await facturasService.recalcularTodas(mes, anio);
+      fetchFacturas();
+      setDesactualizadas(0);
+      toast.success(`${r.data.recalculadas} facturas recalculadas correctamente`);
+    } catch (err) {
+      toast.error(getErrorMessage(err));
+    } finally {
+      setRecalculando(false);
+    }
   };
 
   // Aplicar filtros
@@ -265,6 +285,23 @@ export default function Facturacion() {
         </div>
       </AdvancedFilters>
 
+      {/* Aviso facturas desactualizadas */}
+      {desactualizadas > 0 && (
+        <div className="bg-orange-50 border border-orange-200 rounded-xl p-4 flex items-center gap-3">
+          <span className="text-orange-500 text-lg shrink-0">🔄</span>
+          <p className="text-sm text-orange-700 flex-1">
+            <span className="font-semibold">{desactualizadas} factura{desactualizadas !== 1 ? "s" : ""} pendiente{desactualizadas !== 1 ? "s" : ""}</span> pueden estar desactualizadas — las sesiones del mes han cambiado desde que se generaron.
+          </p>
+          <button
+            onClick={handleRecalcularTodas}
+            disabled={recalculando}
+            className="px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white text-sm font-semibold rounded-lg disabled:opacity-50 shrink-0 transition-colors"
+          >
+            {recalculando ? "Recalculando..." : "🔄 Recalcular todas"}
+          </button>
+        </div>
+      )}
+
       {/* Aviso sesiones programadas */}
       {programadasCount > 0 && (
         <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 flex items-center gap-3">
@@ -324,8 +361,8 @@ export default function Facturacion() {
                 </td>
                 <td className="px-4 py-3">
                   <RowMenu items={[
-                    { label: "🔍 Ver detalle",  onClick: () => setDetalle(f) },
-                    { label: "📄 Descargar PDF", onClick: () => handlePDF(f) },
+                    { label: "🔍 Ver detalle",   onClick: () => setDetalle(f) },
+                    { label: "📄 Descargar PDF",  onClick: () => handlePDF(f) },
                     "divider",
                     ...(f.estado === "pendiente" ? [{ label: "✅ Cobrar", onClick: () => handleEstado(f.id, "cobrada"), className: "text-green-600" }] : []),
                     ...(f.estado !== "anulada"   ? [{ label: "🚫 Anular", onClick: () => handleEstado(f.id, "anulada"), className: "text-red-600" }] : []),

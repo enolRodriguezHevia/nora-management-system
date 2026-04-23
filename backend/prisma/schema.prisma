@@ -197,11 +197,13 @@ model LineaFactura {
 // ─── USUARIOS DEL SISTEMA (autenticación) ────────────────────────────────────
 
 model UserSistema {
-  id        Int      @id @default(autoincrement())
-  username  String   @unique
-  password  String   // hash bcrypt
-  nombre    String
-  createdAt DateTime @default(now())
+  id          Int      @id @default(autoincrement())
+  username    String   @unique
+  password    String   // hash bcrypt
+  nombre      String
+  rol         String   @default("admin") // "admin" | "terapeuta"
+  terapeutaId Int?     // solo para rol terapeuta
+  createdAt   DateTime @default(now())
 }
 
 // ─── HORARIO HABITUAL ─────────────────────────────────────────────────────────

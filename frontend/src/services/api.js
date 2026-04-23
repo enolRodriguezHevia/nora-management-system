@@ -67,11 +67,14 @@ export const sesionesService = {
 };
 
 export const facturasService = {
-  getAll:   (params) => api.get("/facturas", { params }),
-  getById:  (id)     => api.get(`/facturas/${id}`),
-  generar:  (data)   => api.post("/facturas/generar", data),
-  generarMasivo: (data) => api.post("/facturas/generar-masivo", data),
-  updateEstado: (id, estado) => api.put(`/facturas/${id}/estado`, { estado }),
+  getAll:           (params) => api.get("/facturas", { params }),
+  getById:          (id)     => api.get(`/facturas/${id}`),
+  generar:          (data)   => api.post("/facturas/generar", data),
+  generarMasivo:    (data)   => api.post("/facturas/generar-masivo", data),
+  updateEstado:     (id, estado) => api.put(`/facturas/${id}/estado`, { estado }),
+  recalcular:       (id)     => api.put(`/facturas/${id}/recalcular`),
+  desactualizadas:  (mes, anio) => api.get("/facturas/desactualizadas", { params: { mes, anio } }),
+  recalcularTodas:  (mes, anio) => api.post("/facturas/recalcular-todas", { mes, anio }),
 };
 
 export const estadisticasService = {
