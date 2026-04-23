@@ -287,7 +287,7 @@ export default function Facturacion() {
 
       {/* Aviso facturas desactualizadas */}
       {desactualizadas > 0 && (
-        <div className="bg-orange-50 border border-orange-200 rounded-xl p-4 flex items-center gap-3">
+        <div className="bg-orange-50 border border-orange-200 rounded-xl p-4 flex items-center gap-3 mb-2">
           <span className="text-orange-500 text-lg shrink-0">🔄</span>
           <p className="text-sm text-orange-700 flex-1">
             <span className="font-semibold">{desactualizadas} factura{desactualizadas !== 1 ? "s" : ""} pendiente{desactualizadas !== 1 ? "s" : ""}</span> pueden estar desactualizadas — las sesiones del mes han cambiado desde que se generaron.
@@ -304,7 +304,7 @@ export default function Facturacion() {
 
       {/* Aviso sesiones programadas */}
       {programadasCount > 0 && (
-        <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 flex items-center gap-3">
+        <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 flex items-center gap-3 mb-2">
           <span className="text-amber-500 text-lg shrink-0">⚠️</span>
           <p className="text-sm text-amber-700">
             Hay <span className="font-semibold">{programadasCount} sesion{programadasCount !== 1 ? "es" : ""} en estado "Programada"</span> este mes.

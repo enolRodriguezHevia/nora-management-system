@@ -25,7 +25,7 @@ Todo open-source, sin costes de licencia.
 ## Funcionalidades
 
 ### Roles de usuario
-- **Admin (Aroa)** — acceso completo a todo el sistema
+- **Admin** — acceso completo a todo el sistema
 - **Terapeutas** — acceso solo a su grid de sesiones y fichas de sus usuarios (sin facturas, socios ni configuración)
 - Credenciales terapeutas: `maria/maria2026`, `laura/laura2026`, `carmen/carmen2026`, `ana/ana2026`
 

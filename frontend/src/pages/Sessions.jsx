@@ -8,13 +8,13 @@ import { useAuth } from "../context/AuthContext";
 
 // ── Configuración de estados ──────────────────────────────────────────────────
 const ESTADOS = {
-  programada:           { label: "Programada",           color: "bg-slate-100 text-slate-600",   dot: "bg-slate-400",   cobrable: false },
-  asistio:              { label: "Asistió",              color: "bg-green-200 text-green-800",   dot: "bg-green-500",   cobrable: true  },
-  falta:                { label: "Falta",                color: "bg-yellow-200 text-yellow-800", dot: "bg-yellow-500",  cobrable: true  },
-  festivo:              { label: "Festivo/Fin de semana", color: "bg-blue-200 text-blue-800",     dot: "bg-blue-500",    cobrable: false },
-  vacaciones_terapeuta: { label: "Vacaciones terapeuta",  color: "bg-purple-200 text-purple-800", dot: "bg-purple-500",  cobrable: false },
-  permiso:              { label: "Permiso",               color: "bg-orange-200 text-orange-800", dot: "bg-orange-500",  cobrable: false },
-  hospitalizacion:      { label: "Hospitalización",       color: "bg-red-200 text-red-800",       dot: "bg-red-500",     cobrable: false },
+  programada:           { label: "Programada",           color: "bg-slate-200 text-slate-700",   dot: "bg-slate-500",   cobrable: false },
+  asistio:              { label: "Asistió",              color: "bg-green-400 text-green-900",   dot: "bg-green-600",   cobrable: true  },
+  falta:                { label: "Falta",                color: "bg-yellow-300 text-yellow-900", dot: "bg-yellow-500",  cobrable: true  },
+  festivo:              { label: "Festivo/Fin de semana", color: "bg-sky-300 text-sky-900",       dot: "bg-sky-500",     cobrable: false },
+  vacaciones_terapeuta: { label: "Vacaciones terapeuta",  color: "bg-violet-300 text-violet-900", dot: "bg-violet-600",  cobrable: false },
+  permiso:              { label: "Permiso",               color: "bg-orange-300 text-orange-900", dot: "bg-orange-600",  cobrable: false },
+  hospitalizacion:      { label: "Hospitalización",       color: "bg-red-400 text-red-900",       dot: "bg-red-600",     cobrable: false },
 };
 
 const MESES = ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
@@ -203,8 +203,8 @@ export default function Sessions() {
                   const asistU  = sesU.filter(s => s.estado === "asistio").length;
                   const pctU    = sesU.length > 0 ? Math.round((asistU / sesU.length) * 100) : 0;
                   return (
-                    <tr key={u.id} className={`${idx % 2 === 0 ? "bg-white" : "bg-gray-50"} hover:brightness-95 transition-all`}>
-                      <td className={`sticky left-0 z-10 px-3 py-1.5 font-medium text-gray-700 border-r border-gray-200 text-xs ${idx % 2 === 0 ? "bg-white" : "bg-gray-50"}`}>
+                    <tr key={u.id} className="bg-white hover:bg-gray-50 transition-all">
+                      <td className="sticky left-0 z-10 px-3 py-1.5 font-medium text-gray-700 border-r border-gray-200 text-xs bg-white">
                         <button
                           onClick={() => navigate(`/usuarios/${u.id}`)}
                           className="hover:text-blue-600 hover:underline text-left transition-colors"
