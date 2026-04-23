@@ -14,6 +14,7 @@ Desarrollado como propuesta para el **Reto Solidario NTT Data**, sustituyendo el
 | Backend | Node.js + Express |
 | Base de datos | SQLite + Prisma ORM |
 | Validación | Zod |
+| Tests | Jest (39 tests) |
 | Gráficos | Recharts |
 | Contenedores | Docker + nginx |
 
@@ -23,11 +24,23 @@ Todo open-source, sin costes de licencia.
 
 ## Funcionalidades
 
+### Autenticación
+- Login con usuario y contraseña (JWT, 8h de sesión)
+- Todas las rutas de la API protegidas con middleware JWT
+- Credenciales por defecto: `admin` / `nora2026`
+- Botón de cierre de sesión en el sidebar con nombre del usuario
+
 ### Gestión de personas
-- **Usuarios** — CRUD completo con datos personales, clínicos (diagnóstico, % discapacidad, grado), socio vinculado y datos bancarios. Dar de baja / reactivar conservando historial.
+- **Usuarios** — CRUD completo con datos personales, clínicos (diagnóstico, % discapacidad, grado), socio vinculado y datos bancarios. Dar de baja / reactivar conservando historial. Nº de socio generado automáticamente.
 - **Socios** — CRUD con datos bancarios, IBAN, cadencia y cuota de cobro.
-- **Terapeutas** — Gestión por especialidad con métricas del mes (sesiones, asistencia, cobrables, programadas) y acceso directo al grid de sesiones.
-- **Fichas individuales** — Vista detallada de cada usuario y socio: datos personales, sesiones del mes, historial de facturas, vínculos y KPIs. Botón de edición directo desde la ficha.
+- **Terapeutas** — Gestión por especialidad con métricas del mes (sesiones, asistencia, cobrables, programadas) y acceso directo al grid de sesiones. Avatar con iniciales.
+- **Fichas individuales** — Vista detallada de cada usuario y socio: datos personales, sesiones del mes, historial de facturas, vínculos, KPIs y avisos. Secciones colapsables.
+
+### Horarios habituales
+- Define qué días acude cada usuario a cada terapia con qué terapeuta
+- Agrupados por terapeuta para facilitar la gestión
+- **Generar mes automáticamente** — crea todas las sesiones del mes en estado "Programada" con un clic, sin duplicar las existentes
+- Modificable en septiembre cuando cambian los horarios del nuevo curso
 
 ### Sesiones y asistencia
 - Grid mensual interactivo por terapeuta
@@ -68,23 +81,18 @@ Todo open-source, sin costes de licencia.
 - Facturación mensual (subtotal, descuento, total)
 - Distribución de estados de facturas
 - Sesiones mensuales (total, cobrables, asistencia)
-- Distribución de estados de sesiones
 - Actividad por terapeuta y top servicios
 - Filtros por año y rango de meses
-
-### Autenticación
-- Login con usuario y contraseña (JWT, 8h de sesión)
-- Todas las rutas de la API protegidas con middleware JWT
-- Credenciales por defecto: `admin` / `nora2026`
-- Botón de cierre de sesión en el sidebar con nombre del usuario
 
 ### Avisos por usuario
 - Notas internas por usuario visibles en su ficha
 - Estados: pendiente (ámbar) / resuelto (tachado)
 - Avisos pendientes visibles en el Dashboard para acceso rápido
+
+### Catálogo de servicios
 - 13 servicios con precios del PDF de requisitos
 - 2 centros de hipoterapia reales: Equitación Positiva y Asoc. Asturiana de Terapias Ecuestres
-- Precios editables desde la interfaz
+- Precios de hipoterapia editables desde la interfaz
 
 ---
 
@@ -93,13 +101,27 @@ Todo open-source, sin costes de licencia.
 - **Toasts** — notificaciones de éxito/error/aviso con auto-cierre (errores 10s, resto 3.5s)
 - **Skeleton loaders** — placeholders animados en tablas, fichas y gráficos durante la carga
 - **Empty states** — mensajes descriptivos cuando no hay datos o no hay resultados de filtro
+- **SearchSelect** — todos los selectores de usuarios, socios, terapeutas y servicios son filtrables por texto
 - **Menú de acciones** — menú `•••` con portal para evitar recortes en tablas
 - **Animaciones** — modales con fade + slide suave
 - **Mensajes de error legibles** — campos con nombres en español, formato con bullets
 - **Columnas redimensionables** — drag en cabeceras de tabla
-- **Ordenamiento de tablas** — clic en cabecera ordena asc/desc, flecha indica columna activa
+- **Ordenamiento de tablas** — clic en cabecera ordena asc/desc
 - **Filtros avanzados** — por estado, tipología, socio, importe, etc.
 - **Nº Socio automático** — generado por el sistema, no editable manualmente
+
+---
+
+## Tests
+
+```bash
+cd backend && npm test
+```
+
+39 tests cubriendo:
+- Lógica de descuento del 10% (casos individuales, hermanos, casos límite)
+- Generación de numRecibo secuencial
+- Validaciones Zod (DNI, email, teléfono, CP, IBAN con módulo 97, enums)
 
 ---
 
@@ -120,7 +142,7 @@ Todas las rutas de escritura validan con **Zod** antes de tocar la base de datos
 | `estado` sesión | Enum: 7 estados válidos |
 | `porcentajeDiscapacidad` | Entre 0 y 100 |
 
-Los errores devuelven HTTP 422 con lista de campos y mensajes en español. Los campos opcionales vacíos no generan error de formato.
+Los errores devuelven HTTP 422 con lista de campos y mensajes en español.
 
 ---
 
@@ -134,7 +156,7 @@ docker compose up --build
 
 La aplicación estará disponible en **http://localhost**
 
-La primera vez tarda unos minutos en construir las imágenes. Las siguientes veces arranca en segundos con `docker compose up`.
+Credenciales: `admin` / `nora2026`
 
 ```bash
 docker compose down        # Parar
@@ -165,7 +187,8 @@ npm run dev              # http://localhost:5173
 ## Datos de ejemplo incluidos
 
 El seed carga automáticamente:
-- 4 terapeutas (Logopedia, Psicología, Fisioterapia, Terapia Ocupacional)
+- Usuario admin: `admin` / `nora2026`
+- 4 terapeutas (Logopeda, Psicóloga, Fisioterapeuta, Terapeuta Ocupacional)
 - 13 servicios con precios reales del PDF de requisitos
 - 6 socios con datos bancarios
 - 9 usuarios con diagnósticos y socios vinculados
