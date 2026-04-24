@@ -95,6 +95,7 @@ export const horariosService = {
   create:      (data)   => api.post("/horarios", data),
   delete:      (id)     => api.delete(`/horarios/${id}`),
   generarMes:  (data)   => api.post("/horarios/generar-mes", data),
+  generarCurso: (data) => api.post("/horarios/generar-curso", data),
 };
 
 export const avisosService = {

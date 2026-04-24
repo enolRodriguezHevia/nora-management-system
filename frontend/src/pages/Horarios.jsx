@@ -21,7 +21,11 @@ export default function Horarios() {
   const [showForm,    setShowForm]    = useState(false);
   const [saving,      setSaving]      = useState(false);
   const [generando,   setGenerando]   = useState(false);
+  const [generandoCurso, setGenerandoCurso] = useState(false);
   const [modalGen,    setModalGen]    = useState(false);
+  const [modalCurso,  setModalCurso]  = useState(false);
+  const [cursoDesde,  setCursoDesde]  = useState({ mes: now.getMonth() + 1, anio: now.getFullYear() });
+  const [cursoHasta,  setCursoHasta]  = useState({ mes: 6, anio: now.getMonth() >= 8 ? now.getFullYear() + 1 : now.getFullYear() });
   const [modalElim,   setModalElim]   = useState(null);
   const [mes,         setMes]         = useState(now.getMonth() + 1);
   const [anio,        setAnio]        = useState(now.getFullYear());
@@ -89,6 +93,23 @@ export default function Horarios() {
       toast.error(getErrorMessage(err));
     } finally {
       setGenerando(false);
+    }
+  };
+
+  const handleGenerarCurso = async () => {
+    setGenerandoCurso(true);
+    setModalCurso(false);
+    try {
+      const r = await horariosService.generarCurso({
+        mesDesde: cursoDesde.mes, anioDesde: cursoDesde.anio,
+        mesHasta: cursoHasta.mes, anioHasta: cursoHasta.anio,
+      });
+      toast.success(`✅ ${r.data.creadas} sesiones generadas para ${r.data.meses} meses (${r.data.rango})`);
+      if (r.data.yaExistian > 0) toast.warning(`${r.data.yaExistian} sesiones ya existían y no se duplicaron`);
+    } catch (err) {
+      toast.error(getErrorMessage(err));
+    } finally {
+      setGenerandoCurso(false);
     }
   };
 
@@ -203,6 +224,10 @@ export default function Horarios() {
               className="px-5 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-semibold rounded-lg disabled:opacity-40 transition-colors flex items-center gap-2">
               {generando ? <><span className="animate-spin">⏳</span> Generando...</> : "⚡ Generar mes"}
             </button>
+            <button onClick={() => setModalCurso(true)} disabled={generandoCurso || horarios.length === 0}
+              className="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg disabled:opacity-40 transition-colors flex items-center gap-2">
+              {generandoCurso ? <><span className="animate-spin">⏳</span> Generando...</> : "📅 Generar curso completo"}
+            </button>
           </div>
         </div>
       </div>
@@ -309,6 +334,56 @@ export default function Horarios() {
         }
         confirmText="Eliminar horario"
       />
+
+      {/* Modal confirmar generar curso completo */}
+      {modalCurso && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 animate-fade-in">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 animate-slide-up">
+            <h2 className="text-lg font-bold text-gray-800 mb-4">📅 Generar rango de meses</h2>
+            <div className="grid grid-cols-2 gap-4 mb-4">
+              <div>
+                <label className="block text-xs text-gray-500 mb-1 font-medium">Desde</label>
+                <div className="flex gap-2">
+                  <select value={cursoDesde.mes} onChange={e => setCursoDesde(f => ({...f, mes: Number(e.target.value)}))}
+                    className="flex-1 border border-gray-200 rounded-lg px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    {MESES.map((m, i) => <option key={i+1} value={i+1}>{m.slice(0,3)}</option>)}
+                  </select>
+                  <select value={cursoDesde.anio} onChange={e => setCursoDesde(f => ({...f, anio: Number(e.target.value)}))}
+                    className="w-20 border border-gray-200 rounded-lg px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    {anios.map(a => <option key={a} value={a}>{a}</option>)}
+                  </select>
+                </div>
+              </div>
+              <div>
+                <label className="block text-xs text-gray-500 mb-1 font-medium">Hasta</label>
+                <div className="flex gap-2">
+                  <select value={cursoHasta.mes} onChange={e => setCursoHasta(f => ({...f, mes: Number(e.target.value)}))}
+                    className="flex-1 border border-gray-200 rounded-lg px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    {MESES.map((m, i) => <option key={i+1} value={i+1}>{m.slice(0,3)}</option>)}
+                  </select>
+                  <select value={cursoHasta.anio} onChange={e => setCursoHasta(f => ({...f, anio: Number(e.target.value)}))}
+                    className="w-20 border border-gray-200 rounded-lg px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    {anios.map(a => <option key={a} value={a}>{a}</option>)}
+                  </select>
+                </div>
+              </div>
+            </div>
+            <p className="text-xs text-gray-400 mb-4">
+              Se crearán sesiones en estado "Programada" para todos los usuarios activos según sus horarios habituales. Las sesiones existentes no se duplicarán.
+            </p>
+            <div className="flex gap-3">
+              <button onClick={() => setModalCurso(false)}
+                className="flex-1 px-4 py-2 text-sm text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50">
+                Cancelar
+              </button>
+              <button onClick={handleGenerarCurso}
+                className="flex-1 px-4 py-2 text-sm bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium">
+                Generar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

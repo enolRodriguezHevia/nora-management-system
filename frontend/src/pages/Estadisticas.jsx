@@ -11,6 +11,20 @@ const MESES_LABEL = ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","A
 
 const fmtEuros = (v) => `${Number(v).toFixed(0)}€`;
 
+// Wrapper que muestra "Sin datos" si el array está vacío o todos los valores son 0
+function ChartWrapper({ data, valueKey, height = 240, children }) {
+  const isEmpty = !data || data.length === 0 ||
+    (valueKey && data.every(d => !d[valueKey] || d[valueKey] === 0));
+  if (isEmpty) {
+    return (
+      <div style={{ height }} className="flex items-center justify-center">
+        <p className="text-sm text-gray-400">Sin datos para el período seleccionado</p>
+      </div>
+    );
+  }
+  return children;
+}
+
 // Genera lista de años desde el primer año con datos hasta el año actual + 1
 function generarAnios() {
   const actual = new Date().getFullYear();
@@ -108,6 +122,7 @@ export default function Estadisticas() {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
             <div className="lg:col-span-2 bg-white rounded-xl shadow-sm p-5">
               <h2 className="text-sm font-semibold text-gray-600 uppercase tracking-wide mb-4">Facturación mensual — {periodoLabel}</h2>
+              <ChartWrapper data={data.facturacionMensual} valueKey="total" height={240}>
               <ResponsiveContainer width="100%" height={240}>
                 <BarChart data={data.facturacionMensual} margin={{ top: 0, right: 10, left: 0, bottom: 0 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
@@ -120,26 +135,21 @@ export default function Estadisticas() {
                   <Bar dataKey="total"     name="Total neto" fill="#3b82f6" radius={[3,3,0,0]} />
                 </BarChart>
               </ResponsiveContainer>
+              </ChartWrapper>
             </div>
 
             <div className="bg-white rounded-xl shadow-sm p-5">
               <h2 className="text-sm font-semibold text-gray-600 uppercase tracking-wide mb-4">Estado facturas — {periodoLabel}</h2>
+              <ChartWrapper data={data.estadosFacturas} valueKey="count" height={200}>
               <ResponsiveContainer width="100%" height={200}>
                 <PieChart>
-                  <Pie
-                    data={data.estadosFacturas}
-                    dataKey="count"
-                    nameKey="estado"
-                    cx="50%" cy="50%"
-                    outerRadius={80}
-                  >
-                    {data.estadosFacturas.map((_, i) => (
-                      <Cell key={i} fill={COLORS_PIE[i % COLORS_PIE.length]} />
-                    ))}
+                  <Pie data={data.estadosFacturas} dataKey="count" nameKey="estado" cx="50%" cy="50%" outerRadius={80}>
+                    {data.estadosFacturas.map((_, i) => <Cell key={i} fill={COLORS_PIE[i % COLORS_PIE.length]} />)}
                   </Pie>
                   <Tooltip formatter={(v, n, p) => [`${p.payload.total?.toFixed(2)}€ (${v} facturas)`, p.payload.estado]} />
                 </PieChart>
               </ResponsiveContainer>
+              </ChartWrapper>
               <div className="mt-2 space-y-1">
                 {data.estadosFacturas.map((f, i) => (
                   <div key={i} className="flex items-center justify-between text-xs text-gray-600">
@@ -158,6 +168,7 @@ export default function Estadisticas() {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
             <div className="lg:col-span-2 bg-white rounded-xl shadow-sm p-5">
               <h2 className="text-sm font-semibold text-gray-600 uppercase tracking-wide mb-4">Sesiones mensuales — {periodoLabel}</h2>
+              <ChartWrapper data={data.sesionesMensuales} valueKey="total" height={240}>
               <ResponsiveContainer width="100%" height={240}>
                 <LineChart data={data.sesionesMensuales} margin={{ top: 0, right: 10, left: 0, bottom: 0 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
@@ -170,27 +181,21 @@ export default function Estadisticas() {
                   <Line type="monotone" dataKey="asistencia" name="Asistencia" stroke="#8b5cf6" strokeWidth={2} dot={{ r: 3 }} strokeDasharray="4 2" />
                 </LineChart>
               </ResponsiveContainer>
+              </ChartWrapper>
             </div>
 
             <div className="bg-white rounded-xl shadow-sm p-5">
               <h2 className="text-sm font-semibold text-gray-600 uppercase tracking-wide mb-4">Distribución por estado</h2>
+              <ChartWrapper data={data.estadosSesiones} valueKey="count" height={200}>
               <ResponsiveContainer width="100%" height={200}>
                 <PieChart>
-                  <Pie
-                    data={data.estadosSesiones}
-                    dataKey="count"
-                    nameKey="estado"
-                    cx="50%" cy="50%"
-                    innerRadius={45}
-                    outerRadius={75}
-                  >
-                    {data.estadosSesiones.map((_, i) => (
-                      <Cell key={i} fill={COLORS_PIE[i % COLORS_PIE.length]} />
-                    ))}
+                  <Pie data={data.estadosSesiones} dataKey="count" nameKey="estado" cx="50%" cy="50%" innerRadius={45} outerRadius={75}>
+                    {data.estadosSesiones.map((_, i) => <Cell key={i} fill={COLORS_PIE[i % COLORS_PIE.length]} />)}
                   </Pie>
                   <Tooltip formatter={(v, n) => [v, n]} />
                 </PieChart>
               </ResponsiveContainer>
+              </ChartWrapper>
               <div className="mt-2 space-y-1">
                 {data.estadosSesiones.map((e, i) => (
                   <div key={i} className="flex items-center justify-between text-xs text-gray-600">
@@ -209,12 +214,9 @@ export default function Estadisticas() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             <div className="bg-white rounded-xl shadow-sm p-5">
               <h2 className="text-sm font-semibold text-gray-600 uppercase tracking-wide mb-4">Actividad por terapeuta — {periodoLabel}</h2>
+              <ChartWrapper data={data.ingresosPorTerapeuta} valueKey="sesiones" height={240}>
               <ResponsiveContainer width="100%" height={240}>
-                <BarChart
-                  data={data.ingresosPorTerapeuta}
-                  layout="vertical"
-                  margin={{ top: 0, right: 10, left: 10, bottom: 0 }}
-                >
+                <BarChart data={data.ingresosPorTerapeuta} layout="vertical" margin={{ top: 0, right: 10, left: 10, bottom: 0 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" horizontal={false} />
                   <XAxis type="number" tick={{ fontSize: 11 }} />
                   <YAxis type="category" dataKey="nombre" tick={{ fontSize: 10 }} width={110} />
@@ -224,16 +226,14 @@ export default function Estadisticas() {
                   <Bar dataKey="ingresos" name="Ingresos (€)" fill="#3b82f6" radius={[0,3,3,0]} />
                 </BarChart>
               </ResponsiveContainer>
+              </ChartWrapper>
             </div>
 
             <div className="bg-white rounded-xl shadow-sm p-5">
               <h2 className="text-sm font-semibold text-gray-600 uppercase tracking-wide mb-4">Top servicios más utilizados — {periodoLabel}</h2>
+              <ChartWrapper data={data.topServicios} valueKey="sesiones" height={240}>
               <ResponsiveContainer width="100%" height={240}>
-                <BarChart
-                  data={data.topServicios}
-                  layout="vertical"
-                  margin={{ top: 0, right: 10, left: 10, bottom: 0 }}
-                >
+                <BarChart data={data.topServicios} layout="vertical" margin={{ top: 0, right: 10, left: 10, bottom: 0 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" horizontal={false} />
                   <XAxis type="number" tick={{ fontSize: 11 }} />
                   <YAxis type="category" dataKey="nombre" tick={{ fontSize: 10 }} width={130} />
@@ -242,6 +242,7 @@ export default function Estadisticas() {
                   <Bar dataKey="sesiones" name="Sesiones" fill="#a78bfa" radius={[0,3,3,0]} />
                 </BarChart>
               </ResponsiveContainer>
+              </ChartWrapper>
             </div>
           </div>
         </>

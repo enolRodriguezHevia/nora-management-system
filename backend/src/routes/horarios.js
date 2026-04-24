@@ -74,7 +74,77 @@ router.delete("/:id", async (req, res) => {
   }
 });
 
-// POST /api/horarios/generar-mes — genera sesiones programadas para un mes
+// POST /api/horarios/generar-curso — genera sesiones para un rango de meses
+router.post("/generar-curso", async (req, res) => {
+  try {
+    const { mesDesde, anioDesde, mesHasta, anioHasta } = req.body;
+    if (!mesDesde || !anioDesde || !mesHasta || !anioHasta) {
+      return res.status(400).json({ error: "mesDesde, anioDesde, mesHasta y anioHasta son obligatorios" });
+    }
+
+    // Construir lista de meses en el rango
+    const meses = [];
+    let m = Number(mesDesde), a = Number(anioDesde);
+    const mFin = Number(mesHasta), aFin = Number(anioHasta);
+    while (a < aFin || (a === aFin && m <= mFin)) {
+      meses.push({ mes: m, anio: a });
+      m++;
+      if (m > 12) { m = 1; a++; }
+      if (meses.length > 24) break; // máximo 2 años de seguridad
+    }
+
+    if (meses.length === 0) return res.status(400).json({ error: "El rango de fechas no es válido" });
+
+    const horarios = await prisma.horarioHabitual.findMany({
+      where: { activo: true },
+      include: {
+        usuario:   { select: { id: true, baja: true } },
+        terapeuta: { select: { id: true } },
+        servicio:  { select: { id: true } },
+      },
+    });
+
+    const horariosActivos = horarios.filter(h => !h.usuario.baja);
+    let totalCreadas = 0;
+    let totalExistian = 0;
+
+    for (const { mes, anio } of meses) {
+      const totalDias = new Date(anio, mes, 0).getDate();
+      for (let d = 1; d <= totalDias; d++) {
+        const dow = new Date(anio, mes - 1, d).getDay();
+        const diaSemana = dow === 0 ? 7 : dow;
+        if (diaSemana < 1 || diaSemana > 5) continue;
+        const fecha = new Date(Date.UTC(anio, mes - 1, d));
+
+        for (const horario of horariosActivos) {
+          if (diaSemana !== horario.diaSemana) continue;
+          const existe = await prisma.sesion.findFirst({
+            where: { usuarioId: horario.usuarioId, terapeutaId: horario.terapeutaId, fecha },
+          });
+          if (existe) { totalExistian++; continue; }
+          await prisma.sesion.create({
+            data: {
+              usuarioId:   horario.usuarioId,
+              terapeutaId: horario.terapeutaId,
+              servicioId:  horario.servicioId,
+              fecha, estado: "programada", cobrable: false,
+            },
+          });
+          totalCreadas++;
+        }
+      }
+    }
+
+    const ML = ["","Ene","Feb","Mar","Abr","May","Jun","Jul","Ago","Sep","Oct","Nov","Dic"];
+    res.json({
+      creadas: totalCreadas, yaExistian: totalExistian,
+      meses: meses.length,
+      rango: `${ML[mesDesde]} ${anioDesde} → ${ML[mesHasta]} ${anioHasta}`,
+    });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
 router.post("/generar-mes", async (req, res) => {
   try {
     const { mes, anio } = req.body;
