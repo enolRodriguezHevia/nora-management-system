@@ -6,11 +6,10 @@ import { useToast } from "../components/Toast";
 import { getErrorMessage } from "../utils/errorHandler";
 import { SkeletonCard } from "../components/Skeleton";
 import { ESPECIALIDADES, ESPECIALIDAD_COLOR, ESPECIALIDAD_BG, ESPECIALIDAD_TITULO } from "../utils/especialidades";
+import { MESES } from "../utils/constants.js";
 
 const Field = FormField;
 const EMPTY_FORM = { nombre: "", apellidos: "", especialidad: "", email: "", telefono: "", activo: true };
-
-const MESES = ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
 
 function TerapeutaCard({ t, mes, anio, onEdit, onVerSesiones }) {
   const [metricas, setMetricas] = useState(null);

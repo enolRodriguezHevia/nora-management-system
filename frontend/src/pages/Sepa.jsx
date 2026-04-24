@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { sepaService, API_URL } from "../services/api";
-
-const MESES = ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
+import { MESES } from "../utils/constants.js";
 
 const hoy = new Date();
 

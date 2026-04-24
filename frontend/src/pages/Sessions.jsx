@@ -5,6 +5,7 @@ import { useToast } from "../components/Toast";
 import { getErrorMessage } from "../utils/errorHandler";
 import SearchSelect from "../components/SearchSelect";
 import { useAuth } from "../context/AuthContext";
+import { MESES } from "../utils/constants.js";
 
 // ── Configuración de estados ──────────────────────────────────────────────────
 const ESTADOS = {
@@ -16,8 +17,6 @@ const ESTADOS = {
   permiso:              { label: "Permiso",               color: "bg-orange-300 text-orange-900", dot: "bg-orange-600",  cobrable: false },
   hospitalizacion:      { label: "Hospitalización",       color: "bg-red-400 text-red-900",       dot: "bg-red-600",     cobrable: false },
 };
-
-const MESES = ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 function diasEnMes(mes, anio) {

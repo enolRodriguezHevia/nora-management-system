@@ -5,9 +5,9 @@ import { getErrorMessage } from "../utils/errorHandler";
 import ConfirmModal from "../components/ConfirmModal";
 import SearchSelect from "../components/SearchSelect";
 import { ESPECIALIDAD_COLOR, ESPECIALIDAD_TITULO } from "../utils/especialidades";
+import { MESES } from "../utils/constants.js";
 
 const DIAS = ["", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes"];
-const MESES = ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
 
 export default function Horarios() {
   const toast = useToast();

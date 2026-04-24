@@ -10,8 +10,7 @@ import { SkeletonTable } from "../components/Skeleton";
 import EmptyState from "../components/EmptyState";
 import { DocumentTextIcon } from "@heroicons/react/24/outline";
 import SearchSelect from "../components/SearchSelect";
-
-const MESES_LABEL = ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
+import { MESES as MESES_LABEL } from "../utils/constants.js";
 
 const ESTADO_COLOR = {
   pendiente: "bg-yellow-100 text-yellow-700",
@@ -302,13 +301,13 @@ export default function Facturacion() {
         </div>
       )}
 
-      {/* Aviso sesiones programadas */}
-      {programadasCount > 0 && (
+      {/* Aviso sesiones programadas — solo si ya hay facturas generadas */}
+      {programadasCount > 0 && facturas.length > 0 && (
         <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 flex items-center gap-3 mb-2">
           <span className="text-amber-500 text-lg shrink-0">⚠️</span>
           <p className="text-sm text-amber-700">
-            Hay <span className="font-semibold">{programadasCount} sesion{programadasCount !== 1 ? "es" : ""} en estado "Programada"</span> este mes.
-            Actualiza los estados antes de generar facturas para que se contabilicen correctamente.
+            Hay <span className="font-semibold">{programadasCount} sesion{programadasCount !== 1 ? "es" : ""} en estado "Programada"</span> este mes con facturas ya generadas.
+            Actualiza los estados de esas sesiones y luego usa <strong>"Recalcular todas"</strong> para que los importes se actualicen correctamente.
           </p>
         </div>
       )}

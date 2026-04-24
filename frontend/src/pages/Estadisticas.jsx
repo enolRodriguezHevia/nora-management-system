@@ -5,9 +5,9 @@ import {
   XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
 } from "recharts";
 import { SkeletonChart } from "../components/Skeleton";
+import { MESES as MESES_LABEL } from "../utils/constants.js";
 
 const COLORS_PIE = ["#22c55e", "#f59e0b", "#ef4444", "#8b5cf6", "#06b6d4", "#f97316"];
-const MESES_LABEL = ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
 
 const fmtEuros = (v) => `${Number(v).toFixed(0)}€`;
 
