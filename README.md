@@ -269,8 +269,6 @@ El Identificador de Acreedor SEPA se obtiene a través del banco de la asociaci�
 ## 📚 Documentación Adicional
 
 - **[DEMO.md](./DEMO.md)** — Guía paso a paso para probar el sistema
-- **[docs/BASE_DE_DATOS.md](./docs/BASE_DE_DATOS.md)** — Diagrama y esquema de base de datos
-- **[docs/ARQUITECTURA.md](./docs/ARQUITECTURA.md)** — Documentación técnica
 
 ---
 
