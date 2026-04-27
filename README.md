@@ -14,7 +14,7 @@ Desarrollado para el **Reto Solidario NTT Data 2026**, reemplazando el sistema a
 | **Backend** | Node.js + Express |
 | **Base de datos** | SQLite + Prisma ORM |
 | **Validación** | Zod |
-| **Tests** | Jest (39 tests) |
+| **Tests** | Jest (160 tests) |
 | **Gráficos** | Recharts |
 | **Contenedores** | Docker + nginx |
 
@@ -219,10 +219,15 @@ cd backend
 npm test
 ```
 
-**39 tests** cubriendo:
-- Lógica de descuento del 10% (casos individuales, hermanos, casos límite)
+**160 tests** (coverage: 86.31% statements, 82.45% branches) cubriendo:
+- Lógica de descuento del 10% (casos individuales, hermanos, descuento retroactivo, agrupación de sesiones)
 - Generación de numRecibo secuencial
 - Validaciones Zod (DNI, email, teléfono, CP, IBAN con módulo 97, enums)
+- Autenticación (hashing bcrypt, roles, permisos, JWT)
+- Lógica de remesas SEPA (formato IBAN, XML, validaciones, escape XML, fechas ISO)
+- Lógica de horarios habituales (días de semana, rangos de meses, validación mes pasado)
+- Lógica de facturación (agrupación, cálculos, estados, formato recibo)
+- Lógica de sesiones (estados cobrables, días laborables)
 
 ---
 

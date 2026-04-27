@@ -272,10 +272,15 @@ cd backend
 npm test
 ```
 
-39 tests:
-- Lógica de descuentos (12)
-- Numeración de recibos (6)
+160 tests (coverage: 86.31% statements, 82.45% branches):
+- Lógica de descuentos (25) - agrupación de sesiones, descuento retroactivo, números de recibo
 - Validaciones Zod (21)
+- Autenticación (20) - hashing bcrypt, roles, JWT
+- Lógica de remesas SEPA (32) - formato XML, validaciones IBAN, escape XML
+- Lógica de horarios habituales (27) - días de semana, validaciones, generación de sesiones
+- Lógica de facturación (18) - agrupación, cálculos, estados
+- Lógica de sesiones (10) - estados cobrables, días laborables
+- Numeración de recibos (7)
 
 ---
 
