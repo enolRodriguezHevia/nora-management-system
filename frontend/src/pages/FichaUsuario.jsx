@@ -10,7 +10,7 @@ import { MESES, MESES_CORTOS } from "../utils/constants.js";
 import Pagination from "../components/Pagination";
 
 const MESES_ABREV = MESES_CORTOS;
-const POR_PAGINA  = 15;
+const POR_PAGINA  = 7;
 
 const ESTADO_SESION = {
   programada:           { label: "Programada",    color: "bg-slate-100 text-slate-600" },

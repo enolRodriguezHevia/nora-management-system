@@ -12,7 +12,7 @@ import { DocumentTextIcon } from "@heroicons/react/24/outline";
 import SearchSelect from "../components/SearchSelect";
 import Pagination from "../components/Pagination";
 
-const POR_PAGINA = 15;
+const POR_PAGINA = 7;
 import { MESES as MESES_LABEL } from "../utils/constants.js";
 
 const ESTADO_COLOR = {

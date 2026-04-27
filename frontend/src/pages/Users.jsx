@@ -9,7 +9,7 @@ import { useTableSort, SortHeader } from "../hooks/useTableSort.jsx";
 import SearchSelect from "../components/SearchSelect";
 import Pagination from "../components/Pagination";
 
-const POR_PAGINA = 15;
+const POR_PAGINA = 7;
 import RowMenu from "../components/RowMenu";
 import { useToast } from "../components/Toast";
 import { getErrorMessage } from "../utils/errorHandler";

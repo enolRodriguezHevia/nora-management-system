@@ -114,7 +114,7 @@ Todo open-source, sin costes de licencia.
 - Columnas redimensionables en tablas
 - Ordenamiento por columnas
 - Filtros avanzados
-- Paginación (15 items por página)
+- Paginación (7 items por página)
 
 ---
 

@@ -14,7 +14,7 @@ import EmptyState from "../components/EmptyState";
 import { UsersIcon } from "@heroicons/react/24/outline";
 import Pagination from "../components/Pagination";
 
-const POR_PAGINA = 15;
+const POR_PAGINA = 7;
 
 // Aliases para los campos de formulario
 const Field = FormField;
