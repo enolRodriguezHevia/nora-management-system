@@ -14,7 +14,7 @@ router.get("/", async (req, res) => {
         ...(terapeutaId && { terapeutaId: Number(terapeutaId) }),
       },
       include: {
-        usuario:   { select: { id: true, nombre: true, apellidos: true } },
+        usuario:   { select: { id: true, nombre: true, apellidos: true, baja: true } },
         terapeuta: { select: { id: true, nombre: true, apellidos: true, especialidad: true } },
         servicio:  { select: { id: true, nombre: true, categoria: true } },
       },
@@ -80,6 +80,15 @@ router.post("/generar-curso", async (req, res) => {
     const { mesDesde, anioDesde, mesHasta, anioHasta } = req.body;
     if (!mesDesde || !anioDesde || !mesHasta || !anioHasta) {
       return res.status(400).json({ error: "mesDesde, anioDesde, mesHasta y anioHasta son obligatorios" });
+    }
+
+    // Validar que el mes inicial no sea anterior al actual
+    const ahora = new Date();
+    const mesActual = ahora.getMonth() + 1;
+    const anioActual = ahora.getFullYear();
+    
+    if (Number(anioDesde) < anioActual || (Number(anioDesde) === anioActual && Number(mesDesde) < mesActual)) {
+      return res.status(400).json({ error: "No se pueden generar sesiones en meses anteriores al actual" });
     }
 
     // Construir lista de meses en el rango
@@ -149,6 +158,15 @@ router.post("/generar-mes", async (req, res) => {
   try {
     const { mes, anio } = req.body;
     if (!mes || !anio) return res.status(400).json({ error: "mes y anio son obligatorios" });
+
+    // Validar que no sea un mes pasado
+    const ahora = new Date();
+    const mesActual = ahora.getMonth() + 1;
+    const anioActual = ahora.getFullYear();
+    
+    if (anio < anioActual || (anio === anioActual && mes < mesActual)) {
+      return res.status(400).json({ error: "No se pueden generar sesiones en meses anteriores al actual" });
+    }
 
     const horarios = await prisma.horarioHabitual.findMany({
       where: { activo: true },

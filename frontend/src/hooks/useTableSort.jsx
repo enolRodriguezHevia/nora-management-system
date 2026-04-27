@@ -5,8 +5,9 @@ import { useState, useMemo } from "react";
  * @param {Array} data - Array de datos a ordenar
  * @param {string} defaultKey - Columna por defecto
  * @param {string} defaultDir - Dirección por defecto: "asc" | "desc"
+ * @param {Object} customGetters - Funciones personalizadas para extraer valores: { key: (item) => value }
  */
-export function useTableSort(data, defaultKey = null, defaultDir = "asc") {
+export function useTableSort(data, defaultKey = null, defaultDir = "asc", customGetters = {}) {
   const [sortKey, setSortKey] = useState(defaultKey);
   const [sortDir, setSortDir] = useState(defaultDir);
 
@@ -22,8 +23,16 @@ export function useTableSort(data, defaultKey = null, defaultDir = "asc") {
   const sorted = useMemo(() => {
     if (!sortKey) return data;
     return [...data].sort((a, b) => {
-      let va = a[sortKey];
-      let vb = b[sortKey];
+      // Usar getter personalizado si existe
+      let va, vb;
+      if (customGetters[sortKey]) {
+        va = customGetters[sortKey](a);
+        vb = customGetters[sortKey](b);
+      } else {
+        va = a[sortKey];
+        vb = b[sortKey];
+      }
+      
       // Nulos al final
       if (va == null) return 1;
       if (vb == null) return -1;
@@ -41,7 +50,7 @@ export function useTableSort(data, defaultKey = null, defaultDir = "asc") {
       const cmp = String(va).localeCompare(String(vb), "es", { sensitivity: "base" });
       return sortDir === "asc" ? cmp : -cmp;
     });
-  }, [data, sortKey, sortDir]);
+  }, [data, sortKey, sortDir, customGetters]);
 
   return { sorted, sortKey, sortDir, toggleSort };
 }

@@ -9,6 +9,59 @@ import { MESES } from "../utils/constants.js";
 
 const DIAS = ["", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes"];
 
+// Componente para grupo de terapeuta colapsable
+function TerapeutaGroup({ terapeuta, items, onDelete }) {
+  const [open, setOpen] = useState(true);
+  
+  return (
+    <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+      <button
+        onClick={() => setOpen(o => !o)}
+        className="w-full px-5 py-3 flex items-center gap-3 hover:bg-gray-50 transition-colors"
+      >
+        <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${ESPECIALIDAD_COLOR[terapeuta.especialidad] || "bg-gray-100 text-gray-600"}`}>
+          {ESPECIALIDAD_TITULO[terapeuta.especialidad] || terapeuta.especialidad}
+        </span>
+        <span className="font-semibold text-gray-700">{terapeuta.nombre} {terapeuta.apellidos}</span>
+        <span className="text-xs text-gray-400 ml-auto mr-2">{items.length} horario{items.length !== 1 ? "s" : ""}</span>
+        <span className={`text-gray-400 text-xs transition-transform duration-200 ${open ? "rotate-180" : ""}`}>▼</span>
+      </button>
+      
+      {open && (
+        <table className="w-full text-sm border-t border-gray-100">
+          <thead className="bg-gray-50 border-b border-gray-100">
+            <tr className="text-xs text-gray-400 uppercase">
+              <th className="px-4 py-2 text-left">Día</th>
+              <th className="px-4 py-2 text-left">Usuario</th>
+              <th className="px-4 py-2 text-left">Servicio</th>
+              <th className="px-4 py-2 w-12"></th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-gray-50">
+            {items
+              .sort((a, b) => a.diaSemana - b.diaSemana || a.usuario.apellidos.localeCompare(b.usuario.apellidos))
+              .map(h => (
+              <tr key={h.id} className="hover:bg-gray-50">
+                <td className="px-4 py-2.5">
+                  <span className="text-xs font-medium bg-slate-100 text-slate-700 px-2 py-0.5 rounded-full">
+                    {DIAS[h.diaSemana]}
+                  </span>
+                </td>
+                <td className="px-4 py-2.5 text-gray-800">{h.usuario.nombre} {h.usuario.apellidos}</td>
+                <td className="px-4 py-2.5 text-gray-500">{h.servicio.nombre}</td>
+                <td className="px-4 py-2.5 text-right">
+                  <button onClick={() => onDelete({ id: h.id, nombre: `${h.usuario.nombre} ${h.usuario.apellidos} — ${DIAS[h.diaSemana]}` })}
+                    className="text-gray-300 hover:text-red-400 transition-colors text-sm">✕</button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+    </div>
+  );
+}
+
 export default function Horarios() {
   const toast = useToast();
   const now = new Date();
@@ -113,10 +166,10 @@ export default function Horarios() {
     }
   };
 
-  // Agrupar por terapeuta
+  // Agrupar por terapeuta (solo usuarios activos)
   const horariosFiltrados = filtroTer
-    ? horarios.filter(h => String(h.terapeutaId) === filtroTer)
-    : horarios;
+    ? horarios.filter(h => String(h.terapeutaId) === filtroTer && !h.usuario.baja)
+    : horarios.filter(h => !h.usuario.baja);
 
   const porTerapeuta = horariosFiltrados.reduce((acc, h) => {
     const key = h.terapeutaId;
@@ -254,44 +307,12 @@ export default function Horarios() {
       ) : (
         <div className="space-y-4">
           {Object.values(porTerapeuta).map(({ terapeuta, items }) => (
-            <div key={terapeuta.id} className="bg-white rounded-xl border border-gray-200 overflow-hidden">
-              <div className="px-5 py-3 border-b border-gray-100 flex items-center gap-3">
-                <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${ESPECIALIDAD_COLOR[terapeuta.especialidad] || "bg-gray-100 text-gray-600"}`}>
-                  {ESPECIALIDAD_TITULO[terapeuta.especialidad] || terapeuta.especialidad}
-                </span>
-                <span className="font-semibold text-gray-700">{terapeuta.nombre} {terapeuta.apellidos}</span>
-                <span className="text-xs text-gray-400 ml-auto">{items.length} horario{items.length !== 1 ? "s" : ""}</span>
-              </div>
-              <table className="w-full text-sm">
-                <thead className="bg-gray-50 border-b border-gray-100">
-                  <tr className="text-xs text-gray-400 uppercase">
-                    <th className="px-4 py-2 text-left">Día</th>
-                    <th className="px-4 py-2 text-left">Usuario</th>
-                    <th className="px-4 py-2 text-left">Servicio</th>
-                    <th className="px-4 py-2 w-12"></th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-50">
-                  {items
-                    .sort((a, b) => a.diaSemana - b.diaSemana || a.usuario.apellidos.localeCompare(b.usuario.apellidos))
-                    .map(h => (
-                    <tr key={h.id} className="hover:bg-gray-50">
-                      <td className="px-4 py-2.5">
-                        <span className="text-xs font-medium bg-slate-100 text-slate-700 px-2 py-0.5 rounded-full">
-                          {DIAS[h.diaSemana]}
-                        </span>
-                      </td>
-                      <td className="px-4 py-2.5 text-gray-800">{h.usuario.nombre} {h.usuario.apellidos}</td>
-                      <td className="px-4 py-2.5 text-gray-500">{h.servicio.nombre}</td>
-                      <td className="px-4 py-2.5 text-right">
-                        <button onClick={() => setModalElim({ id: h.id, nombre: `${h.usuario.nombre} ${h.usuario.apellidos} — ${DIAS[h.diaSemana]}` })}
-                          className="text-gray-300 hover:text-red-400 transition-colors text-sm">✕</button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+            <TerapeutaGroup
+              key={terapeuta.id}
+              terapeuta={terapeuta}
+              items={items}
+              onDelete={setModalElim}
+            />
           ))}
         </div>
       )}

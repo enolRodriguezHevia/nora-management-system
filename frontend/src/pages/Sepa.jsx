@@ -36,9 +36,13 @@ export default function Sepa() {
     setGenerando(true);
     setError(null);
     try {
+      const token = localStorage.getItem("nora_token");
       const res = await fetch(`${API_URL}/sepa/generar`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
         body: JSON.stringify({ mes, anio, fechaCobro }),
       });
 

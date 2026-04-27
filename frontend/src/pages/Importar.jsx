@@ -58,11 +58,15 @@ export default function Importar() {
     setResultado(null);
 
     try {
+      const token = localStorage.getItem("nora_token");
       const formData = new FormData();
       formData.append("file", archivo);
 
       const res = await fetch(`${API_URL}/importar/${tipo}`, {
         method: "POST",
+        headers: {
+          "Authorization": `Bearer ${token}`
+        },
         body: formData,
       });
 
@@ -78,8 +82,32 @@ export default function Importar() {
     }
   }
 
-  function descargarPlantilla() {
-    window.open(`${API_URL}/importar/plantilla/${tipo}`, "_blank");
+  async function descargarPlantilla() {
+    try {
+      const token = localStorage.getItem("nora_token");
+      const res = await fetch(`${API_URL}/importar/plantilla/${tipo}`, {
+        method: "GET",
+        headers: {
+          "Authorization": `Bearer ${token}`
+        }
+      });
+
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.error || "Error al descargar plantilla");
+      }
+
+      // Descargar el archivo
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `plantilla_${tipo}.xlsx`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch (e) {
+      setError(e.message);
+    }
   }
 
   const totalOk = resultado ? resultado.creados + resultado.actualizados : 0;

@@ -177,7 +177,13 @@ export default function Users() {
   });
 
   const contadorFiltros = [filtroEstado !== "activos", filtroSocio].filter(Boolean).length;
-  const { sorted: usuariosOrdenados, sortKey, sortDir, toggleSort } = useTableSort(usuariosFiltrados, "apellidos");
+  
+  // Getter personalizado para ordenar por nombre + apellidos
+  const customGetters = {
+    nombre: (u) => `${u.nombre || ""} ${u.apellidos || ""}`.trim().toLowerCase(),
+  };
+  
+  const { sorted: usuariosOrdenados, sortKey, sortDir, toggleSort } = useTableSort(usuariosFiltrados, "id", "asc", customGetters);
   const [pagina, setPagina] = useState(1);
   const usuariosPagina = usuariosOrdenados.slice((pagina-1)*POR_PAGINA, pagina*POR_PAGINA);
 
@@ -255,7 +261,7 @@ export default function Users() {
             <tr>
               {[
                 { key: "id",          label: "ID",           sortable: true },
-                { key: "nombre",      label: "Nombre",       sortable: true, sortField: "apellidos" },
+                { key: "nombre",      label: "Nombre",       sortable: true, sortField: "nombre" },
                 { key: "dni",         label: "DNI",          sortable: true },
                 { key: "telefono",    label: "Teléfono",     sortable: false },
                 { key: "diagnostico", label: "Diagnóstico",  sortable: true },

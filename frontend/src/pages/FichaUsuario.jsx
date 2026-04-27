@@ -222,11 +222,15 @@ export default function FichaUsuario() {
                   ) : <p className="text-sm text-gray-400">Sin socio vinculado</p>}
                   {usuario.socioVinculado2 && (
                     <div className="mt-3 pt-3 border-t border-gray-100 space-y-2">
-                      <p className="text-xs text-gray-400 font-medium">Segundo socio</p>
+                      <p className="text-xs text-gray-400 font-medium uppercase tracking-wide">Segundo socio</p>
                       <div className="flex items-center gap-2">
                         <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">Nº {usuario.socioVinculado2.numSocio}</span>
                         <span className="font-medium text-gray-800">{usuario.socioVinculado2.nombre} {usuario.socioVinculado2.apellidos}</span>
                       </div>
+                      <InfoRow label="DNI"       value={usuario.socioVinculado2.dni} />
+                      <InfoRow label="Teléfono"  value={usuario.socioVinculado2.telefono} />
+                      <InfoRow label="Email"     value={usuario.socioVinculado2.email} />
+                      <InfoRow label="Tipología" value={usuario.socioVinculado2.tipologia} />
                     </div>
                   )}
                 </Section>

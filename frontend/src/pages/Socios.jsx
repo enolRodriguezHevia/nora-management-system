@@ -194,7 +194,13 @@ export default function Socios() {
     filtroTipologia,
     filtroPoblacion
   ].filter(Boolean).length;
-  const { sorted: sociosOrdenados, sortKey, sortDir, toggleSort } = useTableSort(sociosFiltrados, "numSocio");
+  
+  // Getter personalizado para ordenar por nombre + apellidos
+  const customGetters = {
+    nombre: (s) => `${s.nombre || ""} ${s.apellidos || ""}`.trim().toLowerCase(),
+  };
+  
+  const { sorted: sociosOrdenados, sortKey, sortDir, toggleSort } = useTableSort(sociosFiltrados, "numSocio", "asc", customGetters);
   const [pagina, setPagina] = useState(1);
   const sociosPagina = sociosOrdenados.slice((pagina-1)*POR_PAGINA, pagina*POR_PAGINA);
 
@@ -287,7 +293,7 @@ export default function Socios() {
             <tr>
               {[
                 { key: "numSocio",  label: "Nº Socio",  sortable: true },
-                { key: "nombre",    label: "Nombre",    sortable: true, sortField: "apellidos" },
+                { key: "nombre",    label: "Nombre",    sortable: true, sortField: "nombre" },
                 { key: "dni",       label: "DNI",       sortable: true },
                 { key: "telefono",  label: "Teléfono",  sortable: false },
                 { key: "tipologia", label: "Tipología", sortable: true },

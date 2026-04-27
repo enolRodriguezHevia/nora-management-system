@@ -81,47 +81,35 @@ async function main() {
 
   // ── Socios ──────────────────────────────────────────────────────────────────
   const sociosData = [
-    { numSocio: 1, nombre: "Carlos",    apellidos: "Pérez Álvarez",    dni: "12345678A", telefono: "985111222", email: "carlos.perez@email.com",    tipologia: "Afectado",    poblacion: "Oviedo",   provincia: "Asturias", fechaAlta: new Date("2015-03-10") },
-    { numSocio: 2, nombre: "Isabel",    apellidos: "González Suárez",  dni: "23456789B", telefono: "985222333", email: "isabel.gonzalez@email.com",  tipologia: "Afectado",    poblacion: "Gijón",    provincia: "Asturias", fechaAlta: new Date("2016-06-15") },
-    { numSocio: 3, nombre: "Roberto",   apellidos: "Martínez Díaz",    dni: "34567890C", telefono: "985333444", email: "roberto.martinez@email.com", tipologia: "Colaborador", poblacion: "Avilés",   provincia: "Asturias", fechaAlta: new Date("2018-01-20") },
-    { numSocio: 4, nombre: "Lucía",     apellidos: "Fernández López",  dni: "45678901D", telefono: "985444555", email: "lucia.fernandez@email.com",  tipologia: "Afectado",    poblacion: "Oviedo",   provincia: "Asturias", fechaAlta: new Date("2019-09-05") },
-    { numSocio: 5, nombre: "Antonio",   apellidos: "Rodríguez García", dni: "56789012E", telefono: "985555666", email: "antonio.rodriguez@email.com",tipologia: "Afectado",    poblacion: "Mieres",   provincia: "Asturias", fechaAlta: new Date("2020-02-14") },
-    { numSocio: 6, nombre: "Beatriz",   apellidos: "Sánchez Vega",     dni: "67890123F", telefono: "985666777", email: "beatriz.sanchez@email.com",  tipologia: "Afectado",    poblacion: "Oviedo",   provincia: "Asturias", fechaAlta: new Date("2023-05-20") },
+    { numSocio: 1, nombre: "Carlos",    apellidos: "Pérez Álvarez",    dni: "12345678A", telefono: "985111222", email: "carlos.perez@email.com",    tipologia: "Afectado",    poblacion: "Oviedo",   provincia: "Asturias", fechaAlta: new Date("2015-03-10"), iban: "ES9121000418450200051332", entidad: "CaixaBank" },
+    { numSocio: 2, nombre: "Isabel",    apellidos: "González Suárez",  dni: "23456789B", telefono: "985222333", email: "isabel.gonzalez@email.com",  tipologia: "Afectado",    poblacion: "Gijón",    provincia: "Asturias", fechaAlta: new Date("2016-06-15"), iban: "ES8020486778983400057891", entidad: "BBVA" },
+    { numSocio: 3, nombre: "Roberto",   apellidos: "Martínez Díaz",    dni: "34567890C", telefono: "985333444", email: "roberto.martinez@email.com", tipologia: "Colaborador", poblacion: "Avilés",   provincia: "Asturias", fechaAlta: new Date("2018-01-20"), iban: "ES7621000418401234567891", entidad: "Santander" },
+    { numSocio: 4, nombre: "Lucía",     apellidos: "Fernández López",  dni: "45678901D", telefono: "985444555", email: "lucia.fernandez@email.com",  tipologia: "Afectado",    poblacion: "Oviedo",   provincia: "Asturias", fechaAlta: new Date("2019-09-05"), iban: "ES6000491500051234567892", entidad: "Sabadell" },
+    { numSocio: 5, nombre: "Antonio",   apellidos: "Rodríguez García", dni: "56789012E", telefono: "985555666", email: "antonio.rodriguez@email.com",tipologia: "Afectado",    poblacion: "Mieres",   provincia: "Asturias", fechaAlta: new Date("2020-02-14"), iban: "ES5501822200150201504862", entidad: "Bankinter" },
+    { numSocio: 6, nombre: "Beatriz",   apellidos: "Sánchez Vega",     dni: "67890123F", telefono: "985666777", email: "beatriz.sanchez@email.com",  tipologia: "Afectado",    poblacion: "Oviedo",   provincia: "Asturias", fechaAlta: new Date("2023-05-20"), iban: "ES2414650100722030876293", entidad: "ING" },
+    { numSocio: 7, nombre: "Fernando",  apellidos: "Castro Vidal",     dni: "71234567A", telefono: "985777888", email: "fernando.castro@email.com",  tipologia: "Afectado",    poblacion: "Oviedo",  provincia: "Asturias", fechaAlta: new Date("2017-03-12"), iban: "ES1234567890123456789012", entidad: "CaixaBank" },
+    { numSocio: 8, nombre: "Marta",     apellidos: "Iglesias Blanco",  dni: "82345678B", telefono: "985888999", email: "marta.iglesias@email.com",   tipologia: "Colaborador", poblacion: "Gijón",   provincia: "Asturias", fechaAlta: new Date("2018-07-20"), iban: null, entidad: null }, // SIN IBAN para probar remesas SEPA
+    { numSocio: 9, nombre: "Jorge",     apellidos: "Cano Herrera",     dni: "93456789C", telefono: "985999000", email: "jorge.cano@email.com",       tipologia: "Afectado",    poblacion: "Avilés",  provincia: "Asturias", fechaAlta: new Date("2019-11-05"), iban: "ES9876543210987654321098", entidad: "BBVA" },
+    { numSocio: 10, nombre: "Pilar",    apellidos: "Mora Santana",     dni: "04567890D", telefono: "985100111", email: "pilar.mora@email.com",       tipologia: "Afectado",    poblacion: "Mieres",  provincia: "Asturias", fechaAlta: new Date("2020-04-18"), iban: "ES1122334455667788990011", entidad: "Santander" },
+    { numSocio: 11, nombre: "Raúl",     apellidos: "Peña Domínguez",   dni: "15678901E", telefono: "985111222", email: "raul.pena@email.com",        tipologia: "Colaborador", poblacion: "Oviedo",  provincia: "Asturias", fechaAlta: new Date("2021-08-30"), iban: "ES2233445566778899001122", entidad: "Sabadell" },
+    { numSocio: 12, nombre: "Cristina", apellidos: "Vázquez Romero",   dni: "26789012F", telefono: "985222333", email: "cristina.vazquez@email.com", tipologia: "Afectado",    poblacion: "Gijón",   provincia: "Asturias", fechaAlta: new Date("2022-02-14"), iban: "ES3344556677889900112233", entidad: "Bankinter" },
+    { numSocio: 13, nombre: "Emilio",   apellidos: "Lara Medina",      dni: "37890123G", telefono: "985333444", email: "emilio.lara@email.com",      tipologia: "Afectado",    poblacion: "Oviedo",  provincia: "Asturias", fechaAlta: new Date("2022-09-01"), iban: "ES4455667788990011223344", entidad: "ING" },
+    { numSocio: 14, nombre: "Natalia",  apellidos: "Fuentes Aguilar",  dni: "48901234H", telefono: "985444555", email: "natalia.fuentes@email.com",  tipologia: "Colaborador", poblacion: "Avilés",  provincia: "Asturias", fechaAlta: new Date("2023-01-15"), iban: null, entidad: null }, // SIN IBAN
+    { numSocio: 15, nombre: "Víctor",   apellidos: "Ríos Gallardo",    dni: "59012345I", telefono: "985555666", email: "victor.rios@email.com",      tipologia: "Afectado",    poblacion: "Mieres",  provincia: "Asturias", fechaAlta: new Date("2023-06-20"), iban: "ES5566778899001122334455", entidad: "CaixaBank" },
+    { numSocio: 16, nombre: "Amparo",   apellidos: "Nieto Carrasco",   dni: "60123456J", telefono: "985666777", email: "amparo.nieto@email.com",     tipologia: "Afectado",    poblacion: "Oviedo",  provincia: "Asturias", fechaAlta: new Date("2024-03-10"), iban: "ES6677889900112233445566", entidad: "BBVA" },
   ];
 
   const socios = [];
   for (const s of sociosData) {
+    const { iban, entidad, ...socioData } = s;
     const socio = await prisma.socio.upsert({
       where: { numSocio: s.numSocio },
-      update: s,
-      create: s,
+      update: socioData,
+      create: socioData,
     });
-    socios.push(socio);
+    socios.push({ ...socio, iban, entidad });
   }
   console.log(`✅ ${socios.length} socios`);
-
-  // ── Socios adicionales para pruebas de paginación ────────────────────────────
-  const sociosExtra = [
-    { numSocio: 7,  nombre: "Fernando", apellidos: "Castro Vidal",     dni: "71234567A", telefono: "985777888", email: "fernando.castro@email.com",  tipologia: "Afectado",    poblacion: "Oviedo",  provincia: "Asturias", fechaAlta: new Date("2017-03-12") },
-    { numSocio: 8,  nombre: "Marta",    apellidos: "Iglesias Blanco",   dni: "82345678B", telefono: "985888999", email: "marta.iglesias@email.com",   tipologia: "Colaborador", poblacion: "Gijón",   provincia: "Asturias", fechaAlta: new Date("2018-07-20") },
-    { numSocio: 9,  nombre: "Jorge",    apellidos: "Cano Herrera",      dni: "93456789C", telefono: "985999000", email: "jorge.cano@email.com",       tipologia: "Afectado",    poblacion: "Avilés",  provincia: "Asturias", fechaAlta: new Date("2019-11-05") },
-    { numSocio: 10, nombre: "Pilar",    apellidos: "Mora Santana",      dni: "04567890D", telefono: "985100111", email: "pilar.mora@email.com",       tipologia: "Afectado",    poblacion: "Mieres",  provincia: "Asturias", fechaAlta: new Date("2020-04-18") },
-    { numSocio: 11, nombre: "Raúl",     apellidos: "Peña Domínguez",    dni: "15678901E", telefono: "985111222", email: "raul.pena@email.com",        tipologia: "Colaborador", poblacion: "Oviedo",  provincia: "Asturias", fechaAlta: new Date("2021-08-30") },
-    { numSocio: 12, nombre: "Cristina", apellidos: "Vázquez Romero",    dni: "26789012F", telefono: "985222333", email: "cristina.vazquez@email.com", tipologia: "Afectado",    poblacion: "Gijón",   provincia: "Asturias", fechaAlta: new Date("2022-02-14") },
-    { numSocio: 13, nombre: "Emilio",   apellidos: "Lara Medina",       dni: "37890123G", telefono: "985333444", email: "emilio.lara@email.com",      tipologia: "Afectado",    poblacion: "Oviedo",  provincia: "Asturias", fechaAlta: new Date("2022-09-01") },
-    { numSocio: 14, nombre: "Natalia",  apellidos: "Fuentes Aguilar",   dni: "48901234H", telefono: "985444555", email: "natalia.fuentes@email.com",  tipologia: "Colaborador", poblacion: "Avilés",  provincia: "Asturias", fechaAlta: new Date("2023-01-15") },
-    { numSocio: 15, nombre: "Víctor",   apellidos: "Ríos Gallardo",     dni: "59012345I", telefono: "985555666", email: "victor.rios@email.com",      tipologia: "Afectado",    poblacion: "Mieres",  provincia: "Asturias", fechaAlta: new Date("2023-06-20") },
-    { numSocio: 16, nombre: "Amparo",   apellidos: "Nieto Carrasco",    dni: "60123456J", telefono: "985666777", email: "amparo.nieto@email.com",     tipologia: "Afectado",    poblacion: "Oviedo",  provincia: "Asturias", fechaAlta: new Date("2024-03-10") },
-  ];
-
-  for (const s of sociosExtra) {
-    await prisma.socio.upsert({
-      where:  { numSocio: s.numSocio },
-      update: s,
-      create: s,
-    });
-  }
-  console.log(`✅ ${sociosExtra.length} socios adicionales`);
 
   // ── Usuarios ────────────────────────────────────────────────────────────────
   const usuariosData = [
@@ -163,6 +151,7 @@ async function main() {
       diagnostico: "Discapacidad intelectual moderada", porcentajeDiscapacidad: 50, grado: "Grado II",
       centroAlQueAcude: "Centro Nora Oviedo",
       socioVinculadoId: socios[3].id,
+      socioVinculado2Id: socios[4].id, // Segundo socio vinculado (Antonio)
       fechaAlta: new Date("2019-09-05"),
     },
     {
@@ -416,24 +405,19 @@ async function main() {
   console.log(`✅ ${sesionesMarzo} sesiones en Marzo 2026 para ${todosUsuarios.length} usuarios`);
 
   // ── Datos bancarios de socios ────────────────────────────────────────────────
-  const ibansSocios = [
-    "ES9121000418450200051332",
-    "ES8020486778983400057891",
-    "ES7621000418401234567891",
-    "ES6000491500051234567892",
-    "ES5501822200150201504862",
-    "ES2414650100722030876293",
-  ];
   for (let i = 0; i < socios.length; i++) {
-    const existing = await prisma.socioBancario.findFirst({ where: { socioId: socios[i].id } });
+    const socio = socios[i];
+    if (!socio.iban) continue; // Saltar socios sin IBAN
+    
+    const existing = await prisma.socioBancario.findFirst({ where: { socioId: socio.id } });
     if (!existing) {
       await prisma.socioBancario.create({
         data: {
-          socioId: socios[i].id,
-          iban: ibansSocios[i],
+          socioId: socio.id,
+          iban: socio.iban,
           cadencia: "Mensual",
           cuota: 50,
-          entidadBancaria: ["CaixaBank", "BBVA", "Santander", "Sabadell", "Bankinter", "ING"][i],
+          entidadBancaria: socio.entidad,
         },
       });
     }
@@ -489,6 +473,8 @@ async function main() {
     { usuarioId: usuarios[3].id, texto: "Hablar con la familia sobre cambio de horario en septiembre", resuelto: false },
     { usuarioId: usuarios[4].id, texto: "Pendiente informe médico actualizado para la mutua", resuelto: false },
     { usuarioId: usuarios[1].id, texto: "Solicitar plaza en el programa de verano", resuelto: true },
+    { usuarioId: usuarios[2].id, texto: "Revisar adaptaciones en el aula TIC", resuelto: false },
+    { usuarioId: usuarios[5].id, texto: "Coordinar con el colegio para seguimiento", resuelto: true },
   ];
   for (const a of avisosData) {
     const existe = await prisma.aviso.findFirst({ where: { usuarioId: a.usuarioId, texto: a.texto } });
@@ -562,10 +548,81 @@ async function main() {
   }
   console.log(`✅ ${facturasCreadas} facturas de Marzo 2026 generadas (estado: cobrada)`);
 
+  // ── Facturas de Abril 2026 (algunas pendientes, algunas anuladas) ────────────
+  // Generar algunas facturas de abril en diferentes estados para probar
+  const usuariosParaAbril = todosUsuarios.slice(0, 8); // Solo los primeros 8 usuarios
+  let facturasAbril = 0;
+  
+  for (const usuario of usuariosParaAbril) {
+    const existe = await prisma.factura.findFirst({ where: { usuarioId: usuario.id, mes: 4, anio: 2026 } });
+    if (existe) continue;
+
+    const sesionesAbril = await prisma.sesion.findMany({
+      where: {
+        usuarioId: usuario.id,
+        cobrable: true,
+        fecha: { gte: new Date(Date.UTC(2026, 3, 1)), lte: new Date(Date.UTC(2026, 3, 30, 23, 59, 59)) },
+      },
+      include: { servicio: true },
+    });
+
+    if (sesionesAbril.length === 0) continue;
+
+    const agrupado = {};
+    for (const s of sesionesAbril) {
+      if (!agrupado[s.servicioId]) agrupado[s.servicioId] = { servicio: s.servicio, count: 0 };
+      agrupado[s.servicioId].count++;
+    }
+    const lineas   = Object.values(agrupado).map(g => ({
+      servicioId: g.servicio.id, numSesiones: g.count,
+      precioSesion: g.servicio.precio, suma: g.count * g.servicio.precio,
+    }));
+    const subtotal = lineas.reduce((acc, l) => acc + l.suma, 0);
+
+    // Descuento hermanos
+    const usuarioObj = await prisma.usuario.findUnique({ where: { id: usuario.id }, select: { socioVinculadoId: true } });
+    let subtotalHermano = null;
+    if (usuarioObj?.socioVinculadoId) {
+      const hermanos = await prisma.usuario.findMany({
+        where: { socioVinculadoId: usuarioObj.socioVinculadoId, id: { not: usuario.id } }, select: { id: true },
+      });
+      if (hermanos.length > 0) {
+        const fh = await prisma.factura.findMany({
+          where: { usuarioId: { in: hermanos.map(h => h.id) }, mes: 4, anio: 2026 }, select: { subtotal: true },
+        });
+        if (fh.length > 0) subtotalHermano = fh.reduce((acc, f) => acc + f.subtotal, 0);
+      }
+    }
+
+    const aplicarDesc = subtotal > 120 || (subtotalHermano !== null && subtotal + subtotalHermano > 120);
+    const descuento   = aplicarDesc ? subtotal * 0.1 : 0;
+    const total       = subtotal - descuento;
+
+    // numRecibo secuencial
+    const ultima = await prisma.factura.findFirst({ where: { anio: 2026 }, orderBy: { numRecibo: "desc" }, select: { numRecibo: true } });
+    let seq = 1;
+    if (ultima) { const m = ultima.numRecibo.match(/^(\d+)\//); if (m) seq = parseInt(m[1]) + 1; }
+    const numRecibo = `${String(seq).padStart(2, "0")}/2026`;
+
+    // Variar estados: primeras 5 pendientes, siguientes 2 cobradas, última anulada
+    let estado = "pendiente";
+    if (facturasAbril >= 5 && facturasAbril < 7) estado = "cobrada";
+    if (facturasAbril === 7) estado = "anulada";
+
+    await prisma.factura.create({
+      data: { numRecibo, usuarioId: usuario.id, mes: 4, anio: 2026, subtotal, descuento, total, estado, lineas: { create: lineas } },
+    });
+    facturasAbril++;
+  }
+  console.log(`✅ ${facturasAbril} facturas de Abril 2026 generadas (5 pendientes, 2 cobradas, 1 anulada)`);
+
   console.log("\n🎉 Base de datos lista con datos de ejemplo.");
   console.log("   → Credenciales: admin/nora2026 | maria/maria2026 | laura/laura2026 | carmen/carmen2026 | ana/ana2026");
   console.log("   → Facturas de Marzo ya generadas y cobradas.");
-  console.log("   → Genera las facturas de Abril desde Facturación.");
+  console.log("   → Facturas de Abril parcialmente generadas (para probar generación masiva).");
+  console.log("   → 2 socios SIN IBAN (para probar remesas SEPA con exclusiones).");
+  console.log("   → Usuarios con hermanos (para probar descuentos).");
+  console.log("   → Usuario con 2 socios vinculados (Elena Fernández).");
 }
 
 function actividadAleatoria(servicioIdx) {

@@ -1,132 +1,222 @@
-# Sistema de Gestión — Asociación NORA
+# 🏥 Sistema de Gestión — Asociación NORA
 
-Sistema de gestión interna para la **Asociación NORA**, entidad de apoyo a personas con parálisis cerebral y discapacidad múltiple con sede en Pola de Siero, Asturias.
+Sistema web de gestión para la **Asociación NORA**, entidad de apoyo a personas con parálisis cerebral y discapacidad múltiple en Pola de Siero, Asturias.
 
-Desarrollado como propuesta para el **Reto Solidario NTT Data**, sustituyendo el sistema actual basado en hojas de cálculo Excel por una aplicación web moderna, centralizada y accesible.
+Desarrollado para el **Reto Solidario NTT Data 2026**, reemplazando el sistema actual de hojas de cálculo Excel por una aplicación web centralizada.
 
 ---
 
-## Tecnología
+## 🛠 Tecnologías
 
 | Capa | Tecnología |
 |---|---|
-| Frontend | React 19 + Vite + Tailwind CSS + Heroicons |
-| Backend | Node.js + Express |
-| Base de datos | SQLite + Prisma ORM |
-| Validación | Zod |
-| Tests | Jest (39 tests) |
-| Gráficos | Recharts |
-| Contenedores | Docker + nginx |
+| **Frontend** | React 19 + Vite + Tailwind CSS |
+| **Backend** | Node.js + Express |
+| **Base de datos** | SQLite + Prisma ORM |
+| **Validación** | Zod |
+| **Tests** | Jest (39 tests) |
+| **Gráficos** | Recharts |
+| **Contenedores** | Docker + nginx |
 
 Todo open-source, sin costes de licencia.
 
 ---
 
-## Funcionalidades
+## ⚡ Funcionalidades
 
-### Roles de usuario
-- **Admin** — acceso completo a todo el sistema
-- **Terapeutas** — acceso solo a su grid de sesiones y fichas de sus usuarios (sin facturas, socios ni configuración)
-- Credenciales terapeutas: `maria/maria2026`, `laura/laura2026`, `carmen/carmen2026`, `ana/ana2026`
+### 👥 Gestión de Personas
 
-### Gestión de personas
-- **Usuarios** — CRUD completo con datos personales, clínicos (diagnóstico, % discapacidad, grado), socio vinculado y datos bancarios. Dar de baja / reactivar conservando historial. Nº de socio generado automáticamente.
-- **Socios** — CRUD con datos bancarios, IBAN, cadencia y cuota de cobro.
-- **Terapeutas** — Gestión por especialidad con métricas del mes (sesiones, asistencia, cobrables, programadas) y acceso directo al grid de sesiones. Avatar con iniciales.
-- **Fichas individuales** — Vista detallada de cada usuario y socio: datos personales, sesiones del mes, historial de facturas, vínculos, KPIs y avisos. Secciones colapsables.
+**Usuarios (Personas con Discapacidad)**
+- CRUD completo con datos personales, clínicos y bancarios
+- Diagnóstico, % discapacidad, grado de dependencia
+- Vinculación con 1 o 2 socios (padres/tutores)
+- Sistema de bajas que conserva historial
+- Ficha individual con sesiones, facturas y avisos
 
-### Horarios habituales
-- Define qué días acude cada usuario a cada terapia con qué terapeuta
-- Agrupados por terapeuta para facilitar la gestión
-- **Generar mes automáticamente** — crea todas las sesiones del mes en estado "Programada" con un clic, sin duplicar las existentes
-- Modificable en septiembre cuando cambian los horarios del nuevo curso
+**Socios (Familiares/Colaboradores)**
+- Gestión de cuotas y datos bancarios
+- Nº de socio generado automáticamente
+- Vinculación con múltiples usuarios
 
-### Sesiones y asistencia
-- Grid mensual interactivo por terapeuta
-- 7 estados: **Programada**, Asistió, Falta, Festivo, Vacaciones terapeuta, Permiso, Hospitalización
-- Estado "Programada" para planificar sesiones futuras — no cobrable
-- Lógica de cobro automática: se cobra "asistió" y "falta", no se cobra el resto
-- Navegación directa desde Terapeutas al grid de cada terapeuta
+**Terapeutas**
+- 4 especialidades: Logopedia, Psicología, Fisioterapia, T.O.
+- Métricas mensuales en tiempo real
+- Acceso directo a su grid de sesiones
 
-### Facturación
-- Generación automática de facturas desde sesiones del mes
-- Generación masiva para todos los usuarios con un clic
-- Descuento del 10% automático: individual >120€ o suma con hermanos >120€
-- Estados: pendiente, cobrada, anulada
-- Numeración secuencial por año (formato `XX/YYYY`)
-- **Detección de facturas desactualizadas** — aviso cuando las sesiones han cambiado tras generar la factura
-- **Recalculo masivo** — actualiza todas las facturas pendientes del mes con un clic
-- Aviso cuando hay sesiones en estado "Programada" sin actualizar
-- Badge de advertencia por usuario con sesiones programadas pendientes
-- Exportación a Excel con hoja de resumen y hoja de detalle por servicio
+### 📅 Horarios y Sesiones
 
-### PDFs de facturas
-- Generación client-side con jsPDF
-- Formato oficial NORA: logo, datos del usuario, tabla de servicios agrupados por categoría, subtotal, descuento y total
-- Pie de página con lugar y fecha: "En Pola de Siero a..."
+**Horarios Habituales**
+- Define qué días acude cada usuario a cada terapia
+- Generación automática del mes completo con un clic
+- Evita duplicados automáticamente
 
-### Importación de datos
-- Importador Excel/CSV para socios y usuarios
-- Plantillas descargables con datos de ejemplo e instrucciones
-- Validación completa con Zod: DNI, email, teléfono, CP, IBAN (módulo 97), enums
-- Detección de duplicados: actualiza si existe, crea si no
-- Reporte de errores por fila sin detener la importación
+**Grid de Sesiones**
+- Vista mensual por terapeuta
+- 7 estados: Programada, Asistió, Falta, Festivo, Vacaciones, Permiso, Hospitalización
+- Lógica de cobro automática (se cobra "Asistió" y "Falta")
+- Actividad realizada y observaciones por sesión
 
-### Remesas SEPA
-- Generación de fichero XML **PAIN.008.001.02** (estándar europeo de adeudo directo)
-- Preview antes de generar: tabla de adeudos incluidos y excluidos por falta de IBAN
+### 💰 Facturación
+
+- Generación automática desde sesiones del mes
+- Generación masiva para todos los usuarios
+- **Descuento del 10% automático:**
+  - Individual: si factura >120€
+  - Hermanos: si suma de 2 facturas de hermanos >120€ (ambos reciben descuento)
+- Detección de facturas desactualizadas cuando cambian las sesiones
+- Recálculo masivo con un clic
+- Estados: Pendiente / Cobrada / Anulada
+- Numeración secuencial por año (`01/2026`, `02/2026`...)
+- Exportación a Excel con resumen y detalle
+
+### 📄 PDFs de Facturas
+
+- Generación client-side (sin servidor)
+- Formato oficial NORA con logo
+- Tabla de servicios agrupados por categoría
+- Subtotal, descuento y total
+
+### 💳 Remesas SEPA
+
+- Generación de fichero XML **PAIN.008.001.02** (estándar europeo)
+- Preview antes de generar
 - Configurable: mes, año y fecha de cobro
 - Compatible con todos los bancos europeos
 
-### Estadísticas
+### 📊 Estadísticas
+
 - Facturación mensual (subtotal, descuento, total)
 - Distribución de estados de facturas
-- Sesiones mensuales (total, cobrables, asistencia)
-- Actividad por terapeuta y top servicios
+- Sesiones mensuales y tasa de asistencia
+- Actividad por terapeuta
+- Top servicios más utilizados
 - Filtros por año y rango de meses
 
-### Avisos por usuario
-- Notas internas por usuario visibles en su ficha
-- Estados: pendiente (ámbar) / resuelto (tachado)
-- Avisos pendientes visibles en el Dashboard para acceso rápido
+### 📝 Avisos
 
-### Catálogo de servicios
-- 13 servicios con precios del PDF de requisitos
-- 2 centros de hipoterapia reales: Equitación Positiva y Asoc. Asturiana de Terapias Ecuestres
-- Precios de hipoterapia editables desde la interfaz
+- Notas internas por usuario
+- Estados: Pendiente / Resuelto
+- Visibles en Dashboard para acceso rápido
 
----
+### 📥 Importación de Datos
 
-## UX y calidad
+- Importador Excel/CSV para socios y usuarios
+- Plantillas descargables con ejemplos
+- Validación completa (DNI, email, IBAN, etc.)
+- Detección de duplicados
 
-- **Toasts** — notificaciones de éxito/error/aviso con auto-cierre (errores 10s, resto 3.5s)
-- **Skeleton loaders** — placeholders animados en tablas, fichas y gráficos durante la carga
-- **Empty states** — mensajes descriptivos cuando no hay datos o no hay resultados de filtro
-- **SearchSelect** — todos los selectores de usuarios, socios, terapeutas y servicios son filtrables por texto
-- **Menú de acciones** — menú `•••` con portal para evitar recortes en tablas
-- **Animaciones** — modales con fade + slide suave
-- **Mensajes de error legibles** — campos con nombres en español, formato con bullets
-- **Columnas redimensionables** — drag en cabeceras de tabla
-- **Ordenamiento de tablas** — clic en cabecera ordena asc/desc
-- **Filtros avanzados** — por estado, tipología, socio, importe, etc.
-- **Nº Socio automático** — generado por el sistema, no editable manualmente
+### 🎨 Interfaz
+
+- Toasts de notificaciones
+- Skeleton loaders durante carga
+- Empty states cuando no hay datos
+- Selectores filtrables por texto
+- Columnas redimensionables en tablas
+- Ordenamiento por columnas
+- Filtros avanzados
+- Paginación (15 items por página)
 
 ---
 
-## Tests
+## 🚀 Instalación
+
+### Con Docker (Recomendado)
 
 ```bash
-cd backend && npm test
+git clone https://github.com/enolRodriguezHevia/nora-management-system.git
+cd nora-management-system
+docker compose up --build
 ```
 
-39 tests cubriendo:
+**Accede en:** http://localhost
+
+**Credenciales:**
+- Admin: `admin` / `nora2026`
+- Terapeutas: `maria` / `maria2026`, `laura` / `laura2026`, etc.
+
+```bash
+# Comandos útiles
+docker compose down        # Parar
+docker compose down -v     # Parar y borrar datos
+docker compose logs -f     # Ver logs
+```
+
+### Sin Docker (Desarrollo)
+
+**Requisitos:** Node.js 20+
+
+```bash
+# Backend
+cd backend
+npm install
+npx prisma generate
+npx prisma migrate deploy
+npm run db:seed           # Carga datos de ejemplo
+npm run dev               # http://localhost:3001
+
+# Frontend (en otra terminal)
+cd frontend
+npm install
+npm run dev               # http://localhost:5173
+```
+
+---
+
+## 📖 Guía de Uso
+
+### Roles de Usuario
+
+**Admin** — Acceso completo a todo el sistema
+
+**Terapeutas** — Acceso solo a:
+- Su grid de sesiones
+- Fichas de sus usuarios (sin facturas ni avisos)
+
+### Flujo de Trabajo Mensual
+
+1. **Inicio de mes:** Generar sesiones desde Horarios Habituales
+2. **Durante el mes:** Terapeutas actualizan estados de sesiones
+3. **Fin de mes:** Generar facturas masivas
+4. **Revisar:** Facturas desactualizadas (si hay cambios)
+5. **Recalcular:** Si es necesario
+6. **Marcar:** Facturas como "Cobrada"
+7. **Generar:** Remesa SEPA
+8. **Enviar:** XML al banco
+
+### Datos de Ejemplo Incluidos
+
+El sistema viene con:
+- 1 admin + 4 terapeutas con credenciales
+- 16 socios (14 con IBAN, 2 sin IBAN para probar exclusiones SEPA)
+- 24 usuarios con diagnósticos variados
+- Usuarios hermanos para probar descuentos
+- Usuario con 2 socios vinculados (Elena Fernández)
+- 13 servicios con precios reales
+- ~1045 sesiones en marzo y abril 2026
+- 24 facturas de marzo (cobradas)
+- 8 facturas de abril (5 pendientes, 2 cobradas, 1 anulada)
+- 120 horarios habituales configurados
+- 6 avisos de ejemplo
+
+**Listo para probar generación masiva de facturas, remesas SEPA y todo el flujo completo.**
+
+---
+
+## ✅ Tests
+
+```bash
+cd backend
+npm test
+```
+
+**39 tests** cubriendo:
 - Lógica de descuento del 10% (casos individuales, hermanos, casos límite)
 - Generación de numRecibo secuencial
 - Validaciones Zod (DNI, email, teléfono, CP, IBAN con módulo 97, enums)
 
 ---
 
-## Validaciones backend
+## 🔒 Validaciones
 
 Todas las rutas de escritura validan con **Zod** antes de tocar la base de datos:
 
@@ -147,65 +237,50 @@ Los errores devuelven HTTP 422 con lista de campos y mensajes en español.
 
 ---
 
-## Instalación y arranque
-
-### Con Docker (recomendado)
-
-```bash
-docker compose up --build
-```
-
-La aplicación estará disponible en **http://localhost**
-
-Credenciales: `admin` / `nora2026`
-
-```bash
-docker compose down        # Parar
-docker compose down -v     # Parar y borrar datos
-```
-
-### Sin Docker (desarrollo local)
-
-**Requisitos:** Node.js 20+
-
-```bash
-# Backend
-cd backend
-npm install
-npx prisma generate
-npx prisma migrate deploy
-node prisma/seed.js      # Carga datos de ejemplo
-node src/index.js        # http://localhost:3001
-
-# Frontend (otra terminal)
-cd frontend
-npm install
-npm run dev              # http://localhost:5173
-```
-
----
-
-## Datos de ejemplo incluidos
-
-El seed carga automáticamente:
-- Usuario admin: `admin` / `nora2026`
-- 4 terapeutas (Logopeda, Psicóloga, Fisioterapeuta, Terapeuta Ocupacional)
-- 13 servicios con precios reales del PDF de requisitos
-- 6 socios con datos bancarios
-- 9 usuarios con diagnósticos y socios vinculados
-- ~286 sesiones en marzo y abril 2026
-- Facturas generadas para ambos meses
-
----
-
-## Configuración SEPA
+## ⚙️ Configuración SEPA
 
 Para usar las remesas SEPA con datos reales, añade al `backend/.env`:
 
 ```env
 NORA_IBAN=ES00000000000000000000      # IBAN real de la asociación
-NORA_BIC=XXXXXXXX                     # BIC del banco de la asociación
+NORA_BIC=XXXXXXXX                     # BIC del banco
 NORA_CREDITOR_ID=ESxxZZZxxxxxxxx      # Identificador de Acreedor SEPA
 ```
 
 El Identificador de Acreedor SEPA se obtiene a través del banco de la asociación.
+
+---
+
+## 📚 Documentación Adicional
+
+- **[DEMO.md](./DEMO.md)** — Guía paso a paso para probar el sistema
+- **[docs/FACTURACION_PDF.md](./docs/FACTURACION_PDF.md)** — Especificación de PDFs
+- **[docs/ARQUITECTURA.md](./docs/ARQUITECTURA.md)** — Documentación técnica
+
+---
+
+## 📞 Contacto
+
+**Asociación NORA**
+- 📍 Pola de Siero, Asturias
+- 🌐 [asociacionnora.org](https://www.asociacionnora.org)
+
+**Desarrollador**
+- 👤 Enol Rodríguez Hevia
+- 📧 [GitHub](https://github.com/enolRodriguezHevia)
+
+---
+
+## 📄 Licencia
+
+Código abierto bajo licencia MIT.
+
+---
+
+<div align="center">
+
+**Desarrollado para el Reto Solidario NTT Data 2026**
+
+[⬆ Volver arriba](#-sistema-de-gestión--asociación-nora)
+
+</div>
