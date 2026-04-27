@@ -81,22 +81,22 @@ async function main() {
 
   // ── Socios ──────────────────────────────────────────────────────────────────
   const sociosData = [
-    { numSocio: 1, nombre: "Carlos",    apellidos: "Pérez Álvarez",    dni: "12345678A", telefono: "985111222", email: "carlos.perez@email.com",    tipologia: "Afectado",    poblacion: "Oviedo",   provincia: "Asturias", fechaAlta: new Date("2015-03-10"), iban: "ES9121000418450200051332", entidad: "CaixaBank" },
-    { numSocio: 2, nombre: "Isabel",    apellidos: "González Suárez",  dni: "23456789B", telefono: "985222333", email: "isabel.gonzalez@email.com",  tipologia: "Afectado",    poblacion: "Gijón",    provincia: "Asturias", fechaAlta: new Date("2016-06-15"), iban: "ES8020486778983400057891", entidad: "BBVA" },
-    { numSocio: 3, nombre: "Roberto",   apellidos: "Martínez Díaz",    dni: "34567890C", telefono: "985333444", email: "roberto.martinez@email.com", tipologia: "Colaborador", poblacion: "Avilés",   provincia: "Asturias", fechaAlta: new Date("2018-01-20"), iban: "ES7621000418401234567891", entidad: "Santander" },
-    { numSocio: 4, nombre: "Lucía",     apellidos: "Fernández López",  dni: "45678901D", telefono: "985444555", email: "lucia.fernandez@email.com",  tipologia: "Afectado",    poblacion: "Oviedo",   provincia: "Asturias", fechaAlta: new Date("2019-09-05"), iban: "ES6000491500051234567892", entidad: "Sabadell" },
-    { numSocio: 5, nombre: "Antonio",   apellidos: "Rodríguez García", dni: "56789012E", telefono: "985555666", email: "antonio.rodriguez@email.com",tipologia: "Afectado",    poblacion: "Mieres",   provincia: "Asturias", fechaAlta: new Date("2020-02-14"), iban: "ES5501822200150201504862", entidad: "Bankinter" },
-    { numSocio: 6, nombre: "Beatriz",   apellidos: "Sánchez Vega",     dni: "67890123F", telefono: "985666777", email: "beatriz.sanchez@email.com",  tipologia: "Afectado",    poblacion: "Oviedo",   provincia: "Asturias", fechaAlta: new Date("2023-05-20"), iban: "ES2414650100722030876293", entidad: "ING" },
-    { numSocio: 7, nombre: "Fernando",  apellidos: "Castro Vidal",     dni: "71234567A", telefono: "985777888", email: "fernando.castro@email.com",  tipologia: "Afectado",    poblacion: "Oviedo",  provincia: "Asturias", fechaAlta: new Date("2017-03-12"), iban: "ES1234567890123456789012", entidad: "CaixaBank" },
-    { numSocio: 8, nombre: "Marta",     apellidos: "Iglesias Blanco",  dni: "82345678B", telefono: "985888999", email: "marta.iglesias@email.com",   tipologia: "Colaborador", poblacion: "Gijón",   provincia: "Asturias", fechaAlta: new Date("2018-07-20"), iban: null, entidad: null }, // SIN IBAN para probar remesas SEPA
-    { numSocio: 9, nombre: "Jorge",     apellidos: "Cano Herrera",     dni: "93456789C", telefono: "985999000", email: "jorge.cano@email.com",       tipologia: "Afectado",    poblacion: "Avilés",  provincia: "Asturias", fechaAlta: new Date("2019-11-05"), iban: "ES9876543210987654321098", entidad: "BBVA" },
-    { numSocio: 10, nombre: "Pilar",    apellidos: "Mora Santana",     dni: "04567890D", telefono: "985100111", email: "pilar.mora@email.com",       tipologia: "Afectado",    poblacion: "Mieres",  provincia: "Asturias", fechaAlta: new Date("2020-04-18"), iban: "ES1122334455667788990011", entidad: "Santander" },
-    { numSocio: 11, nombre: "Raúl",     apellidos: "Peña Domínguez",   dni: "15678901E", telefono: "985111222", email: "raul.pena@email.com",        tipologia: "Colaborador", poblacion: "Oviedo",  provincia: "Asturias", fechaAlta: new Date("2021-08-30"), iban: "ES2233445566778899001122", entidad: "Sabadell" },
-    { numSocio: 12, nombre: "Cristina", apellidos: "Vázquez Romero",   dni: "26789012F", telefono: "985222333", email: "cristina.vazquez@email.com", tipologia: "Afectado",    poblacion: "Gijón",   provincia: "Asturias", fechaAlta: new Date("2022-02-14"), iban: "ES3344556677889900112233", entidad: "Bankinter" },
-    { numSocio: 13, nombre: "Emilio",   apellidos: "Lara Medina",      dni: "37890123G", telefono: "985333444", email: "emilio.lara@email.com",      tipologia: "Afectado",    poblacion: "Oviedo",  provincia: "Asturias", fechaAlta: new Date("2022-09-01"), iban: "ES4455667788990011223344", entidad: "ING" },
-    { numSocio: 14, nombre: "Natalia",  apellidos: "Fuentes Aguilar",  dni: "48901234H", telefono: "985444555", email: "natalia.fuentes@email.com",  tipologia: "Colaborador", poblacion: "Avilés",  provincia: "Asturias", fechaAlta: new Date("2023-01-15"), iban: null, entidad: null }, // SIN IBAN
-    { numSocio: 15, nombre: "Víctor",   apellidos: "Ríos Gallardo",    dni: "59012345I", telefono: "985555666", email: "victor.rios@email.com",      tipologia: "Afectado",    poblacion: "Mieres",  provincia: "Asturias", fechaAlta: new Date("2023-06-20"), iban: "ES5566778899001122334455", entidad: "CaixaBank" },
-    { numSocio: 16, nombre: "Amparo",   apellidos: "Nieto Carrasco",   dni: "60123456J", telefono: "985666777", email: "amparo.nieto@email.com",     tipologia: "Afectado",    poblacion: "Oviedo",  provincia: "Asturias", fechaAlta: new Date("2024-03-10"), iban: "ES6677889900112233445566", entidad: "BBVA" },
+    { numSocio: 1, nombre: "Carlos",    apellidos: "Pérez Álvarez",    dni: "12345678A", direccion: "C/ Gascona 15",        poblacion: "Oviedo",   cp: "33001", provincia: "Asturias", telefono: "985111222", telefono2: "666111222", email: "carlos.perez@email.com",    tipologia: "Afectado",    fechaAlta: new Date("2015-03-10"), iban: "ES7620950000000000000001", entidad: "CaixaBank" },
+    { numSocio: 2, nombre: "Isabel",    apellidos: "González Suárez",  dni: "23456789B", direccion: "Av. Constitución 45",  poblacion: "Gijón",    cp: "33201", provincia: "Asturias", telefono: "985222333", telefono2: "666222333", email: "isabel.gonzalez@email.com",  tipologia: "Afectado",    fechaAlta: new Date("2016-06-15"), iban: "ES8020486778983400057891", entidad: "BBVA" },
+    { numSocio: 3, nombre: "Roberto",   apellidos: "Martínez Díaz",    dni: "34567890C", direccion: "C/ La Fruta 8",        poblacion: "Avilés",   cp: "33400", provincia: "Asturias", telefono: "985333444", telefono2: "666333444", email: "roberto.martinez@email.com", tipologia: "Colaborador", fechaAlta: new Date("2018-01-20"), iban: "ES7621000418401234567891", entidad: "Santander" },
+    { numSocio: 4, nombre: "Lucía",     apellidos: "Fernández López",  dni: "45678901D", direccion: "C/ Uría 22",           poblacion: "Oviedo",   cp: "33003", provincia: "Asturias", telefono: "985444555", telefono2: "666444555", email: "lucia.fernandez@email.com",  tipologia: "Afectado",    fechaAlta: new Date("2019-09-05"), iban: "ES6000491500051234567892", entidad: "Sabadell" },
+    { numSocio: 5, nombre: "Antonio",   apellidos: "Rodríguez García", dni: "56789012E", direccion: "C/ San Francisco 3",   poblacion: "Mieres",   cp: "33600", provincia: "Asturias", telefono: "985555666", telefono2: "666555666", email: "antonio.rodriguez@email.com",tipologia: "Afectado",    fechaAlta: new Date("2020-02-14"), iban: "ES5501822200150201504862", entidad: "Bankinter" },
+    { numSocio: 6, nombre: "Beatriz",   apellidos: "Sánchez Vega",     dni: "67890123F", direccion: "Av. Galicia 7",        poblacion: "Oviedo",   cp: "33005", provincia: "Asturias", telefono: "985666777", telefono2: "666666777", email: "beatriz.sanchez@email.com",  tipologia: "Afectado",    fechaAlta: new Date("2023-05-20"), iban: "ES2414650100722030876293", entidad: "ING" },
+    { numSocio: 7, nombre: "Fernando",  apellidos: "Castro Vidal",     dni: "71234567A", direccion: "C/ Jovellanos 15",     poblacion: "Oviedo",   cp: "33002", provincia: "Asturias", telefono: "985777888", telefono2: "666777888", email: "fernando.castro@email.com",  tipologia: "Afectado",    fechaAlta: new Date("2017-03-12"), iban: "ES1234567890123456789012", entidad: "CaixaBank" },
+    { numSocio: 8, nombre: "Marta",     apellidos: "Iglesias Blanco",  dni: "82345678B", direccion: "C/ Pelayo 9",          poblacion: "Gijón",    cp: "33202", provincia: "Asturias", telefono: "985888999", telefono2: "666888999", email: "marta.iglesias@email.com",   tipologia: "Colaborador", fechaAlta: new Date("2018-07-20"), iban: null, entidad: null }, // SIN IBAN para probar remesas SEPA
+    { numSocio: 9, nombre: "Jorge",     apellidos: "Cano Herrera",     dni: "93456789C", direccion: "C/ Cervantes 8",       poblacion: "Avilés",   cp: "33401", provincia: "Asturias", telefono: "985999000", telefono2: "666999000", email: "jorge.cano@email.com",       tipologia: "Afectado",    fechaAlta: new Date("2019-11-05"), iban: "ES9876543210987654321098", entidad: "BBVA" },
+    { numSocio: 10, nombre: "Pilar",    apellidos: "Mora Santana",     dni: "04567890D", direccion: "Av. de la Constitución 12", poblacion: "Mieres", cp: "33601", provincia: "Asturias", telefono: "985100111", telefono2: "666100111", email: "pilar.mora@email.com",       tipologia: "Afectado",    fechaAlta: new Date("2020-04-18"), iban: "ES1122334455667788990011", entidad: "Santander" },
+    { numSocio: 11, nombre: "Raúl",     apellidos: "Peña Domínguez",   dni: "15678901E", direccion: "C/ Independencia 45",  poblacion: "Oviedo",   cp: "33004", provincia: "Asturias", telefono: "985111222", telefono2: "666111333", email: "raul.pena@email.com",        tipologia: "Colaborador", fechaAlta: new Date("2021-08-30"), iban: "ES2233445566778899001122", entidad: "Sabadell" },
+    { numSocio: 12, nombre: "Cristina", apellidos: "Vázquez Romero",   dni: "26789012F", direccion: "C/ Corrida 18",        poblacion: "Gijón",    cp: "33203", provincia: "Asturias", telefono: "985222333", telefono2: "666222444", email: "cristina.vazquez@email.com", tipologia: "Afectado",    fechaAlta: new Date("2022-02-14"), iban: "ES3344556677889900112233", entidad: "Bankinter" },
+    { numSocio: 13, nombre: "Emilio",   apellidos: "Lara Medina",      dni: "37890123G", direccion: "Av. de Portugal 5",    poblacion: "Oviedo",   cp: "33006", provincia: "Asturias", telefono: "985333444", telefono2: "666333555", email: "emilio.lara@email.com",      tipologia: "Afectado",    fechaAlta: new Date("2022-09-01"), iban: "ES4455667788990011223344", entidad: "ING" },
+    { numSocio: 14, nombre: "Natalia",  apellidos: "Fuentes Aguilar",  dni: "48901234H", direccion: "C/ La Merced 22",      poblacion: "Avilés",   cp: "33402", provincia: "Asturias", telefono: "985444555", telefono2: "666444666", email: "natalia.fuentes@email.com",  tipologia: "Colaborador", fechaAlta: new Date("2023-01-15"), iban: null, entidad: null }, // SIN IBAN
+    { numSocio: 15, nombre: "Víctor",   apellidos: "Ríos Gallardo",    dni: "59012345I", direccion: "C/ Marqués de Santa Cruz 7", poblacion: "Mieres", cp: "33602", provincia: "Asturias", telefono: "985555666", telefono2: "666555777", email: "victor.rios@email.com",      tipologia: "Afectado",    fechaAlta: new Date("2023-06-20"), iban: "ES5566778899001122334455", entidad: "CaixaBank" },
+    { numSocio: 16, nombre: "Amparo",   apellidos: "Nieto Carrasco",   dni: "60123456J", direccion: "C/ Foncalada 11",      poblacion: "Oviedo",   cp: "33007", provincia: "Asturias", telefono: "985666777", telefono2: "666666888", email: "amparo.nieto@email.com",     tipologia: "Afectado",    fechaAlta: new Date("2024-03-10"), iban: "ES6677889900112233445566", entidad: "BBVA" },
   ];
 
   const socios = [];
@@ -222,21 +222,21 @@ async function main() {
 
   // ── Usuarios adicionales para pruebas de paginación ──────────────────────────
   const usuariosExtra = [
-    { nombre: "Sofía",    apellidos: "Blanco Iglesias",   dni: "10101010A", fechaNacimiento: new Date("2009-03-15"), diagnostico: "Parálisis cerebral espástica",      porcentajeDiscapacidad: 58, grado: "Grado II",  poblacion: "Oviedo",  socioIdx: 0 },
-    { nombre: "Marcos",   apellidos: "Vega Castillo",     dni: "20202020B", fechaNacimiento: new Date("2004-07-22"), diagnostico: "Síndrome de Down",                  porcentajeDiscapacidad: 52, grado: "Grado II",  poblacion: "Gijón",   socioIdx: 1 },
-    { nombre: "Noa",      apellidos: "Prieto Méndez",     dni: "30303030C", fechaNacimiento: new Date("2011-11-30"), diagnostico: "Trastorno del espectro autista",    porcentajeDiscapacidad: 40, grado: "Grado I",   poblacion: "Avilés",  socioIdx: 2 },
-    { nombre: "Hugo",     apellidos: "Cuesta Morales",    dni: "40404040D", fechaNacimiento: new Date("2006-05-08"), diagnostico: "Discapacidad intelectual leve",     porcentajeDiscapacidad: 35, grado: "Grado I",   poblacion: "Oviedo",  socioIdx: 3 },
-    { nombre: "Valentina",apellidos: "Ramos Herrero",     dni: "50505050E", fechaNacimiento: new Date("2013-09-19"), diagnostico: "Retraso madurativo",                porcentajeDiscapacidad: 30, grado: "Grado I",   poblacion: "Mieres",  socioIdx: 4 },
-    { nombre: "Mateo",    apellidos: "Serrano Fuentes",   dni: "60606060F", fechaNacimiento: new Date("2000-02-14"), diagnostico: "Lesión medular cervical",           porcentajeDiscapacidad: 80, grado: "Grado III", poblacion: "Oviedo",  socioIdx: 5 },
-    { nombre: "Daniela",  apellidos: "Ortega Navarro",    dni: "70707070G", fechaNacimiento: new Date("2007-12-03"), diagnostico: "Parálisis cerebral discinética",   porcentajeDiscapacidad: 65, grado: "Grado II",  poblacion: "Gijón",   socioIdx: 0 },
-    { nombre: "Adrián",   apellidos: "Molina Pascual",    dni: "80808080H", fechaNacimiento: new Date("2003-06-27"), diagnostico: "Síndrome de Down",                  porcentajeDiscapacidad: 55, grado: "Grado II",  poblacion: "Oviedo",  socioIdx: 1 },
-    { nombre: "Irene",    apellidos: "Rubio Campos",      dni: "90909090I", fechaNacimiento: new Date("2010-04-11"), diagnostico: "Trastorno del lenguaje",            porcentajeDiscapacidad: 28, grado: "Grado I",   poblacion: "Avilés",  socioIdx: 2 },
-    { nombre: "Álvaro",   apellidos: "Jiménez Torres",    dni: "11223344J", fechaNacimiento: new Date("1999-08-05"), diagnostico: "Discapacidad intelectual moderada", porcentajeDiscapacidad: 48, grado: "Grado II",  poblacion: "Mieres",  socioIdx: 3 },
-    { nombre: "Claudia",  apellidos: "Reyes Montero",     dni: "22334455K", fechaNacimiento: new Date("2008-01-20"), diagnostico: "Parálisis cerebral espástica",      porcentajeDiscapacidad: 62, grado: "Grado II",  poblacion: "Oviedo",  socioIdx: 4 },
-    { nombre: "Samuel",   apellidos: "Guerrero Lozano",   dni: "33445566L", fechaNacimiento: new Date("2005-10-16"), diagnostico: "Trastorno del espectro autista",    porcentajeDiscapacidad: 44, grado: "Grado I",   poblacion: "Gijón",   socioIdx: 5 },
-    { nombre: "Paula",    apellidos: "Delgado Vargas",    dni: "44556677M", fechaNacimiento: new Date("2012-07-09"), diagnostico: "Síndrome de Down",                  porcentajeDiscapacidad: 57, grado: "Grado II",  poblacion: "Oviedo",  socioIdx: 0 },
-    { nombre: "Nicolás",  apellidos: "Soto Pedraza",      dni: "55667788N", fechaNacimiento: new Date("2001-03-25"), diagnostico: "Lesión medular dorsal",             porcentajeDiscapacidad: 72, grado: "Grado III", poblacion: "Avilés",  socioIdx: 1 },
-    { nombre: "Luciana",  apellidos: "Cabrera Espinosa",  dni: "66778899O", fechaNacimiento: new Date("2014-11-07"), diagnostico: "Retraso madurativo",                porcentajeDiscapacidad: 33, grado: "Grado I",   poblacion: "Mieres",  socioIdx: 2 },
+    { nombre: "Sofía",    apellidos: "Blanco Iglesias",   dni: "10101010A", fechaNacimiento: new Date("2009-03-15"), telefono: "985200001", telefono2: "666200001", email: "sofia.blanco@email.com",    direccion: "C/ Argüelles 5",    cp: "33003", diagnostico: "Parálisis cerebral espástica",      porcentajeDiscapacidad: 58, grado: "Grado II",  poblacion: "Oviedo",  socioIdx: 0 },
+    { nombre: "Marcos",   apellidos: "Vega Castillo",     dni: "20202020B", fechaNacimiento: new Date("2004-07-22"), telefono: "985200002", telefono2: "666200002", email: "marcos.vega@email.com",     direccion: "Av. de la Costa 12", cp: "33201", diagnostico: "Síndrome de Down",                  porcentajeDiscapacidad: 52, grado: "Grado II",  poblacion: "Gijón",   socioIdx: 1 },
+    { nombre: "Noa",      apellidos: "Prieto Méndez",     dni: "30303030C", fechaNacimiento: new Date("2011-11-30"), telefono: "985200003", telefono2: "666200003", email: "noa.prieto@email.com",      direccion: "C/ Rivero 8",       cp: "33400", diagnostico: "Trastorno del espectro autista",    porcentajeDiscapacidad: 40, grado: "Grado I",   poblacion: "Avilés",  socioIdx: 2 },
+    { nombre: "Hugo",     apellidos: "Cuesta Morales",    dni: "40404040D", fechaNacimiento: new Date("2006-05-08"), telefono: "985200004", telefono2: "666200004", email: "hugo.cuesta@email.com",     direccion: "C/ Campomanes 15",  cp: "33001", diagnostico: "Discapacidad intelectual leve",     porcentajeDiscapacidad: 35, grado: "Grado I",   poblacion: "Oviedo",  socioIdx: 3 },
+    { nombre: "Valentina",apellidos: "Ramos Herrero",     dni: "50505050E", fechaNacimiento: new Date("2013-09-19"), telefono: "985200005", telefono2: "666200005", email: "valentina.ramos@email.com", direccion: "Av. de Mieres 22",  cp: "33600", diagnostico: "Retraso madurativo",                porcentajeDiscapacidad: 30, grado: "Grado I",   poblacion: "Mieres",  socioIdx: 4 },
+    { nombre: "Mateo",    apellidos: "Serrano Fuentes",   dni: "60606060F", fechaNacimiento: new Date("2000-02-14"), telefono: "985200006", telefono2: "666200006", email: "mateo.serrano@email.com",   direccion: "C/ Fruela 7",       cp: "33002", diagnostico: "Lesión medular cervical",           porcentajeDiscapacidad: 80, grado: "Grado III", poblacion: "Oviedo",  socioIdx: 5 },
+    { nombre: "Daniela",  apellidos: "Ortega Navarro",    dni: "70707070G", fechaNacimiento: new Date("2007-12-03"), telefono: "985200007", telefono2: "666200007", email: "daniela.ortega@email.com",  direccion: "C/ Begoña 18",      cp: "33201", diagnostico: "Parálisis cerebral discinética",   porcentajeDiscapacidad: 65, grado: "Grado II",  poblacion: "Gijón",   socioIdx: 0 },
+    { nombre: "Adrián",   apellidos: "Molina Pascual",    dni: "80808080H", fechaNacimiento: new Date("2003-06-27"), telefono: "985200008", telefono2: "666200008", email: "adrian.molina@email.com",   direccion: "Av. de Castilla 9", cp: "33003", diagnostico: "Síndrome de Down",                  porcentajeDiscapacidad: 55, grado: "Grado II",  poblacion: "Oviedo",  socioIdx: 1 },
+    { nombre: "Irene",    apellidos: "Rubio Campos",      dni: "90909090I", fechaNacimiento: new Date("2010-04-11"), telefono: "985200009", telefono2: "666200009", email: "irene.rubio@email.com",     direccion: "C/ La Cámara 11",   cp: "33400", diagnostico: "Trastorno del lenguaje",            porcentajeDiscapacidad: 28, grado: "Grado I",   poblacion: "Avilés",  socioIdx: 2 },
+    { nombre: "Álvaro",   apellidos: "Jiménez Torres",    dni: "11223344J", fechaNacimiento: new Date("1999-08-05"), telefono: "985200010", telefono2: "666200010", email: "alvaro.jimenez@email.com",  direccion: "C/ Altamirano 3",   cp: "33600", diagnostico: "Discapacidad intelectual moderada", porcentajeDiscapacidad: 48, grado: "Grado II",  poblacion: "Mieres",  socioIdx: 3 },
+    { nombre: "Claudia",  apellidos: "Reyes Montero",     dni: "22334455K", fechaNacimiento: new Date("2008-01-20"), telefono: "985200011", telefono2: "666200011", email: "claudia.reyes@email.com",   direccion: "C/ Postigo 14",     cp: "33001", diagnostico: "Parálisis cerebral espástica",      porcentajeDiscapacidad: 62, grado: "Grado II",  poblacion: "Oviedo",  socioIdx: 4 },
+    { nombre: "Samuel",   apellidos: "Guerrero Lozano",   dni: "33445566L", fechaNacimiento: new Date("2005-10-16"), telefono: "985200012", telefono2: "666200012", email: "samuel.guerrero@email.com",  direccion: "Av. del Llano 6",   cp: "33201", diagnostico: "Trastorno del espectro autista",    porcentajeDiscapacidad: 44, grado: "Grado I",   poblacion: "Gijón",   socioIdx: 5 },
+    { nombre: "Paula",    apellidos: "Delgado Vargas",    dni: "44556677M", fechaNacimiento: new Date("2012-07-09"), telefono: "985200013", telefono2: "666200013", email: "paula.delgado@email.com",    direccion: "C/ Cimadevilla 20", cp: "33002", diagnostico: "Síndrome de Down",                  porcentajeDiscapacidad: 57, grado: "Grado II",  poblacion: "Oviedo",  socioIdx: 0 },
+    { nombre: "Nicolás",  apellidos: "Soto Pedraza",      dni: "55667788N", fechaNacimiento: new Date("2001-03-25"), telefono: "985200014", telefono2: "666200014", email: "nicolas.soto@email.com",     direccion: "C/ Galiana 17",     cp: "33400", diagnostico: "Lesión medular dorsal",             porcentajeDiscapacidad: 72, grado: "Grado III", poblacion: "Avilés",  socioIdx: 1 },
+    { nombre: "Luciana",  apellidos: "Cabrera Espinosa",  dni: "66778899O", fechaNacimiento: new Date("2014-11-07"), telefono: "985200015", telefono2: "666200015", email: "luciana.cabrera@email.com",  direccion: "Av. de Sama 25",    cp: "33600", diagnostico: "Retraso madurativo",                porcentajeDiscapacidad: 33, grado: "Grado I",   poblacion: "Mieres",  socioIdx: 2 },
   ];
 
   for (const u of usuariosExtra) {
@@ -248,9 +248,13 @@ async function main() {
           apellidos:              u.apellidos,
           dni:                    u.dni,
           fechaNacimiento:        u.fechaNacimiento,
+          direccion:              u.direccion,
           poblacion:              u.poblacion,
-          cp:                     "33001",
+          cp:                     u.cp,
           provincia:              "Asturias",
+          telefono:               u.telefono,
+          telefono2:              u.telefono2,
+          email:                  u.email,
           diagnostico:            u.diagnostico,
           porcentajeDiscapacidad: u.porcentajeDiscapacidad,
           grado:                  u.grado,
@@ -423,6 +427,45 @@ async function main() {
     }
   }
   console.log("✅ Datos bancarios de socios");
+
+  // ── Datos bancarios de usuarios ──────────────────────────────────────────────
+  // Añadir IBAN a todos los usuarios (heredado del socio vinculado)
+  console.log("📋 Añadiendo datos bancarios a usuarios...");
+  let usuariosBancariosCreados = 0;
+  
+  for (const usuario of todosUsuarios) {
+    // Obtener el socio vinculado
+    const usuarioCompleto = await prisma.usuario.findUnique({
+      where: { id: usuario.id },
+      include: { socioVinculado: true },
+    });
+    
+    if (!usuarioCompleto?.socioVinculado) continue;
+    
+    // Buscar datos bancarios del socio
+    const datosBancariosSocio = await prisma.socioBancario.findFirst({
+      where: { socioId: usuarioCompleto.socioVinculado.id },
+    });
+    
+    if (!datosBancariosSocio?.iban) continue;
+    
+    // Verificar si ya tiene datos bancarios
+    const existingBancario = await prisma.usuarioBancario.findFirst({
+      where: { usuarioId: usuario.id },
+    });
+    
+    if (!existingBancario) {
+      await prisma.usuarioBancario.create({
+        data: {
+          usuarioId: usuario.id,
+          iban: datosBancariosSocio.iban,
+          entidadBancaria: datosBancariosSocio.entidadBancaria,
+        },
+      });
+      usuariosBancariosCreados++;
+    }
+  }
+  console.log(`✅ ${usuariosBancariosCreados} datos bancarios de usuarios creados`);
 
   // ── Horarios habituales ──────────────────────────────────────────────────────
   // Generar horarios habituales para todos los usuarios activos
