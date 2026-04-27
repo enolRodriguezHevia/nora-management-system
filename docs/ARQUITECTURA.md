@@ -279,36 +279,6 @@ npm test
 
 ---
 
-## 📦 Despliegue
-
-### Docker
-
-```bash
-docker compose up --build
-```
-
-### Producción
-
-Recomendaciones:
-- Migrar a PostgreSQL/MySQL
-- Backend: Railway, Render, Fly.io
-- Frontend: Vercel, Netlify
-- HTTPS obligatorio
-- Backups automáticos
-
----
-
-## 🔮 Mejoras Futuras
-
-- Migrar a PostgreSQL
-- Añadir TypeScript
-- Sistema de backups automáticos
-- Auditoría de cambios
-- Notificaciones por email
-- App móvil
-
----
-
 <div align="center">
 
 [⬆ Volver al README](../README.md)

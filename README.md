@@ -146,19 +146,29 @@ docker compose logs -f     # Ver logs
 **Requisitos:** Node.js 20+
 
 ```bash
-# Backend
+# 1. Clonar repositorio
+git clone https://github.com/enolRodriguezHevia/nora-management-system.git
+cd nora-management-system
+
+# 2. Backend
 cd backend
 npm install
 npx prisma generate
 npx prisma migrate deploy
-npm run db:seed           # Carga datos de ejemplo
-npm run dev               # http://localhost:3001
+node prisma/seed.js      # Carga datos de ejemplo
+npm run dev              # http://localhost:3001
 
-# Frontend (en otra terminal)
+# 3. Frontend (en otra terminal)
 cd frontend
 npm install
-npm run dev               # http://localhost:5173
+npm run dev              # http://localhost:5173
 ```
+
+**Accede en:** http://localhost:5173
+
+**Credenciales:**
+- Admin: `admin` / `nora2026`
+- Terapeutas: `maria` / `maria2026`, `laura` / `laura2026`, etc.
 
 ---
 
@@ -254,26 +264,8 @@ El Identificador de Acreedor SEPA se obtiene a través del banco de la asociaci�
 ## 📚 Documentación Adicional
 
 - **[DEMO.md](./DEMO.md)** — Guía paso a paso para probar el sistema
-- **[docs/FACTURACION_PDF.md](./docs/FACTURACION_PDF.md)** — Especificación de PDFs
+- **[docs/BASE_DE_DATOS.md](./docs/BASE_DE_DATOS.md)** — Diagrama y esquema de base de datos
 - **[docs/ARQUITECTURA.md](./docs/ARQUITECTURA.md)** — Documentación técnica
-
----
-
-## 📞 Contacto
-
-**Asociación NORA**
-- 📍 Pola de Siero, Asturias
-- 🌐 [asociacionnora.org](https://www.asociacionnora.org)
-
-**Desarrollador**
-- 👤 Enol Rodríguez Hevia
-- 📧 [GitHub](https://github.com/enolRodriguezHevia)
-
----
-
-## 📄 Licencia
-
-Código abierto bajo licencia MIT.
 
 ---
 
