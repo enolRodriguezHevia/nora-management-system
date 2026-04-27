@@ -7,6 +7,9 @@ import { FormField, BankField } from "../components/FormField";
 import { useResizableColumns } from "../hooks/useResizableColumns";
 import { useTableSort, SortHeader } from "../hooks/useTableSort.jsx";
 import SearchSelect from "../components/SearchSelect";
+import Pagination from "../components/Pagination";
+
+const POR_PAGINA = 15;
 import RowMenu from "../components/RowMenu";
 import { useToast } from "../components/Toast";
 import { getErrorMessage } from "../utils/errorHandler";
@@ -66,7 +69,7 @@ export default function Users() {
       .finally(() => setLoading(false));
   };
 
-  useEffect(() => { fetchUsuarios(); }, [search]);
+  useEffect(() => { fetchUsuarios(); setPagina(1); }, [search]);
   useEffect(() => { sociosService.getAll().then(r => setSocios(r.data)); }, []);
 
   // Abrir modal de edición si venimos de la ficha con editId
@@ -175,6 +178,8 @@ export default function Users() {
 
   const contadorFiltros = [filtroEstado !== "activos", filtroSocio].filter(Boolean).length;
   const { sorted: usuariosOrdenados, sortKey, sortDir, toggleSort } = useTableSort(usuariosFiltrados, "apellidos");
+  const [pagina, setPagina] = useState(1);
+  const usuariosPagina = usuariosOrdenados.slice((pagina-1)*POR_PAGINA, pagina*POR_PAGINA);
 
   return (
     <div>
@@ -284,7 +289,7 @@ export default function Users() {
                   isFiltered={contadorFiltros > 0}
                 />
               </td></tr>
-            ) : usuariosOrdenados.map(u => (
+            ) : usuariosPagina.map(u => (
               <tr key={u.id} className="hover:bg-gray-50 transition-colors">
                 <td className="px-4 py-3 text-gray-400 font-mono text-xs overflow-hidden text-ellipsis whitespace-nowrap">{u.id}</td>
                 <td className="px-4 py-3 font-medium text-gray-800 overflow-hidden text-ellipsis whitespace-nowrap" title={`${u.nombre} ${u.apellidos}`}>{u.nombre} {u.apellidos}</td>
@@ -313,6 +318,9 @@ export default function Users() {
             ))}
           </tbody>
         </table>
+        <div className="px-4 pb-3">
+          <Pagination page={pagina} total={usuariosOrdenados.length} perPage={POR_PAGINA} onChange={p => setPagina(p)} />
+        </div>
       </div>
 
       {/* Modal */}

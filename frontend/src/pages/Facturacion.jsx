@@ -10,6 +10,9 @@ import { SkeletonTable } from "../components/Skeleton";
 import EmptyState from "../components/EmptyState";
 import { DocumentTextIcon } from "@heroicons/react/24/outline";
 import SearchSelect from "../components/SearchSelect";
+import Pagination from "../components/Pagination";
+
+const POR_PAGINA = 15;
 import { MESES as MESES_LABEL } from "../utils/constants.js";
 
 const ESTADO_COLOR = {
@@ -43,6 +46,7 @@ export default function Facturacion() {
   const [filtroMinImporte, setFiltroMinImporte] = useState("");
   const [filtroMaxImporte, setFiltroMaxImporte] = useState("");
   const [mostrarFiltros, setMostrarFiltros] = useState(false);
+  const [pagina, setPagina] = useState(1);
 
   const fetchFacturas = () => {
     setLoading(true);
@@ -57,6 +61,7 @@ export default function Facturacion() {
 
   useEffect(() => {
     fetchFacturas();
+    setPagina(1);
     sesionesService.programadasCount(mes, anio)
       .then(r => {
         setProgramadasCount(r.data.count);
@@ -145,7 +150,13 @@ export default function Facturacion() {
     return true;
   });
 
+  // Resetear página cuando cambien los filtros
+  useEffect(() => {
+    setPagina(1);
+  }, [filtroEstado, filtroBusqueda, filtroMinImporte, filtroMaxImporte]);
+
   const totalMes = facturasFiltradas.reduce((acc, f) => acc + f.total, 0);
+  const facturasPagina = facturasFiltradas.slice((pagina-1)*POR_PAGINA, pagina*POR_PAGINA);
   const contadorFiltros = [
     filtroEstado !== "todos",
     filtroBusqueda,
@@ -336,7 +347,7 @@ export default function Facturacion() {
                   isFiltered={contadorFiltros > 0}
                 />
               </td></tr>
-            ) : facturasFiltradas.map(f => (
+            ) : facturasPagina.map(f => (
               <tr key={f.id} className="hover:bg-gray-50 transition-colors">
                 <td className="px-4 py-3 font-mono text-xs text-gray-500">{f.numRecibo}</td>
                 <td className="px-4 py-3 font-medium text-gray-800">
@@ -371,6 +382,9 @@ export default function Facturacion() {
             ))}
           </tbody>
         </table>
+        <div className="px-4 pb-3">
+          <Pagination page={pagina} total={facturasFiltradas.length} perPage={POR_PAGINA} onChange={p => setPagina(p)} />
+        </div>
       </div>
 
       {/* Modal detalle factura */}

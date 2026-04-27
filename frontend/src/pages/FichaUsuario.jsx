@@ -7,8 +7,10 @@ import { useToast } from "../components/Toast";
 import { useAuth } from "../context/AuthContext";
 import { Section, InfoRow } from "../components/FichaSection";
 import { MESES, MESES_CORTOS } from "../utils/constants.js";
+import Pagination from "../components/Pagination";
 
 const MESES_ABREV = MESES_CORTOS;
+const POR_PAGINA  = 15;
 
 const ESTADO_SESION = {
   programada:           { label: "Programada",    color: "bg-slate-100 text-slate-600" },
@@ -63,6 +65,8 @@ export default function FichaUsuario() {
   const [tabSesiones, setTabSesiones] = useState("recientes");
   const [nuevoAviso, setNuevoAviso]   = useState("");
   const [savingAviso, setSavingAviso] = useState(false);
+  const [pagSesiones, setPagSesiones] = useState(1);
+  const [pagFacturas, setPagFacturas] = useState(1);
 
   useEffect(() => {
     usuariosService.getById(id)
@@ -101,11 +105,6 @@ export default function FichaUsuario() {
   };
 
   const ahora = new Date();
-  const sesionesMesActual = usuario.sesiones.filter(s => {
-    const f = new Date(s.fecha);
-    return f.getMonth() === ahora.getMonth() && f.getFullYear() === ahora.getFullYear();
-  });
-
   const totalSesiones  = usuario.sesiones.length;
   const asistidas      = usuario.sesiones.filter(s => s.estado === "asistio").length;
   const faltas         = usuario.sesiones.filter(s => s.estado === "falta").length;
@@ -118,7 +117,7 @@ export default function FichaUsuario() {
 
   const tabs = [
     { key: "resumen",  label: "Resumen" },
-    { key: "sesiones", label: "Sesiones", badge: sesionesMesActual.length },
+    { key: "sesiones", label: "Sesiones", badge: totalSesiones },
     ...(isAdmin ? [
       { key: "facturas", label: "Facturas", badge: usuario.facturas.length },
       { key: "avisos",   label: "Avisos",   badge: avisosActivos },
@@ -253,44 +252,13 @@ export default function FichaUsuario() {
           {/* ── TAB SESIONES ── */}
           {tab === "sesiones" && (
             <div className="space-y-5">
-              {/* Mes actual */}
-              <div>
-                <h3 className="text-sm font-semibold text-gray-600 mb-3">
-                  Sesiones de {MESES_ABREV[ahora.getMonth()]} {ahora.getFullYear()}
-                </h3>
-                {sesionesMesActual.length === 0 ? (
-                  <p className="text-sm text-gray-400">Sin sesiones este mes</p>
-                ) : (
-                  <table className="w-full text-sm">
-                    <thead>
-                      <tr className="text-left text-xs text-gray-400 border-b border-gray-100">
-                        <th className="pb-2 pr-3">Fecha</th>
-                        <th className="pb-2 pr-3">Servicio</th>
-                        <th className="pb-2 pr-3">Terapeuta</th>
-                        <th className="pb-2">Estado</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-gray-50">
-                      {sesionesMesActual.map(s => (
-                        <tr key={s.id}>
-                          <td className="py-1.5 pr-3 text-gray-600">{new Date(s.fecha).toLocaleDateString("es-ES", { day: "2-digit", month: "2-digit" })}</td>
-                          <td className="py-1.5 pr-3 text-gray-800">{s.servicio?.nombre}</td>
-                          <td className="py-1.5 pr-3 text-gray-600">{s.terapeuta?.nombre} {s.terapeuta?.apellidos}</td>
-                          <td className="py-1.5"><Badge estado={s.estado} map={ESTADO_SESION} /></td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                )}
-              </div>
-
               {/* Historial */}
               <div>
                 <div className="flex items-center justify-between mb-3">
-                  <h3 className="text-sm font-semibold text-gray-600">Historial completo</h3>
+                  <h3 className="text-sm font-semibold text-gray-600">Historial de sesiones</h3>
                   <div className="flex gap-2">
                     {["recientes", "stats"].map(t => (
-                      <button key={t} onClick={() => setTabSesiones(t)}
+                      <button key={t} onClick={() => { setTabSesiones(t); setPagSesiones(1); }}
                         className={`text-xs px-3 py-1.5 rounded-lg font-medium transition-colors ${tabSesiones === t ? "bg-blue-600 text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200"}`}>
                         {t === "recientes" ? "Lista" : "Por servicio"}
                       </button>
@@ -299,6 +267,7 @@ export default function FichaUsuario() {
                 </div>
 
                 {tabSesiones === "recientes" ? (
+                  <>
                   <table className="w-full text-sm">
                     <thead>
                       <tr className="text-left text-xs text-gray-400 border-b border-gray-100">
@@ -310,7 +279,7 @@ export default function FichaUsuario() {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-50">
-                      {usuario.sesiones.slice(0, 30).map(s => (
+                      {usuario.sesiones.slice((pagSesiones-1)*POR_PAGINA, pagSesiones*POR_PAGINA).map(s => (
                         <tr key={s.id}>
                           <td className="py-1.5 pr-3 text-gray-500 whitespace-nowrap">{fmt(s.fecha)}</td>
                           <td className="py-1.5 pr-3 text-gray-800">{s.servicio?.nombre}</td>
@@ -321,6 +290,8 @@ export default function FichaUsuario() {
                       ))}
                     </tbody>
                   </table>
+                  <Pagination page={pagSesiones} total={usuario.sesiones.length} perPage={POR_PAGINA} onChange={p => { setPagSesiones(p); }} />
+                  </>
                 ) : (
                   <div className="space-y-2">
                     {Object.entries(
@@ -353,6 +324,7 @@ export default function FichaUsuario() {
               {usuario.facturas.length === 0 ? (
                 <p className="text-sm text-gray-400">Sin facturas generadas</p>
               ) : (
+                <>
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="text-left text-xs text-gray-400 border-b border-gray-100">
@@ -366,7 +338,7 @@ export default function FichaUsuario() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-50">
-                    {usuario.facturas.map(f => (
+                    {usuario.facturas.slice((pagFacturas-1)*POR_PAGINA, pagFacturas*POR_PAGINA).map(f => (
                       <tr key={f.id}>
                         <td className="py-2 pr-3 font-mono text-xs text-gray-700">{f.numRecibo}</td>
                         <td className="py-2 pr-3 text-gray-600">{MESES[f.mes - 1]} {f.anio}</td>
@@ -389,6 +361,8 @@ export default function FichaUsuario() {
                     </tr>
                   </tfoot>
                 </table>
+                <Pagination page={pagFacturas} total={usuario.facturas.length} perPage={POR_PAGINA} onChange={p => setPagFacturas(p)} />
+                </>
               )}
             </div>
           )}

@@ -12,6 +12,9 @@ import { getErrorMessage } from "../utils/errorHandler";
 import { SkeletonTable } from "../components/Skeleton";
 import EmptyState from "../components/EmptyState";
 import { UsersIcon } from "@heroicons/react/24/outline";
+import Pagination from "../components/Pagination";
+
+const POR_PAGINA = 15;
 
 // Aliases para los campos de formulario
 const Field = FormField;
@@ -70,7 +73,7 @@ export default function Socios() {
       .finally(() => setLoading(false));
   };
 
-  useEffect(() => { fetchSocios(); }, [search]);
+  useEffect(() => { fetchSocios(); setPagina(1); }, [search]);
 
   // Abrir modal de edición si venimos de la ficha con editId
   useEffect(() => {
@@ -192,6 +195,8 @@ export default function Socios() {
     filtroPoblacion
   ].filter(Boolean).length;
   const { sorted: sociosOrdenados, sortKey, sortDir, toggleSort } = useTableSort(sociosFiltrados, "numSocio");
+  const [pagina, setPagina] = useState(1);
+  const sociosPagina = sociosOrdenados.slice((pagina-1)*POR_PAGINA, pagina*POR_PAGINA);
 
   return (
     <div>
@@ -316,7 +321,7 @@ export default function Socios() {
                   isFiltered={contadorFiltros > 0}
                 />
               </td></tr>
-            ) : sociosOrdenados.map(s => (
+            ) : sociosPagina.map(s => (
               <tr key={s.id} className="hover:bg-gray-50 transition-colors">
                 <td className="px-4 py-3 font-mono text-xs text-gray-500 overflow-hidden text-ellipsis whitespace-nowrap">{s.numSocio}</td>
                 <td className="px-4 py-3 font-medium text-gray-800 overflow-hidden text-ellipsis whitespace-nowrap" title={`${s.nombre} ${s.apellidos}`}>{s.nombre} {s.apellidos}</td>
@@ -345,6 +350,9 @@ export default function Socios() {
             ))}
           </tbody>
         </table>
+        <div className="px-4 pb-3">
+          <Pagination page={pagina} total={sociosOrdenados.length} perPage={POR_PAGINA} onChange={p => setPagina(p)} />
+        </div>
       </div>
 
       {modal && (
