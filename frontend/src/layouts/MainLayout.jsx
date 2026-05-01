@@ -68,7 +68,7 @@ export default function MainLayout({ children }) {
       <aside className="w-52 bg-slate-900 text-white flex flex-col shadow-xl shrink-0">
         <div className="px-5 py-4 border-b border-slate-700/60">
           <h1 className="text-lg font-bold text-white tracking-wide">NORA</h1>
-          <p className="text-xs text-slate-500 mt-0.5">Gestión Interna</p>
+          <p className="text-xs text-slate-500 mt-0.5">NORA Management System</p>
         </div>
 
         <nav className="flex flex-col flex-1 p-2 gap-0.5 overflow-y-auto">

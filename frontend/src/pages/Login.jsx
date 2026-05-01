@@ -35,7 +35,7 @@ export default function Login() {
         {/* Logo */}
         <div className="flex flex-col items-center mb-8">
           <img src="/90f6b-nora.jpg" alt="NORA" className="h-32 w-auto object-contain mb-4 rounded-xl" />
-          <h1 className="text-white text-xl font-bold">Gestión Interna</h1>
+          <h1 className="text-white text-xl font-bold">NORA Management System</h1>
           <p className="text-slate-400 text-sm mt-1">Asociación NORA</p>
         </div>
 

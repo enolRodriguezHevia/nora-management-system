@@ -56,7 +56,7 @@ export default function Dashboard() {
         <div className="flex items-center gap-5">
           <img src="/nora-icono-solo.png" alt="NORA" className="h-16 w-auto object-contain" style={{ mixBlendMode: "multiply" }} />
           <div>
-            <h1 className="text-2xl font-bold text-gray-800">Bienvenido al sistema de gestión</h1>
+            <h1 className="text-2xl font-bold text-gray-800">NORA Management System</h1>
             <p className="text-gray-400 text-sm mt-0.5 capitalize">{mes}</p>
           </div>
         </div>
