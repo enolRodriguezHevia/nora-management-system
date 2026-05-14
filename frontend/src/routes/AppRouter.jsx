@@ -15,6 +15,7 @@ import Sepa         from "../pages/Sepa";
 import Horarios     from "../pages/Horarios";
 import FichaUsuario from "../pages/FichaUsuario";
 import FichaSocio   from "../pages/FichaSocio";
+import Voluntarios  from "../pages/Voluntarios";
 
 function ProtectedRoute({ children, adminOnly = false }) {
   const { user, isAdmin } = useAuth();
@@ -47,6 +48,7 @@ function AppRoutes() {
       <Route path="/importar"    element={<ProtectedRoute adminOnly><Importar /></ProtectedRoute>} />
       <Route path="/sepa"        element={<ProtectedRoute adminOnly><Sepa /></ProtectedRoute>} />
       <Route path="/horarios"    element={<ProtectedRoute adminOnly><Horarios /></ProtectedRoute>} />
+      <Route path="/voluntarios" element={<ProtectedRoute adminOnly><Voluntarios /></ProtectedRoute>} />
       <Route path="*"            element={<Navigate to="/" replace />} />
     </Routes>
   );

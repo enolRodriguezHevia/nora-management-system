@@ -33,6 +33,7 @@ app.use("/api/importar",     requireAdmin, require("./routes/importar"));
 app.use("/api/sepa",         requireAdmin, require("./routes/sepa"));
 app.use("/api/avisos",       requireAdmin, require("./routes/avisos"));
 app.use("/api/horarios",     requireAdmin, require("./routes/horarios"));
+app.use("/api/voluntarios",  requireAdmin, require("./routes/voluntarios"));
 
 app.listen(PORT, () => {
   console.log(`Servidor corriendo en http://localhost:${PORT}`);

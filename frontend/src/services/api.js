@@ -105,4 +105,12 @@ export const avisosService = {
   delete:  (id)        => api.delete(`/avisos/${id}`),
 };
 
+export const voluntariosService = {
+  getAll:  (params)    => api.get("/voluntarios", { params }),
+  getById: (id)        => api.get(`/voluntarios/${id}`),
+  create:  (data)      => api.post("/voluntarios", data),
+  update:  (id, data)  => api.put(`/voluntarios/${id}`, data),
+  delete:  (id)        => api.delete(`/voluntarios/${id}`),
+};
+
 export default api;

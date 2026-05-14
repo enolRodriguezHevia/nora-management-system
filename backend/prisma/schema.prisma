@@ -224,6 +224,29 @@ model HorarioHabitual {
   updatedAt DateTime @updatedAt
 }
 
+// ─── VOLUNTARIOS ─────────────────────────────────────────────────────────────
+
+model Voluntario {
+  id              Int       @id @default(autoincrement())
+  nombre          String
+  apellidos       String
+  dni             String?
+  fechaNacimiento DateTime?
+  telefono        String?
+  email           String?
+  direccion       String?
+  poblacion       String?
+  cp              String?
+  provincia       String?
+  fechaAlta       DateTime?
+  baja            Boolean   @default(false)
+  fechaBaja       DateTime?
+  observaciones   String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
 // ─── AVISOS ───────────────────────────────────────────────────────────────────
 
 model Aviso {
