@@ -1,5 +1,5 @@
 /**
- * Panel de filtros avanzados reutilizable
+ * Panel de filtro avanzados reutilizable
  */
 export default function AdvancedFilters({ 
   isOpen, 
