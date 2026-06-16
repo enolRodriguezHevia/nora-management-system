@@ -1,11 +1,9 @@
-FROM node:20-slim
+FROM node:18-alpine
 
 WORKDIR /app
 
 # Instalar OpenSSL para Prisma
-RUN apt-get update -y --allow-unauthenticated || true && \
-    apt-get install -y --allow-unauthenticated --no-install-recommends openssl && \
-    rm -rf /var/lib/apt/lists/* || true
+RUN apk add --no-cache openssl
 
 # Instalar dependencias
 COPY package*.json ./
