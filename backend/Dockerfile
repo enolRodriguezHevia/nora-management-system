@@ -3,9 +3,9 @@ FROM node:20-slim
 WORKDIR /app
 
 # Instalar OpenSSL para Prisma
-RUN apt-get update -y -o Acquire::AllowInsecureRepositories=true -o Acquire::AllowDowngradeToInsecureRepositories=true && \
-    apt-get install -y --allow-unauthenticated openssl && \
-    rm -rf /var/lib/apt/lists/*
+RUN apt-get update -y --allow-unauthenticated || true && \
+    apt-get install -y --allow-unauthenticated --no-install-recommends openssl && \
+    rm -rf /var/lib/apt/lists/* || true
 
 # Instalar dependencias
 COPY package*.json ./
